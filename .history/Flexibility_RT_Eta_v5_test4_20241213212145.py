@@ -1930,7 +1930,7 @@ for month in np.array(range(1))+12:
 
         
         
-        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/18_Jan_2024/Jan_2024_Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
+        dir_Output = os.path.join('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
                                   H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival  +'_MonthlyTh_Eta_v5_test4.csv')
         filepath = Path(dir_Output)
         filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -1968,7 +1968,7 @@ for month in np.array(range(1))+12:
             
         A = pd.concat([A.reset_index(drop=True),pd.DataFrame(List,columns=[H_Start_RT.strftime("%Y%m%d")])],axis=1).set_index(H_Start_RT.strftime("%Y%m%d"))
                                
-        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/18_Jan_2024/Jan_2024_Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
+        dir_Output = os.path.join('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
                                   H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'_MonthlyTh_Eta_v5_test4_session.csv')
         filepath = Path(dir_Output)
         filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -2082,7 +2082,7 @@ for month in np.array(range(1))+12:
         plt.ylim(ymin, ymax_pw)
   
 
-        path = '/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Plots/Flexibility/Results_Eta_v5_test4_'+ H_Start_RT.strftime("%Y")+'/'+\
+        path = 'C:/Users/Anne/Desktop/Total/Results/Plots/Flexibility/Results_Eta_v5_test4_'+ H_Start_RT.strftime("%Y")+'/'+\
                 Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'/'
         #plt.savefig(path  + H_Start_RT.strftime("%Y%m%d") + '_Implemented_Pw_stair.png', bbox_inches='tight')
         plt.show()

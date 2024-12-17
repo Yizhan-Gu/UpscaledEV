@@ -833,7 +833,7 @@ for month in np.array(range(1))+12:
                         Sess_ArrivalHr = Sess_ArrivalHr + [ArrivalTime.hour + ArrivalTime.minute/60]
                         
                         #based on 'User', import BESS info from Byron's master sheet
-                        UserBess = pd.read_csv("/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Data/PowerFlex input for EV statistics to be plugged into master sheet.csv")
+                        UserBess = pd.read_csv ('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/PowerFlex input for EV statistics to be plugged into master sheet.csv')
                         BESS_kWh = UserBess['Battery (kWh)'][UserBess['Doe Id']==int(Sess_User[0])]
 
                         if len(BESS_kWh)==0:
@@ -1499,7 +1499,7 @@ for month in np.array(range(1))+12:
                                 if ThisUser in list(User_known):                                   
                                     # find the individual driver data file
                                                                             
-                                    Data_ThisUser = pd.read_csv ('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Forecasting/ML_based/Driver_sessions_100/Driver_Sessions/Sessions_Data_'+str(int(ThisUser))+'.csv')
+                                    Data_ThisUser = pd.read_csv ('C:/Users/Anne/Desktop/Total/Code/Avik/Forecasting/ML_based/Driver_sessions_100/Driver_Sessions/Sessions_Data_'+str(int(ThisUser))+'.csv')
                                     #select data earlier than current session
                                     Data_ThisUser['Session start'] = pd.to_datetime(Data_ThisUser['Session start'])
                                     ThisUser_AT = SessInfo_ThisUser['Session start'].iloc[0]
@@ -1598,7 +1598,7 @@ for month in np.array(range(1))+12:
             var_list = [UpperBound[0], SessionkWh_nEta[0][1]]
             name_list = ['UpperBound', 'Session_nEta']
             for var in range(len(var_list)):
-                dir_Output = os.path.join('/Users/admin/Desktop/EV_program/18_Jan_2024/Jan_2024_Data/EV_PF_UCSD/Flexibility/Dispatch/0_'+name_list[var]+'.csv')
+                dir_Output = os.path.join('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/0_'+name_list[var]+'.csv')
                 filepath = Path(dir_Output)
                 filepath.parent.mkdir(parents=True, exist_ok=True)    
                 var_list[var].to_csv(dir_Output, mode='a', index=False, header=True)
@@ -1865,7 +1865,7 @@ for month in np.array(range(1))+12:
                     pd.DataFrame(Dispatch[0][1].iloc[i_t, :]).T]
             name_list = ['MPC', 'UpperBound', 'Session_nEta', 'Dispatch']
             for var in range(len(var_list)):
-                dir_Output = os.path.join('/Users/admin/Desktop/EV_program/18_Jan_2024/Jan_2024_Data/EV_PF_UCSD/Flexibility/Dispatch/1_'+name_list[var]+'.csv')
+                dir_Output = os.path.join('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/1_'+name_list[var]+'.csv')
                 filepath = Path(dir_Output)
                 filepath.parent.mkdir(parents=True, exist_ok=True)    
                 var_list[var].to_csv(dir_Output, mode='a', index=False, header=True)
@@ -1930,7 +1930,7 @@ for month in np.array(range(1))+12:
 
         
         
-        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/18_Jan_2024/Jan_2024_Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
+        dir_Output = os.path.join('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
                                   H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival  +'_MonthlyTh_Eta_v5_test4.csv')
         filepath = Path(dir_Output)
         filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -1968,7 +1968,7 @@ for month in np.array(range(1))+12:
             
         A = pd.concat([A.reset_index(drop=True),pd.DataFrame(List,columns=[H_Start_RT.strftime("%Y%m%d")])],axis=1).set_index(H_Start_RT.strftime("%Y%m%d"))
                                
-        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/18_Jan_2024/Jan_2024_Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
+        dir_Output = os.path.join('C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/' +\
                                   H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'_MonthlyTh_Eta_v5_test4_session.csv')
         filepath = Path(dir_Output)
         filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -2082,7 +2082,7 @@ for month in np.array(range(1))+12:
         plt.ylim(ymin, ymax_pw)
   
 
-        path = '/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Plots/Flexibility/Results_Eta_v5_test4_'+ H_Start_RT.strftime("%Y")+'/'+\
+        path = 'C:/Users/Anne/Desktop/Total/Results/Plots/Flexibility/Results_Eta_v5_test4_'+ H_Start_RT.strftime("%Y")+'/'+\
                 Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'/'
         #plt.savefig(path  + H_Start_RT.strftime("%Y%m%d") + '_Implemented_Pw_stair.png', bbox_inches='tight')
         plt.show()

@@ -2082,7 +2082,7 @@ for month in np.array(range(1))+12:
         plt.ylim(ymin, ymax_pw)
   
 
-        path = '/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Plots/Flexibility/Results_Eta_v5_test4_'+ H_Start_RT.strftime("%Y")+'/'+\
+        path = 'C:/Users/Anne/Desktop/Total/Results/Plots/Flexibility/Results_Eta_v5_test4_'+ H_Start_RT.strftime("%Y")+'/'+\
                 Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'/'
         #plt.savefig(path  + H_Start_RT.strftime("%Y%m%d") + '_Implemented_Pw_stair.png', bbox_inches='tight')
         plt.show()
