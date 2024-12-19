@@ -151,8 +151,7 @@ xmax = t2[-1]
 ymin = -3
 ymax = 105 #203
 
-# create a list of kWh time series for 9 scenarios: V0G, V1Greal, V1Goffline, V1G10, V1G08, V1G06, V1G04, V1G02, V1G00    
-'''   
+# create a list of kWh time series for 9 scenarios: V0G, V1Greal, V1Goffline, V1G10, V1G08, V1G06, V1G04, V1G02, V1G00       
 D_data = [np.array(Dispatch_2022_ThisD['V0G [kWh]']).reshape(96*num_days,1), \
          np.array(Dispatch_2022_ThisD['V1G_real [kWh]']).reshape(96*num_days,1), \
          np.array(Dispatch_2022_ThisD['Opt_DA [kWh]']).reshape(96*num_days,1),\
@@ -169,10 +168,6 @@ D_data = [np.array(Dispatch_2022_ThisD['V0G [kWh]']).reshape(96*num_days,1), \
          np.array(Dispatch_2022_ThisD['LMP_RT']).reshape(96*num_days,1),\
          np.array(Dispatch_2022_ThisD['event hour_Base']).reshape(96*num_days,1),\
          np.array(Dispatch_2022_ThisD['event hour_Case1']).reshape(96*num_days,1)]
-'''
-
-columns = [col for col in Dispatch_2022_ThisD.columns if col != 'interval']
-D_data = [np.array(Dispatch_2022_ThisD[col]).reshape(96*num_days, 1) for col in columns]
     
 
 Pw_V0G          = pd.Series((D_data[0]/unit).reshape(96))

@@ -120,12 +120,13 @@ Fc_AtArrival = 'PerfectatArrival'    # 'PerfectatArrival'  #'MLatArrival'
 #kWh data fron saved data
 dir_Input = os.path.join( '/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Tables/Dispatch' )
 filename_Input = dir_Input + '/2022_'+Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'_MonthlyTh_Eta_v5_test4.csv'
-Dispatch_2022 = pd.read_csv(filename_Input, index_col=None)
+Dispatch_2022 = pd.read_csv(filename_Input)
+print(Dispatch_2022.head())
 
 Dispatch_2022['Interval start'] = pd.to_datetime(Dispatch_2022['Interval start'])
 Dispatch_2022 = Dispatch_2022.drop_duplicates('Interval start',keep='last') 
 
-start_ind = datetime(year, month, 1, 0, 0, 0)
+start_ind = datetime(year, month, 7, 0, 0, 0)
 end_ind = start_ind + timedelta(days=int(1))
 num_days = 1
 start_D = start_ind
@@ -151,8 +152,7 @@ xmax = t2[-1]
 ymin = -3
 ymax = 105 #203
 
-# create a list of kWh time series for 9 scenarios: V0G, V1Greal, V1Goffline, V1G10, V1G08, V1G06, V1G04, V1G02, V1G00    
-'''   
+# create a list of kWh time series for 9 scenarios: V0G, V1Greal, V1Goffline, V1G10, V1G08, V1G06, V1G04, V1G02, V1G00       
 D_data = [np.array(Dispatch_2022_ThisD['V0G [kWh]']).reshape(96*num_days,1), \
          np.array(Dispatch_2022_ThisD['V1G_real [kWh]']).reshape(96*num_days,1), \
          np.array(Dispatch_2022_ThisD['Opt_DA [kWh]']).reshape(96*num_days,1),\
@@ -169,10 +169,6 @@ D_data = [np.array(Dispatch_2022_ThisD['V0G [kWh]']).reshape(96*num_days,1), \
          np.array(Dispatch_2022_ThisD['LMP_RT']).reshape(96*num_days,1),\
          np.array(Dispatch_2022_ThisD['event hour_Base']).reshape(96*num_days,1),\
          np.array(Dispatch_2022_ThisD['event hour_Case1']).reshape(96*num_days,1)]
-'''
-
-columns = [col for col in Dispatch_2022_ThisD.columns if col != 'interval']
-D_data = [np.array(Dispatch_2022_ThisD[col]).reshape(96*num_days, 1) for col in columns]
     
 
 Pw_V0G          = pd.Series((D_data[0]/unit).reshape(96))

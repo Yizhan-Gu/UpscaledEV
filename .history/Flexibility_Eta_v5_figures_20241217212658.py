@@ -173,6 +173,7 @@ D_data = [np.array(Dispatch_2022_ThisD['V0G [kWh]']).reshape(96*num_days,1), \
 
 columns = [col for col in Dispatch_2022_ThisD.columns if col != 'interval']
 D_data = [np.array(Dispatch_2022_ThisD[col]).reshape(96*num_days, 1) for col in columns]
+print(D_data)
     
 
 Pw_V0G          = pd.Series((D_data[0]/unit).reshape(96))
