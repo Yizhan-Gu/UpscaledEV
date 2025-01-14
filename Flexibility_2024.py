@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 27 08:52:16 2023
-
-@author: Anne
+This code is used to calculate the cost analysis of the EV charging station at UCSD
+With the funding from TotalEnergies
+Edited by Yizhan Gu
+Email: yig031@ucsd.edu
 """
 #################################################################################
 # What'a new about this version
