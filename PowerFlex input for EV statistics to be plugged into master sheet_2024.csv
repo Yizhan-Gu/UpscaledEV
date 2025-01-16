@@ -1,0 +1,759 @@
+Year,Make,Model,Display Name,Type,Wh Per Mile,Battery (kWh),Fuel Type 1,Fuel 1 Range (miles),Fuel Type 2,Fuel 2 Range (miles),Charger A Desc,"Hours to Charge (240V, Charger A)",Charger B Desc,"Hours to Charge (240V, Charger B)",Doe Id
+2016,Audi,A3 e-tron,,Plug-in Hybrid,400,6,Premium Gasoline,0,Electricity,16,,2.5,,0,37129
+2017,Audi,A3 e-tron,,Plug-in Hybrid,410,7,Premium Gasoline,0,Electricity,16,,2.5,,0,38228
+2018,Audi,A3 e-tron,,Plug-in Hybrid,410,7,Premium Gasoline,0,Electricity,16,,2.5,,0,39589
+2016,Audi,A3 e-tron ultra,,Plug-in Hybrid,380,6,Premium Gasoline,0,Electricity,17,,2.5,,0,37130
+2021,Audi,A7 quattro,,Plug-in Hybrid,460,11,Premium Gasoline,0,Electricity,24,,2.4,,0,43213
+2022,Audi,A7 TFSI e quattro,,Plug-in Hybrid,480,12,Premium Gasoline,0,Electricity,26,,3,,0,44158
+2020,Audi,A8 L,,Plug-in Hybrid,630,11,Premium Gasoline,0,Electricity,17,,2.4,,0,42447
+2021,Audi,A8 L,,Plug-in Hybrid,630,11,Premium Gasoline,0,Electricity,18,,2.4,,0,43033
+2019,Audi,e-tron,,EV,455,93,Electricity,204,,,,10,,0,41393
+2020,Audi,e-tron,,EV,434,96,Electricity,222,,,,10,,0,42506
+2021,Audi,e-tron,,EV,434,96,Electricity,222,,,,10,,0,43498
+2022,Audi,e-tron GT,,EV,412,98,Electricity,238,,,,10,,0,44776
+2022,Audi,e-tron quattro,,EV,434,96,Electricity,222,,,,10,,0,44920
+2022,Audi,e-tron S (20in wheels),,EV,458,95,Electricity,208,,,,10,,0,44777
+2022,Audi,e-tron S (21in or 22in wheels),,EV,533,96,Electricity,181,,,,10,,0,44778
+2022,Audi,e-tron S Sportback (20in wheels),,EV,449,95,Electricity,212,,,,10,,0,44779
+2022,Audi,e-tron S Sportback (21/22in wheels),,EV,520,96,Electricity,185,,,,10,,0,44780
+2020,Audi,e-tron Sportback,,EV,439,96,Electricity,218,,,,10,,0,42507
+2020,Audi,e-tron Sportback,,EV,439,96,Electricity,218,,,,10,,0,42674
+2021,Audi,e-tron Sportback,,EV,439,96,Electricity,218,,,,10,,0,43499
+2022,Audi,e-tron Sportback quattro,,EV,439,96,Electricity,218,,,,10,,0,44921
+2024,Audi,Q4 50 e-tron quattro,,,,82,,,,,,,,,
+2024,Audi,Q4 55 e-tron quattro,,,,82.4,,,,,,,,,
+2022,Audi,Q4 e-tron quattro,,EV,356,86,Electricity,241,,,,9,,0,44781
+2022,Audi,Q4 e-tron Sportback quattro,,EV,356,86,Electricity,241,,,,9,,0,44782
+2024,Audi,Q4 Sportback 50 e-tron quattro,,,,114,,,,,,,,,
+2020,Audi,Q5,,Plug-in Hybrid,520,10,Premium Gasoline,0,Electricity,20,,2.4,,0,42448
+2021,Audi,Q5,,Plug-in Hybrid,440,8,Premium Gasoline,0,Electricity,19,,2.4,,0,43424
+2022,Audi,Q5 TFSI e quattro,,Plug-in Hybrid,560,13,Premium Gasoline,0,Electricity,23,,3,,0,44159
+2024,Audi,Q8 e-tron quattro,,,,114,,,,,,,,,
+2024,Audi,Q8 Sportback e-tron quattro,,,,114,,,,,,,,,
+2022,Audi,RS e-tron GT,,EV,418,97,Electricity,232,,,,10,,0,44783
+2012,Azure Dynamics,Transit Connect Electric Van,,EV,540,30,Electricity,56,,,,8,,0,31893
+2012,Azure Dynamics,Transit Connect Electric Wagon,,EV,540,30,Electricity,56,,,,8,,0,31894
+2020,Bentley,Bentayga,,Plug-in Hybrid,710,13,Premium Gasoline,0,Electricity,18,,3,,0,42560
+2021,Bentley,Bentayga,,Plug-in Hybrid,730,13,Premium Gasoline,0,Electricity,18,,3,,0,43724
+2022,Bentley,Flying Spur Hybrid,,Plug-in Hybrid,740,16,Premium Gasoline,0,Electricity,21,,3,,0,45287
+2016,BMW,330e,,Plug-in Hybrid,470,7,Premium Gasoline,0,Electricity,14,,2,,0,37289
+2017,BMW,330e,,Plug-in Hybrid,470,7,Premium Gasoline,0,Electricity,14,,2,,0,38081
+2018,BMW,330e,,Plug-in Hybrid,470,7,Premium Gasoline,0,Electricity,14,,2,,0,39407
+2021,BMW,330e,,Plug-in Hybrid,450,10,Premium Gasoline,0,Electricity,23,,3,,0,42569
+2022,BMW,330e Sedan,,Plug-in Hybrid,450,10,Premium Gasoline,0,Electricity,23,,3,,0,45116
+2021,BMW,330e xDrive,,Plug-in Hybrid,510,10,Premium Gasoline,0,Electricity,20,,3,,0,42570
+2022,BMW,330e xDrive Sedan,,Plug-in Hybrid,510,10,Premium Gasoline,0,Electricity,20,,3,,0,45146
+2018,BMW,530e,,Plug-in Hybrid,460,7,Premium Gasoline,0,Electricity,16,,2,,0,38754
+2019,BMW,530e,,Plug-in Hybrid,460,7,Premium Gasoline,0,Electricity,16,,2,,0,40556
+2020,BMW,530e,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,21,,3,,0,42108
+2021,BMW,530e,,Plug-in Hybrid,490,10,Premium Gasoline,0,Electricity,21,,3,,0,43738
+2022,BMW,530e Sedan,,Plug-in Hybrid,490,10,Premium Gasoline,0,Electricity,21,,3,,0,45117
+2018,BMW,530e xDrive,,Plug-in Hybrid,490,7,Premium Gasoline,0,Electricity,15,,2,,0,38755
+2019,BMW,530e xDrive,,Plug-in Hybrid,490,7,Premium Gasoline,0,Electricity,15,,2,,0,40557
+2020,BMW,530e xDrive,,Plug-in Hybrid,520,10,Premium Gasoline,0,Electricity,19,,3,,0,42109
+2021,BMW,530e xDrive,,Plug-in Hybrid,530,10,Premium Gasoline,0,Electricity,19,,3,,0,43739
+2022,BMW,530e xDrive Sedan,,Plug-in Hybrid,530,10,Premium Gasoline,0,Electricity,19,,3,,0,45118
+2017,BMW,740e xDrive,,Plug-in Hybrid,520,7,Premium Gasoline,0,Electricity,14,,3,,0,38045
+2018,BMW,740e xDrive,,Plug-in Hybrid,520,7,Premium Gasoline,0,Electricity,14,,3,,0,38770
+2019,BMW,740e xDrive,,Plug-in Hybrid,520,7,Premium Gasoline,0,Electricity,14,,3,,0,40558
+2020,BMW,745e xDrive,,Plug-in Hybrid,610,10,Premium Gasoline,0,Electricity,16,,4,,0,41373
+2021,BMW,745e xDrive,,Plug-in Hybrid,600,10,Premium Gasoline,0,Electricity,17,,4,,0,42647
+2022,BMW,745e xDrive,,Plug-in Hybrid,600,10,Premium Gasoline,0,Electricity,17,,4,,0,45147
+2011,BMW,Active E,,EV,330,31,Electricity,94,,,,5,,0,32276
+2019,BMW,i3,,EV,297,46,Electricity,153,,,,5,,0,41054
+2020,BMW,i3,,EV,297,46,Electricity,153,,,,7,,0,42512
+2021,BMW,i3,,EV,297,46,Electricity,153,,,,7,,0,43819
+2018,BMW,i3 (94Ah),,EV,286,33,Electricity,114,,,,5,,0,39854
+2018,BMW,i3 (94Ah) with Range Extender,,Plug-in Hybrid,310,30,Premium Gasoline,0,Electricity,97,,5,,0,39834
+2014,BMW,i3 BEV,,EV,270,22,Electricity,81,,,,4,,0,35207
+2015,BMW,i3 BEV,,EV,270,22,Electricity,81,,,,4,,0,36016
+2016,BMW,i3 BEV,,EV,270,22,Electricity,81,,,,4,,0,37216
+2017,BMW,i3 BEV (60  Amp-hour battery),,EV,270,22,Electricity,81,,,,4,,0,38000
+2017,BMW,i3 BEV (94 Amp-hour battery),,EV,290,33,Electricity,114,,,,5,,0,38001
+2014,BMW,i3 REX,,Plug-in Hybrid,290,21,Premium Gasoline,0,Electricity,72,,4,,0,35279
+2015,BMW,i3 REX,,Plug-in Hybrid,290,21,Premium Gasoline,0,Electricity,72,,4,,0,36030
+2016,BMW,i3 REX,,Plug-in Hybrid,290,21,Premium Gasoline,0,Electricity,72,,4,,0,37222
+2017,BMW,i3 REX  (94 Amp-hour battery),,Plug-in Hybrid,300,29,Premium Gasoline,0,Electricity,97,,5,,0,38229
+2019,BMW,i3 with Range Extender,,Plug-in Hybrid,320,40,Premium Gasoline,0,Electricity,126,,7,,0,41211
+2020,BMW,i3 with Range Extender,,Plug-in Hybrid,320,40,Premium Gasoline,0,Electricity,126,,7,,0,42572
+2021,BMW,i3 with Range Extender,,Plug-in Hybrid,320,40,Premium Gasoline,0,Electricity,126,,7,,0,43745
+2019,BMW,i3s,,EV,297,46,Electricity,153,,,,5,,0,41055
+2020,BMW,i3s,,EV,297,46,Electricity,153,,,,7,,0,42513
+2021,BMW,i3s,,EV,297,46,Electricity,153,,,,7,,0,43662
+2018,BMW,i3s (94Ah),,EV,299,32,Electricity,107,,,,5,,0,39855
+2018,BMW,i3s (94Ah) with Range Extender,,Plug-in Hybrid,310,30,Premium Gasoline,0,Electricity,97,,5,,0,39835
+2019,BMW,i3s with Range Extender,,Plug-in Hybrid,320,40,Premium Gasoline,0,Electricity,126,,7,,0,41212
+2020,BMW,i3s with Range Extender,,Plug-in Hybrid,320,40,Premium Gasoline,0,Electricity,126,,7,,0,42573
+2021,BMW,i3s with Range Extender,,Plug-in Hybrid,320,40,Premium Gasoline,0,Electricity,126,,7,,0,43746
+2024,BMW,i4 eDrive35 Gran Coupe (18 inch Wheels),,,,84,,,,,,,,,
+2024,BMW,i4 eDrive35 Gran Coupe (19 inch Wheels),,,,84,,,,,,,,,
+2024,BMW,i4 eDrive40 Gran Coupe (18 inch Wheels),,,,84,,,,,,,,,
+2022,BMW,i4 eDrive40 Gran Coupe (18in Wheels),,EV,309,93,Electricity,301,,,,10,,0,45133
+2024,BMW,i4 eDrive40 Gran Coupe (19 inch Wheels),,,,84,,,,,,,,,
+2022,BMW,i4 eDrive40 Gran Coupe (19in Wheels),,EV,339,96,Electricity,282,,,,10,,0,45134
+2024,BMW,i4 M50 Gran Coupe (19 inch wheels),,,,105,,,,,,,,,
+2022,BMW,i4 M50 Gran Coupe (19in Wheels),,EV,352,95,Electricity,270,,,,10,,0,45131
+2024,BMW,i4 M50 Gran Coupe (20 inch wheels),,,,105,,,,,,,,,
+2022,BMW,i4 M50 Gran Coupe (20in Wheels),,EV,423,96,Electricity,227,,,,10,,0,45132
+2024,BMW,i4 xDrive40 Gran Coupe (19 inch Wheels),,,,105,,,,,,,,,
+2024,BMW,i5 eDrive40 Sedan (19 inch Wheels),,,,84,,,,,,,,,
+2024,BMW,i5 eDrive40 Sedan (20 inch Wheels),,,,84,,,,,,,,,
+2024,BMW,i7 eDrive50 Sedan (21 inch Wheels),,,,105,,,,,,,,,
+2014,BMW,i8,,Plug-in Hybrid,430,6,Premium Gasoline,0,Electricity,15,,2,,0,35599
+2015,BMW,i8,,Plug-in Hybrid,430,6,Premium Gasoline,0,Electricity,15,,2,,0,36031
+2016,BMW,i8,,Plug-in Hybrid,430,6,Premium Gasoline,0,Electricity,15,,2,,0,37223
+2017,BMW,i8,,Plug-in Hybrid,430,6,Premium Gasoline,0,Electricity,15,,2,,0,38230
+2019,BMW,I8 Coupe,,Plug-in Hybrid,490,9,Premium Gasoline,0,Electricity,18,,3,,0,40079
+2020,BMW,I8 Coupe,,Plug-in Hybrid,490,9,Premium Gasoline,0,Electricity,18,,3,,0,42369
+2019,BMW,I8 Roadster,,Plug-in Hybrid,490,9,Premium Gasoline,0,Electricity,18,,3,,0,40080
+2020,BMW,I8 Roadster,,Plug-in Hybrid,490,9,Premium Gasoline,0,Electricity,18,,3,,0,42370
+2023,BMW,iX M60 (21in Wheels),,EV,435,125,Electricity,288,,,,12,,0,45326
+2023,BMW,iX M60 (22in Wheels),,EV,429,118,Electricity,274,,,,12,,0,45327
+2024,BMW,iX xDrive50 (20 inch wheels),,,,111,,,,,,,,,
+2022,BMW,iX xDrive50 (20in Wheels),,EV,389,126,Electricity,324,,,,12,,0,45135
+2024,BMW,iX xDrive50 (21 inch wheels),,,,111,,,,,,,,,
+2022,BMW,iX xDrive50 (21in Wheels),,EV,406,124,Electricity,305,,,,12,,0,45136
+2024,BMW,iX xDrive50 (22 inch wheels),,,,111,,,,,,,,,
+2022,BMW,iX xDrive50 (22in Wheels),,EV,392,124,Electricity,315,,,,12,,0,45137
+2020,BMW,X3 xDrive30e,,Plug-in Hybrid,560,10,Premium Gasoline,0,Electricity,18,,3,,0,42524
+2021,BMW,X3 xDrive30e,,Plug-in Hybrid,560,10,Premium Gasoline,0,Electricity,18,,3,,0,43740
+2016,BMW,X5 xDrive40e,,Plug-in Hybrid,590,8,Premium Gasoline,0,Electricity,14,,3,,0,37068
+2017,BMW,X5 xDrive40e,,Plug-in Hybrid,590,8,Premium Gasoline,0,Electricity,14,,3,,0,38169
+2018,BMW,X5 xDrive40e,,Plug-in Hybrid,590,8,Premium Gasoline,0,Electricity,14,,3,,0,39526
+2021,BMW,X5 xDrive45e,,Plug-in Hybrid,630,20,Premium Gasoline,0,Electricity,31,,5,,0,42807
+2022,BMW,X5 xDrive45e,,Plug-in Hybrid,630,20,Premium Gasoline,0,Electricity,31,,5,,0,45119
+2012,BYD,e6,,EV,540,66,Electricity,122,,,,6,,0,33383
+2014,BYD,e6,,EV,540,69,Electricity,127,,,,6,,0,34859
+2013,BYD,e6,,EV,540,69,Electricity,127,,,,6,,0,34860
+2016,BYD,e6,,EV,470,88,Electricity,187,,,,5,,0,37800
+2017,BYD,e6,,EV,470,88,Electricity,187,,,,5,,0,38591
+2018,BYD,e6,,EV,466,87,Electricity,187,,,,5,,0,39880
+2020,BYD,e6,,EV,466,87,Electricity,187,,,,5,,0,42088
+2017,Cadillac,CT6 Plug-In,,Plug-in Hybrid,540,17,Premium Gasoline,0,Electricity,31,,4.5,,0,38650
+2018,Cadillac,CT6 Plug-In,,Plug-in Hybrid,540,17,Premium Gasoline,0,Electricity,31,,4.5,,0,39767
+2014,Cadillac,ELR,,Plug-in Hybrid,410,15,Premium Gasoline,0,Electricity,37,,5,,0,34770
+2015,Cadillac,ELR,,Plug-in Hybrid,410,15,Premium Gasoline,0,Electricity,37,,5,,0,35317
+2016,Cadillac,ELR,,Plug-in Hybrid,390,16,Premium Gasoline,0,Electricity,40,,5,,0,36862
+2016,Cadillac,ELR Sport,,Plug-in Hybrid,430,15,Premium Gasoline,0,Electricity,36,,5,,0,37131
+2024,Chevrolet,Blazer EV AWD,,,,99,,,,,,,,,
+2022,Chevrolet,Bolt EUV,,EV,294,73,Electricity,247,,,,7.5,,0,43954
+2017,Chevrolet,Bolt EV,,EV,283,67,Electricity,238,,,,9.3,,0,38187
+2018,Chevrolet,Bolt EV,,EV,283,67,Electricity,238,,,,9.3,,0,39786
+2019,Chevrolet,Bolt EV,,EV,283,67,Electricity,238,,,,9.3,,0,40520
+2020,Chevrolet,Bolt EV,,EV,286,74,Electricity,259,,,,10,,0,42191
+2021,Chevrolet,Bolt EV,,EV,286,74,Electricity,259,,,,10,,0,43663
+2022,Chevrolet,Bolt EV,,EV,281,73,Electricity,259,,,,7.5,,0,43955
+1998,Chevrolet,S10 Electric,,EV,620,20,Electricity,33,,,,0,,0,30976
+1998,Chevrolet,S10 Electric,,EV,1210,87,Electricity,72,,,,0,,0,30977
+2024,Chevrolet,Silverado EV,,,,188,,,,,,,,,
+2014,Chevrolet,Spark EV,,EV,280,23,Electricity,82,,,,7,,0,33640
+2015,Chevrolet,Spark EV,,EV,283,23,Electricity,82,,,,7,,0,35120
+2016,Chevrolet,Spark EV,,EV,283,23,Electricity,82,,,,7,,0,36996
+2011,Chevrolet,Volt,,Plug-in Hybrid,360,13,Premium Gasoline,0,Electricity,35,,4,,0,30980
+2012,Chevrolet,Volt,,Plug-in Hybrid,360,13,Premium Gasoline,0,Electricity,35,,4,,0,31618
+2013,Chevrolet,Volt,,Plug-in Hybrid,350,13,Premium Gasoline,0,Electricity,38,,4,,0,32655
+2014,Chevrolet,Volt,,Plug-in Hybrid,350,13,Premium Gasoline,0,Electricity,38,,4,,0,33900
+2015,Chevrolet,Volt,,Plug-in Hybrid,350,13,Premium Gasoline,0,Electricity,38,,4,,0,35246
+2016,Chevrolet,Volt,,Plug-in Hybrid,310,16,Regular Gasoline,0,Electricity,53,,4.5,,0,36863
+2017,Chevrolet,Volt,,Plug-in Hybrid,310,16,Regular Gasoline,0,Electricity,53,,4.5,,0,37309
+2018,Chevrolet,Volt,,Plug-in Hybrid,310,16,Regular Gasoline,0,Electricity,53,,4.5,,0,39190
+2019,Chevrolet,Volt,,Plug-in Hybrid,310,16,Regular Gasoline,0,Electricity,53,,4.5,,2.3,40924
+2015,Chevrolet,VTRUX LS,VTRUX LS,EV,400,24,Electricity,60,,,Standard Charger,3.2,,,2
+2017,Chrysler,Pacifica Hybrid,,Plug-in Hybrid,400,13,Regular Gasoline,0,Electricity,33,,2,,0,38491
+2018,Chrysler,Pacifica Hybrid,,Plug-in Hybrid,400,13,Regular Gasoline,0,Electricity,33,,2,,0,39483
+2019,Chrysler,Pacifica Hybrid,,Plug-in Hybrid,410,13,Regular Gasoline,0,Electricity,32,,2,,0,40830
+2020,Chrysler,Pacifica Hybrid,,Plug-in Hybrid,410,13,Regular Gasoline,0,Electricity,32,,2,,0,41943
+2021,Chrysler,Pacifica Hybrid,,Plug-in Hybrid,410,13,Regular Gasoline,0,Electricity,32,,2,,0,43497
+2022,Chrysler,Pacifica Hybrid,,Plug-in Hybrid,410,13,Regular Gasoline,0,Electricity,32,,2,,0,44930
+2024,Chrysler,Pacifica Hybrid,,,,16,,,,,,,,,
+2012,CODA Automotive,CODA,,EV,460,40,Electricity,88,,,,6,,0,32277
+2013,CODA Automotive,CODA,,EV,460,40,Electricity,88,,,,6,,0,33337
+1999,Dodge,Caravan/Grand Caravan 2WD,,EV,960,67,Electricity,70,,,,0,,0,30973
+2024,Dodge,Hornet PHEV AWD,,,,15,,,,,,,,,
+2022,Ferrari,296 GTB,,Plug-in Hybrid,720,6,Premium Gasoline,0,Electricity,8,,2.5,,0,45398
+2022,Ferrari,SF90 Spider,,Plug-in Hybrid,770,6,Premium Gasoline,0,Electricity,8,,2.5,,0,45179
+2022,Ferrari,SF90 Stradale,,Plug-in Hybrid,660,6,Premium Gasoline,0,Electricity,9,,2.5,,0,44983
+2021,Ferrari,SF90 Stradale Coupe,,Plug-in Hybrid,660,6,Premium Gasoline,0,Electricity,9,,2.5,,0,43296
+2013,Fiat,500e,,EV,290,25,Electricity,87,,,,4,,0,33396
+2014,Fiat,500e,,EV,290,25,Electricity,87,,,,4,,0,34392
+2015,Fiat,500e,,EV,291,25,Electricity,87,,,,4,,0,35206
+2016,Fiat,500e,,EV,299,25,Electricity,84,,,,4,,0,37156
+2017,Fiat,500e,,EV,299,25,Electricity,84,,,,4,,0,37798
+2018,Fiat,500e,,EV,299,25,Electricity,84,,,,4,,0,39959
+2019,Fiat,500e,,EV,299,25,Electricity,84,,,,4,,0,41143
+2012,Fisker,Karma,,Plug-in Hybrid,621,20,Premium Gasoline,0,Electricity,33,,6,,0,32516
+2013,Ford,C-MAX Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,33336
+2014,Ford,C-MAX Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,34662
+2015,Ford,C-MAX Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,35765
+2016,Ford,C-MAX Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,36932
+2017,Ford,C-MAX Energi Plug-In Hybrid,,Plug-in Hybrid,350,7,Regular Gasoline,0,Electricity,20,,2.5,,0,38506
+2020,Ford,Escape FWD PHEV,,Plug-in Hybrid,330,12,Regular Gasoline,0,Electricity,37,,3.3,,0,42743
+2021,Ford,Escape FWD PHEV,,Plug-in Hybrid,320,12,Regular Gasoline,0,Electricity,37,,3.3,,0,43912
+2022,Ford,Escape FWD PHEV,,Plug-in Hybrid,320,12,Regular Gasoline,0,Electricity,37,,3.3,,0,44931
+2001,Ford,Explorer USPS Electric,,EV,870,33,Electricity,38,,,,0,,0,17330
+2002,Ford,Explorer USPS Electric,,EV,870,33,Electricity,38,,,,0,,0,18291
+2022,Ford,F-150 Lightning 4WD,,EV,493,114,Electricity,230,,,,11.9,,0,45318
+2022,Ford,F-150 Lightning 4WD Extended Range,,EV,479,153,Electricity,320,,,,10.1,,0,45317
+2022,Ford,F-150 Lightning Platinum 4WD,,EV,507,152,Electricity,300,,,,9.3,,0,45316
+2012,Ford,Focus Electric,,EV,320,24,Electricity,76,,,,4,,0,32278
+2013,Ford,Focus Electric,,EV,320,24,Electricity,76,,,,4,,0,33024
+2014,Ford,Focus Electric,,EV,320,24,Electricity,76,,,,3.6,,0,34130
+2015,Ford,Focus Electric,,EV,320,24,Electricity,76,,,,3.6,,0,35970
+2016,Ford,Focus Electric,,EV,320,24,Electricity,76,,,,3.6,,0,36978
+2017,Ford,Focus Electric,,EV,310,36,Electricity,115,,,,5.5,,0,38505
+2018,Ford,Focus Electric,,EV,314,36,Electricity,115,,,,5.5,,0,39640
+2013,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,33398
+2014,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,34089
+2015,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,35277
+2016,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,370,7,Regular Gasoline,0,Electricity,20,,2.5,,0,36248
+2017,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,350,8,Regular Gasoline,0,Electricity,22,,2.5,,0,37470
+2018,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,350,7,Regular Gasoline,0,Electricity,21,,2.5,,0,39408
+2019,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,330,9,Regular Gasoline,0,Electricity,26,,2.6,,0,40809
+2020,Ford,Fusion Energi Plug-in Hybrid,,Plug-in Hybrid,330,9,Regular Gasoline,0,Electricity,26,,2.6,,0,41899
+2020,Ford,Fusion Special Service PHEV,,Plug-in Hybrid,330,9,Regular Gasoline,0,Electricity,26,,2.6,,0,41900
+2019,Ford,Fusion Special Service Vehicle PHEV,,Plug-in Hybrid,330,9,Regular Gasoline,0,Electricity,26,,2.6,,0,41226
+2021,Ford,Mustang Mach-E AWD,,EV,363,77,Electricity,211,,,,8.5,,0,43602
+2022,Ford,Mustang Mach-E AWD,,EV,363,81,Electricity,224,,,,8,,0,45138
+2024,Ford,Mustang Mach-E AWD,,,,91.4,,,,,,,,,
+2021,Ford,Mustang Mach-E AWD Extended,,EV,372,101,Electricity,270,,,,10.7,,0,43603
+2022,Ford,Mustang Mach-E AWD Extended,,EV,370,103,Electricity,277,,,,10.7,,0,45139
+2022,Ford,MUSTANG MACH-E CAL RT 1 ER AWD,,EV,343,107,Electricity,312,,,,11.4,,0,45140
+2022,Ford,MUSTANG MACH-E CAL RT 1 ER RWD,,EV,333,105,Electricity,314,,,,10.1,,0,45141
+2021,Ford,Mustang Mach-E GT,,EV,401,108,Electricity,270,,,,10.3,,0,44797
+2022,Ford,Mustang Mach-E GT,,EV,401,109,Electricity,270,,,,10.3,,0,45142
+2021,Ford,Mustang Mach-E GT Performance,,EV,411,107,Electricity,260,,,,10.1,,0,44798
+2022,Ford,Mustang Mach-E GT Performance,,EV,411,107,Electricity,260,,,,10.1,,0,45143
+2021,Ford,Mustang Mach-E RWD,,EV,338,78,Electricity,230,,,,8.8,,0,43604
+2022,Ford,Mustang Mach-E RWD,,EV,326,81,Electricity,247,,,,8.1,,0,45144
+2024,Ford,Mustang Mach-E RWD,,,,116.4,,,,,,,,,
+2021,Ford,Mustang Mach-E RWD California Route 1,,EV,333,102,Electricity,305,,,,11.4,,0,43683
+2021,Ford,Mustang Mach-E RWD Extended,,EV,346,104,Electricity,300,,,,10.9,,0,43605
+2022,Ford,Mustang Mach-E RWD Extended,,EV,346,105,Electricity,303,,,,10.9,,0,45145
+2001,Ford,Ranger Pickup 2WD,,EV,580,29,Electricity,50,,,,0,,0,30965
+2000,Ford,Ranger Pickup 2WD,,EV,580,29,Electricity,50,,,,0,,0,30966
+2000,Ford,Ranger Pickup 2WD,,EV,600,39,Electricity,65,,,,0,,0,30967
+1999,Ford,Ranger Pickup 2WD,,EV,580,29,Electricity,50,,,,0,,0,30971
+1999,Ford,Ranger Pickup 2WD,,EV,720,40,Electricity,55,,,,0,,0,30972
+2001,Ford,Th!nk,,EV,520,15,Electricity,29,,,,0,,0,17329
+2024,Genesis,Electrified G80,,,,87,,,,,,,,,
+2023,Genesis,GV60 ADVANCE,,EV,354,88,Electricity,248,,,,7.2,,0,45328
+2024,Genesis,GV60 Advanced (19 inch Wheels),,,,77,,,,,,,,,
+2023,Genesis,GV60 PERFORMANCE,,EV,368,87,Electricity,235,,,,7.2,,0,45329
+1999,GMC,EV1,,EV,400,22,Electricity,55,,,,0,,0,30968
+1999,GMC,EV1,,EV,910,96,Electricity,105,,,,0,,0,30969
+2014,Honda,Accord Plug-in Hybrid,,Plug-in Hybrid,290,4,Regular Gasoline,0,Electricity,13,,0.67,,0,33557
+2017,Honda,Clarity EV,,EV,300,27,Electricity,89,,,,4,,0,39191
+2018,Honda,Clarity EV,,EV,295,26,Electricity,89,,,,4,,0,40044
+2019,Honda,Clarity EV,,EV,295,26,Electricity,89,,,,4,,0,41185
+2018,Honda,Clarity Plug-in Hybrid,,Plug-in Hybrid,310,15,Regular Gasoline,0,Electricity,48,,2.2,,0,39782
+2019,Honda,Clarity Plug-in Hybrid,,Plug-in Hybrid,310,15,Regular Gasoline,0,Electricity,48,,2.2,,0,41183
+2020,Honda,Clarity Plug-in Hybrid,,Plug-in Hybrid,310,15,Regular Gasoline,0,Electricity,48,,2.2,,0,42480
+2021,Honda,Clarity Plug-in Hybrid,Clarity PHEV,Plug-in Hybrid,310,15,Regular Gasoline,0,Electricity,48,,2.2,,0,42983
+1999,Honda,EV Plus,,EV,710,58,Electricity,81,,,,0,,0,30970
+1998,Honda,EV Plus,,EV,710,58,Electricity,81,,,,0,,0,30975
+2013,Honda,Fit EV,,EV,290,24,Electricity,82,,,,4,,0,33265
+2014,Honda,Fit EV,,EV,290,24,Electricity,82,,,,4,,0,33905
+2024,Honda,Prologue AWD Elite,,,,100.1,,,,,,,,,
+2024,Honda,Prologue AWD Touring,,,,100.1,,,,,,,,,
+2024,Honda,Prologue FWD,,,,100.1,,,,,,,,,
+2022,Hyundai,Ioniq 5 AWD (Long Range),,EV,343,88,Electricity,256,,,,8.5,,0,44922
+2024,Hyundai,Ioniq 5 Long range AWD,,,,77,,,,,,,,,
+2024,Hyundai,Ioniq 5 Long range RWD,,,,77,,,,,,,,,
+2022,Hyundai,Ioniq 5 RWD (Long Range),,EV,300,91,Electricity,303,,,,8.5,,0,44923
+2022,Hyundai,Ioniq 5 RWD (Standard Range),,EV,310,68,Electricity,220,,,,6.3,,0,44924
+2024,Hyundai,Ioniq 5 Standard range RWD,,,,58,,,,,,,,,
+2024,Hyundai,Ioniq 6 Long range RWD (18 inch Wheels),,,,77,,,,,,,,,
+2024,Hyundai,Ioniq 6 Long range RWD (20 inch Wheels),,,,77,,,,,,,,,
+2024,Hyundai,Ioniq 6 Standard Range RWD,,,,53,,,,,,,,,
+2017,Hyundai,Ioniq Electric,,EV,250,31,Electricity,124,,,,4,,0,38431
+2018,Hyundai,Ioniq Electric,,EV,250,31,Electricity,124,,,,4,,0,39641
+2019,Hyundai,Ioniq Electric,,EV,250,31,Electricity,124,,,,4,,0,40384
+2020,Hyundai,Ioniq Electric,,EV,253,43,Electricity,170,,,,5.8,,0,42273
+2021,Hyundai,Ioniq Electric,,EV,253,43,Electricity,170,,,,5.8,,0,43879
+2018,Hyundai,Ioniq Plug-in Hybrid,,Plug-in Hybrid,280,8,Regular Gasoline,0,Electricity,29,,2.3,,0,39768
+2019,Hyundai,Ioniq Plug-in Hybrid,,Plug-in Hybrid,280,8,Regular Gasoline,0,Electricity,29,,2.3,,0,40810
+2020,Hyundai,Ioniq Plug-in Hybrid,,Plug-in Hybrid,280,8,Regular Gasoline,0,Electricity,29,,2.3,,0,42290
+2021,Hyundai,Ioniq Plug-in Hybrid,,Plug-in Hybrid,280,8,Regular Gasoline,0,Electricity,29,,2.25,,0,43725
+2022,Hyundai,Ioniq Plug-in Hybrid,,Plug-in Hybrid,280,8,Regular Gasoline,0,Electricity,29,,2.25,,0,44160
+2019,Hyundai,Kona Electric,,EV,280,72,Electricity,258,,,,9,,0,40585
+2020,Hyundai,Kona Electric,,EV,274,71,Electricity,258,,,,9,,0,42089
+2021,Hyundai,Kona Electric,,EV,270,70,Electricity,258,,,,9,,0,43747
+2022,Hyundai,Kona Electric,,EV,280,72,Electricity,258,,,,9.5,,0,44444
+2024,Hyundai,Kona Electric Long Range,,,,48,,,,,,,,,
+2022,Hyundai,Santa Fe Plug-in Hybrid,,Plug-in Hybrid,440,14,Regular Gasoline,0,Electricity,31,,3.4,,0,44024
+2016,Hyundai,Sonata Plug-in Hybrid,,Plug-in Hybrid,340,9,Regular Gasoline,0,Electricity,27,,2.7,,0,36998
+2017,Hyundai,Sonata Plug-in Hybrid,,Plug-in Hybrid,340,9,Regular Gasoline,0,Electricity,27,,2.7,,0,38046
+2018,Hyundai,Sonata Plug-in Hybrid,,Plug-in Hybrid,340,10,Regular Gasoline,0,Electricity,28,,2.7,,0,40066
+2019,Hyundai,Sonata Plug-in Hybrid,,Plug-in Hybrid,340,10,Regular Gasoline,0,Electricity,28,,2.7,,0,41144
+2022,Hyundai,Tucson Plug-in Hybrid,,Plug-in Hybrid,420,14,Regular Gasoline,0,Electricity,33,,1.7,,0,44360
+2024,Hyundai,Tucson Plug-in Hybrid,,,,13,,,,,,,,,
+2019,Jaguar,I-Pace,,EV,442,104,Electricity,234,,,,13,,0,40986
+2020,Jaguar,I-Pace,,EV,443,104,Electricity,234,,,,13,,0,41413
+2021,Jaguar,I-Pace EV320,,EV,443,104,Electricity,234,,,,13,,0,43888
+2021,Jaguar,I-Pace EV400,,EV,443,104,Electricity,234,,,,13,,0,43889
+2022,Jeep,Grand Cherokee 4xe,,Plug-in Hybrid,580,15,Regular Gasoline,0,Electricity,26,,3.4,,0,45148
+2024,Jeep,Grand Cherokee 4xe,,,,17,,,,,,,,,
+2021,Jeep,Wrangler 4dr 4xe,,Plug-in Hybrid,680,15,Regular Gasoline,0,Electricity,22,,2.4,,0,43801
+2022,Jeep,Wrangler 4dr 4xe,,Plug-in Hybrid,680,15,Regular Gasoline,0,Electricity,22,,2.4,,0,44932
+2024,Jeep,Wrangler 4dr 4xe,,,,17,,,,,,,,,
+2021,Kandi,K27,,EV,295,17,Electricity,59,,,,7,,0,43640
+2021,Karma,GS-6 (21-inch wheels),,Plug-in Hybrid,480,29,Premium Gasoline,0,Electricity,61,,6.25,,0,43606
+2021,Karma,GS-6 (22-inch wheels),,Plug-in Hybrid,540,29,Premium Gasoline,0,Electricity,54,,6.25,,0,43607
+2018,Karma,Revero,,Plug-in Hybrid,560,21,Premium Gasoline,0,Electricity,37,,3.75,,0,39409
+2019,Karma,Revero,,Plug-in Hybrid,560,21,Premium Gasoline,0,Electricity,37,,3.75,,0,41978
+2020,Karma,Revero GT (21-inch wheels),,Plug-in Hybrid,480,29,Premium Gasoline,0,Electricity,61,,6.25,,0,42291
+2021,Karma,Revero GT (21-inch wheels),,Plug-in Hybrid,480,29,Premium Gasoline,0,Electricity,61,,6.25,,0,43481
+2021,Karma,Revero GT (22-inch wheels),,Plug-in Hybrid,540,29,Premium Gasoline,0,Electricity,54,,6.25,,0,43482
+2022,Kia,EV6 AWD (Long Range),,EV,317,87,Electricity,274,,,,8.4,,0,44925
+2024,Kia,EV6 Long Range RWD,,,,77,,,,,,,,,
+2022,Kia,EV6 RWD (Long Range),,EV,290,90,Electricity,310,,,,8.7,,0,44926
+2022,Kia,EV6 RWD (Standard Range),,EV,290,67,Electricity,232,,,,6.3,,0,44927
+2024,Kia,EV9 Long Range AWD,,,,99,,,,,,,,,
+2024,Kia,EV9 Long Range AWD GT-Line,,,,99,,,,,,,,,
+2024,Kia,EV9 Long Range RWD,,,,99,,,,,,,,,
+2024,Kia,EV9 Standard Range RWD,,,,76,,,,,,,,,
+2019,Kia,Niro Electric,,EV,300,72,Electricity,239,,,,9.5,,0,41060
+2020,Kia,Niro Electric,,EV,300,72,Electricity,239,,,,9.5,,0,42514
+2021,Kia,Niro Electric,,EV,300,72,Electricity,239,,,,9.5,,0,43820
+2022,Kia,Niro Electric,,EV,300,72,Electricity,239,,,,9.5,,0,44445
+2024,Kia,Niro Electric,,,,64,,,,,,,,,
+2018,Kia,Niro Plug-in Hybrid,,Plug-in Hybrid,320,8,Regular Gasoline,0,Electricity,26,,2.25,,0,39799
+2019,Kia,Niro Plug-in Hybrid,,Plug-in Hybrid,320,8,Regular Gasoline,0,Electricity,26,,2.25,,0,40863
+2020,Kia,Niro Plug-in Hybrid,,Plug-in Hybrid,320,8,Regular Gasoline,0,Electricity,26,,2.25,,0,42354
+2021,Kia,Niro Plug-in Hybrid,,Plug-in Hybrid,320,8,Regular Gasoline,0,Electricity,26,,2.25,,0,43686
+2022,Kia,Niro Plug-in Hybrid,,Plug-in Hybrid,320,8,Regular Gasoline,0,Electricity,26,,2.25,,0,44211
+2017,Kia,Optima Plug-in Hybrid,,Plug-in Hybrid,330,10,Regular Gasoline,0,Electricity,29,,2.7,,0,38406
+2018,Kia,Optima Plug-in Hybrid,,Plug-in Hybrid,330,10,Regular Gasoline,0,Electricity,29,,2.7,,0,39783
+2019,Kia,Optima Plug-in Hybrid,,Plug-in Hybrid,330,10,Regular Gasoline,0,Electricity,29,,2.7,,0,40811
+2020,Kia,Optima Plug-in Hybrid,,Plug-in Hybrid,330,9,Regular Gasoline,0,Electricity,28,,2.7,,0,41529
+2022,Kia,Sorento Plug-in Hybrid,,Plug-in Hybrid,430,14,Regular Gasoline,0,Electricity,32,,3.4,,0,44361
+2015,Kia,Soul Electric,,EV,319,30,Electricity,93,,,,4,,0,35601
+2016,Kia,Soul Electric,,EV,319,30,Electricity,93,,,,4,,0,36553
+2017,Kia,Soul Electric,,EV,319,30,Electricity,93,,,,4,,0,38168
+2018,Kia,Soul Electric,,EV,312,35,Electricity,111,,,,5,,0,39322
+2019,Kia,Soul Electric,,EV,312,35,Electricity,111,,,,5,,0,40768
+2020,Kia,Soul Electric,,EV,300,73,Electricity,243,,,,9.5,,0,41235
+2020,Kia,Soul Electric,,EV,291,71,Electricity,243,,,,9.5,,0,43412
+2024,Kia,Sportage Plug-in Hybrid,,,,13,,,,,,,,,
+2019,Land,Rover Range Rover PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,42373
+2020,Land,Rover Range Rover PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,42375
+2021,Land,Rover Range Rover PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,43321
+2019,Land,Rover Range Rover Sport PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,42374
+2020,Land,Rover Range Rover Sport PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,42376
+2021,Land,Rover Range Rover Sport PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,43322
+2022,Land,Rover Range Rover Sport PHEV,,Plug-in Hybrid,800,15,Premium Gasoline,0,Electricity,19,,3,,0,44212
+2022,Lexus,NX 450h Plus AWD,,Plug-in Hybrid,400,15,Premium Gasoline,0,Electricity,37,,4.5,,0,44933
+2024,Lexus,NX 450h Plus AWD,,,,18,,,,,,,,,
+2024,Lexus,RZ 300e (18 inch wheels),,,,72.8,,,,,,,,,
+2024,Lexus,RZ 300e (20 inch wheels),,,,72.8,,,,,,,,,
+2020,Lincoln,Aviator PHEV AWD,,Plug-in Hybrid,600,13,Regular Gasoline,0,Electricity,21,,3.5,,0,42377
+2021,Lincoln,Aviator PHEV AWD,,Plug-in Hybrid,600,13,Regular Gasoline,0,Electricity,21,,3.5,,0,43214
+2022,Lincoln,Aviator PHEV AWD,,Plug-in Hybrid,600,13,Regular Gasoline,0,Electricity,21,,3.5,,0,44497
+2021,Lincoln,Corsair AWD PHEV,,Plug-in Hybrid,430,12,Regular Gasoline,0,Electricity,28,,3.4,,0,43774
+2022,Lincoln,Corsair AWD PHEV,,Plug-in Hybrid,430,12,Regular Gasoline,0,Electricity,28,,3.5,,0,44934
+2022,Lucid,Air Dream P AWD w/19in wheels,,EV,291,137,Electricity,471,,,,13,,0,44491
+2022,Lucid,Air Dream P AWD w/21in wheels,,EV,304,137,Electricity,451,,,,13,,0,44492
+2022,Lucid,Air Dream R AWD w/19in wheels,,EV,268,140,Electricity,520,,,,13,,0,44493
+2022,Lucid,Air Dream R AWD w/21in wheels,,EV,291,140,Electricity,481,,,,13,,0,44494
+2022,Lucid,Air G Touring AWD w/19in wheels,,EV,257,133,Electricity,516,,,,13,,0,44495
+2022,Lucid,Air G Touring AWD w/21in wheels,,EV,277,130,Electricity,469,,,,13,,0,44496
+2022,Mazda,MX-30,,EV,367,37,Electricity,100,,,,5.3,,0,44784
+2023,McLaren Automotive,Artura,,Plug-in Hybrid,860,9,Premium Gasoline,0,Electricity,11,,3.5,,0,45395
+2014,McLaren Automotive,P1,,Plug-in Hybrid,250,5,Premium Gasoline,0,Electricity,19,,3,,0,35600
+2015,McLaren Automotive,P1,,Plug-in Hybrid,250,5,Premium Gasoline,0,Electricity,19,,3,,0,35652
+2016,Mercedes-Benz,B250e,,EV,402,35,Electricity,87,,,,3.5,,0,36997
+2017,Mercedes-Benz,B250e,,EV,402,35,Electricity,87,,,,3.5,,0,38002
+2014,Mercedes-Benz,B-Class Electric Drive,,EV,400,35,Electricity,87,,,,3.5,,0,35247
+2015,Mercedes-Benz,B-Class Electric Drive,,EV,400,35,Electricity,87,,,,3.5,,0,35960
+2016,Mercedes-Benz,C350e,,Plug-in Hybrid,560,6,Premium Gasoline,0,Electricity,11,,1.5,,0,38499
+2017,Mercedes-Benz,C350e,,Plug-in Hybrid,560,5,Premium Gasoline,0,Electricity,9,,1.5,,0,38969
+2018,Mercedes-Benz,C350e,,Plug-in Hybrid,560,5,Premium Gasoline,0,Electricity,9,,1.5,,0,39853
+2024,Mercedes-Benz,EQB 300 4matic,,,,72.2,,,,,,,,,
+2024,Mercedes-Benz,EQE 350 4matic (SUV),,,,88.9,,,,,,,,,
+2024,Mercedes-Benz,EQE 350 Plus,,,,95,,,,,,,,,
+2024,Mercedes-Benz,EQE 350 Plus (SUV),,,,101.6,,,,,,,,,
+2022,Mercedes-Benz,EQS 450 Plus,,EV,350,122,Electricity,350,,,,12.5,,0,44785
+2022,Mercedes-Benz,EQS 580 4matic,,EV,355,121,Electricity,340,,,,12.5,,0,45023
+2024,Mercedes-Benz,EQS 580 4matic,,,,107,,,,,,,,,
+2018,Mercedes-Benz,GLC350e 4matic,,Plug-in Hybrid,590,6,Premium Gasoline,0,Electricity,10,,1.9,,0,39881
+2019,Mercedes-Benz,GLC350e 4matic,,Plug-in Hybrid,590,6,Premium Gasoline,0,Electricity,10,,1.9,,0,41132
+2020,Mercedes-Benz,GLC350e 4matic,,Plug-in Hybrid,490,11,Premium Gasoline,0,Electricity,22,,1.3,,0,42756
+2016,Mercedes-Benz,GLE550e 4matic,,Plug-in Hybrid,680,8,Premium Gasoline,0,Electricity,12,,1.9,,0,37526
+2017,Mercedes-Benz,GLE550e 4matic,,Plug-in Hybrid,690,8,Premium Gasoline,0,Electricity,12,,1.9,,0,38459
+2018,Mercedes-Benz,GLE550e 4matic,,Plug-in Hybrid,690,7,Premium Gasoline,0,Electricity,10,,1.9,,0,39742
+2015,Mercedes-Benz,S550e,,Plug-in Hybrid,590,8,Premium Gasoline,0,Electricity,14,,2.75,,0,36515
+2016,Mercedes-Benz,S550e,,Plug-in Hybrid,590,8,Premium Gasoline,0,Electricity,14,,2.75,,0,37161
+2017,Mercedes-Benz,S550e,,Plug-in Hybrid,590,8,Premium Gasoline,0,Electricity,14,,1.9,,0,38460
+2019,Mercedes-Benz,S560e,,Plug-in Hybrid,530,10,Premium Gasoline,0,Electricity,19,,1.3,,0,42209
+2020,Mercedes-Benz,S560e,,Plug-in Hybrid,530,10,Premium Gasoline,0,Electricity,19,,1.3,,0,42525
+2018,MINI,Cooper SE Countryman All4,,Plug-in Hybrid,510,6,Premium Gasoline,0,Electricity,12,,2,,0,38863
+2019,MINI,Cooper SE Countryman All4,,Plug-in Hybrid,510,6,Premium Gasoline,0,Electricity,12,,3,,0,40157
+2020,MINI,Cooper SE Countryman All4,,Plug-in Hybrid,460,8,Premium Gasoline,0,Electricity,18,,2,,0,42371
+2021,MINI,Cooper SE Countryman All4,Cooper SE All4,Plug-in Hybrid,460,8,Premium Gasoline,0,Electricity,18,,2,,0,43143
+2022,MINI,Cooper SE Countryman All4,,Plug-in Hybrid,460,8,Premium Gasoline,0,Electricity,18,,2,,0,43965
+2023,MINI,Cooper SE Countryman All4,,Plug-in Hybrid,460,8,Premium Gasoline,0,Electricity,18,,2,,0,45331
+2020,MINI,Cooper SE Hardtop 2 door,,EV,312,34,Electricity,110,,,,4,,0,42508
+2021,MINI,Cooper SE Hardtop 2 door,Cooper SE Hardtop 2D,EV,312,34,Electricity,110,,,,4,,0,42634
+2022,MINI,Cooper SE Hardtop 2 door,,EV,307,35,Electricity,114,,,,4,,0,43953
+2023,MINI,Cooper SE Hardtop 2 door,,EV,307,35,Electricity,114,,,,4,,0,45330
+2024,MINI,Cooper SE Hardtop 2 door,,,,32,,,,,,,,,
+2008,MINI,MiniE,,EV,340,34,Electricity,100,,,,0,,0,30978
+2012,Mitsubishi,i-MiEV,,EV,300,19,Electricity,62,,,,7,,0,31673
+2013,Mitsubishi,i-MiEV,,EV,300,19,Electricity,62,,,,7,,0,33358
+2014,Mitsubishi,i-MiEV,,EV,300,19,Electricity,62,,,,7,,0,34901
+2016,Mitsubishi,i-MiEV,,EV,300,19,Electricity,62,,,,7,,0,36023
+2017,Mitsubishi,i-MiEV,,EV,300,18,Electricity,59,,,,7,,0,37293
+2018,Mitsubishi,Outlander PHEV,,Plug-in Hybrid,450,10,Regular Gasoline,0,Electricity,22,,3.5,,0,39830
+2019,Mitsubishi,Outlander PHEV,,Plug-in Hybrid,450,10,Regular Gasoline,0,Electricity,22,,3.5,,0,41133
+2020,Mitsubishi,Outlander PHEV,,Plug-in Hybrid,450,10,Regular Gasoline,0,Electricity,22,,3.5,,0,42110
+2021,Mitsubishi,Outlander PHEV,,Plug-in Hybrid,450,11,Regular Gasoline,0,Electricity,24,,4,,0,43726
+2022,Mitsubishi,Outlander PHEV,,Plug-in Hybrid,450,11,Regular Gasoline,0,Electricity,24,,4,,0,44460
+2024,Mitsubishi,Outlander PHEV,,,,19,,,,,,,,,
+2000,Nissan,Altra EV,,EV,400,36,Electricity,90,,,,0,,0,16423
+2024,Nissan,ARIYA ENGAGE FWD 63kWh,,,,65.8,,,,,,,,,
+2024,Nissan,ARIYA EVOLVE+/EMPOWER+ FWD 87kWh,,,,90.8,,,,,,,,,
+2001,Nissan,Hyper-Mini,,EV,450,15,Electricity,33,,,,0,,0,17331
+2011,Nissan,Leaf,,EV,340,25,Electricity,73,,,,7,,0,30979
+2012,Nissan,Leaf,,EV,340,25,Electricity,73,,,,7,,0,32154
+2013,Nissan,Leaf,,EV,290,22,Electricity,75,,,3.6 kW charger,7,6.6 kW charger,4,33558
+2014,Nissan,Leaf,,EV,300,25,Electricity,84,,,3.6 kW charger,8,6.6 kW charger,5,34699
+2015,Nissan,Leaf,,EV,296,25,Electricity,84,,,3.6 kW charger,8,6.6 kW charger,5,34918
+2017,Nissan,Leaf,,EV,299,32,Electricity,107,,,6.6 kW charger,6,,0,38428
+2018,Nissan,Leaf,,EV,300,45,Electricity,151,,,,8,,0,39860
+2024,Nissan,LEAF,,,,40,,,,,,,,,
+2016,Nissan,Leaf (24 kW-hr battery pack),Leaf (24 kW-hr battery),EV,296,25,Electricity,84,,,3.6 kW charger,8,6.6 kW charger,5,37066
+2016,Nissan,Leaf (30 kW-hr battery pack),Leaf (30 kW-hr battery),EV,299,32,Electricity,107,,,6.6 kW charger,6,,0,37067
+2019,Nissan,Leaf (40 kW-hr battery pack),Leaf (40 kW-hr battery),EV,301,45,Electricity,150,,,,8,,0,40812
+2020,Nissan,Leaf (40 kW-hr battery pack),,EV,304,45,Electricity,149,,,,8,,0,42561
+2021,Nissan,Leaf (40 kW-hr battery pack),,EV,304,45,Electricity,149,,,,8,,0,43664
+2022,Nissan,Leaf (40 kW-hr battery pack),,EV,304,45,Electricity,149,,,,8,,0,44446
+2019,Nissan,Leaf (62 kW-hr battery pack),Leaf (62 kW-hr battery),EV,310,70,Electricity,226,,,,11,,0,41276
+2020,Nissan,Leaf (62 kW-hr battery pack),,EV,313,71,Electricity,226,,,,11,,0,42562
+2021,Nissan,Leaf (62 kW-hr battery pack),,EV,313,71,Electricity,226,,,,11,,0,43665
+2022,Nissan,Leaf (62 kW-hr battery pack),,EV,313,71,Electricity,226,,,,11,,0,44447
+2019,Nissan,Leaf SV/SL (62 kW-hr battery pack),Leaf SV/SL (62 kW-hr battery),EV,322,69,Electricity,215,,,,11,,0,41277
+2020,Nissan,Leaf SV/SL (62 kW-hr battery pack),,EV,322,69,Electricity,215,,,,11,,0,42563
+2021,Nissan,Leaf SV/SL (62 kW-hr battery pack),,EV,322,69,Electricity,215,,,,11,,0,43666
+2022,Nissan,Leaf SV/SL (62 kW-hr battery pack),,EV,322,69,Electricity,215,,,,11,,0,44448
+1999,Plymouth,Voyager/Grand Voyager 2WD,,EV,960,67,Electricity,70,,,,0,,0,30974
+2020,Polestar,1,,Plug-in Hybrid,570,30,Premium Gasoline,0,Electricity,52,,9,,0,42744
+2021,Polestar,1,,Plug-in Hybrid,570,30,Premium Gasoline,0,Electricity,52,,9,,0,43144
+2021,Polestar,2,,EV,366,85,Electricity,233,,,,8,,0,43294
+2022,Polestar,2 Dual Motor,,EV,378,94,Electricity,249,,,,8,,0,44449
+2024,Polestar,2 Dual Motor (19 Inch Wheels),,,,77,,,,,,,,,
+2024,Polestar,2 Dual Motor (20 Inch Wheels),,,,77,,,,,,,,,
+2024,Polestar,2 Dual Motor Performance Pack,,,,77,,,,,,,,,
+2022,Polestar,2 Single Motor,,EV,314,85,Electricity,270,,,,8,,0,44928
+2024,Polestar,2 Single Motor (19 Inch Wheels),,,,81,,,,,,,,,
+2015,Porsche,918 Spyder,,Plug-in Hybrid,500,6,Premium Gasoline,0,Electricity,12,,3,,0,34856
+2019,Porsche,Cayenne e-Hybrid,,Plug-in Hybrid,720,9,Premium Gasoline,0,Electricity,13,,3,,0,41901
+2020,Porsche,Cayenne e-Hybrid,,Plug-in Hybrid,710,10,Premium Gasoline,0,Electricity,14,,3,,0,42580
+2021,Porsche,Cayenne e-Hybrid,,Plug-in Hybrid,720,12,Premium Gasoline,0,Electricity,17,,3,,0,43775
+2020,Porsche,Cayenne e-Hybrid Coupe,,Plug-in Hybrid,710,10,Premium Gasoline,0,Electricity,14,,3,,0,42581
+2021,Porsche,Cayenne e-Hybrid Coupe,,Plug-in Hybrid,720,12,Premium Gasoline,0,Electricity,17,,3,,0,43776
+2015,Porsche,Cayenne S e-Hybrid,,Plug-in Hybrid,690,10,Premium Gasoline,0,Electricity,14,,3,,0,35896
+2016,Porsche,Cayenne S e-Hybrid,,Plug-in Hybrid,690,10,Premium Gasoline,0,Electricity,14,,3,,0,36709
+2017,Porsche,Cayenne S e-Hybrid,,Plug-in Hybrid,710,10,Premium Gasoline,0,Electricity,14,,3,,0,37799
+2018,Porsche,Cayenne S e-Hybrid,,Plug-in Hybrid,700,10,Premium Gasoline,0,Electricity,14,,3,,0,39928
+2020,Porsche,Cayenne Turbo S e-Hybrid,,Plug-in Hybrid,760,9,Premium Gasoline,0,Electricity,12,,3,,0,42805
+2021,Porsche,Cayenne Turbo S e-Hybrid,,Plug-in Hybrid,820,12,Premium Gasoline,0,Electricity,15,,3,,0,43777
+2020,Porsche,Cayenne Turbo S e-Hybrid Coupe,,Plug-in Hybrid,760,9,Premium Gasoline,0,Electricity,12,,3,,0,42806
+2021,Porsche,Cayenne Turbo S e-Hybrid Coupe,,Plug-in Hybrid,820,12,Premium Gasoline,0,Electricity,15,,3,,0,43778
+2022,Porsche,Cayenne Turbo S/Coupe E-Hybrid,,Plug-in Hybrid,820,12,Premium Gasoline,0,Electricity,15,,3,,0,44443
+2022,Porsche,Cayenne/Coupe E-Hybrid,,Plug-in Hybrid,720,12,Premium Gasoline,0,Electricity,17,,3,,0,44442
+2018,Porsche,Panamera 4 e-Hybrid,,Plug-in Hybrid,590,9,Premium Gasoline,0,Electricity,16,,3,,0,40225
+2019,Porsche,Panamera 4 e-Hybrid,,Plug-in Hybrid,650,9,Premium Gasoline,0,Electricity,14,,3,,0,41291
+2020,Porsche,Panamera 4 e-Hybrid,,Plug-in Hybrid,650,9,Premium Gasoline,0,Electricity,14,,3,,0,42355
+2021,Porsche,Panamera 4 e-Hybrid,,Plug-in Hybrid,640,12,Premium Gasoline,0,Electricity,19,,3,,0,43913
+2018,Porsche,Panamera 4 e-Hybrid Executive,,Plug-in Hybrid,590,9,Premium Gasoline,0,Electricity,16,,3,,0,40226
+2019,Porsche,Panamera 4 e-Hybrid Executive,,Plug-in Hybrid,650,9,Premium Gasoline,0,Electricity,14,,3,,0,41292
+2020,Porsche,Panamera 4 e-Hybrid Executive,,Plug-in Hybrid,650,9,Premium Gasoline,0,Electricity,14,,3,,0,42356
+2021,Porsche,Panamera 4 e-Hybrid Executive,,Plug-in Hybrid,640,12,Premium Gasoline,0,Electricity,19,,3,,0,43914
+2018,Porsche,Panamera 4 e-Hybrid ST,,Plug-in Hybrid,590,9,Premium Gasoline,0,Electricity,16,,3,,0,39960
+2019,Porsche,Panamera 4 e-Hybrid ST,,Plug-in Hybrid,650,9,Premium Gasoline,0,Electricity,14,,3,,0,41293
+2020,Porsche,Panamera 4 e-Hybrid ST,,Plug-in Hybrid,650,9,Premium Gasoline,0,Electricity,14,,3,,0,42357
+2021,Porsche,Panamera 4 e-Hybrid ST,,Plug-in Hybrid,640,12,Premium Gasoline,0,Electricity,19,,3,,0,43915
+2022,Porsche,Panamera 4 E-Hybrid/Exec/ST,,Plug-in Hybrid,640,12,Premium Gasoline,0,Electricity,19,,3,,0,44608
+2021,Porsche,Panamera 4S e-Hybrid,,Plug-in Hybrid,660,13,Premium Gasoline,0,Electricity,19,,3,,0,43916
+2021,Porsche,Panamera 4S e-Hybrid Executive,,Plug-in Hybrid,660,13,Premium Gasoline,0,Electricity,19,,3,,0,43917
+2021,Porsche,Panamera 4S e-Hybrid ST,,Plug-in Hybrid,660,13,Premium Gasoline,0,Electricity,19,,3,,0,43918
+2022,Porsche,Panamera 4S E-Hybrid/Exec/ST,,Plug-in Hybrid,660,13,Premium Gasoline,0,Electricity,19,,3,,0,44609
+2014,Porsche,Panamera S E-Hybrid,,Plug-in Hybrid,520,8,Premium Gasoline,0,Electricity,16,,3,,0,34789
+2015,Porsche,Panamera S E-Hybrid,,Plug-in Hybrid,520,8,Premium Gasoline,0,Electricity,16,,3,,0,35278
+2016,Porsche,Panamera S E-Hybrid,,Plug-in Hybrid,510,8,Premium Gasoline,0,Electricity,16,,3,,0,36710
+2018,Porsche,Panamera Turbo S e-Hybrid,,Plug-in Hybrid,670,9,Premium Gasoline,0,Electricity,14,,3,,0,40055
+2019,Porsche,Panamera Turbo S e-Hybrid,,Plug-in Hybrid,660,9,Premium Gasoline,0,Electricity,14,,3,,0,41294
+2020,Porsche,Panamera Turbo S e-Hybrid,,Plug-in Hybrid,660,9,Premium Gasoline,0,Electricity,14,,3,,0,42111
+2021,Porsche,Panamera Turbo S e-Hybrid,,Plug-in Hybrid,700,12,Premium Gasoline,0,Electricity,17,,3,,0,43919
+2018,Porsche,Panamera Turbo S e-Hybrid Executive,,Plug-in Hybrid,670,9,Premium Gasoline,0,Electricity,14,,3,,0,40056
+2019,Porsche,Panamera Turbo S e-Hybrid Executive,,Plug-in Hybrid,660,9,Premium Gasoline,0,Electricity,14,,3,,0,41295
+2020,Porsche,Panamera Turbo S e-Hybrid Executive,,Plug-in Hybrid,660,9,Premium Gasoline,0,Electricity,14,,3,,0,42112
+2021,Porsche,Panamera Turbo S e-Hybrid Executive,,Plug-in Hybrid,700,12,Premium Gasoline,0,Electricity,17,,3,,0,43920
+2018,Porsche,Panamera Turbo S e-Hybrid ST,,Plug-in Hybrid,670,9,Premium Gasoline,0,Electricity,14,,3,,0,40057
+2019,Porsche,Panamera Turbo S e-Hybrid ST,,Plug-in Hybrid,660,9,Premium Gasoline,0,Electricity,14,,3,,0,41296
+2020,Porsche,Panamera Turbo S e-Hybrid ST,,Plug-in Hybrid,660,9,Premium Gasoline,0,Electricity,14,,3,,0,42113
+2021,Porsche,Panamera Turbo S e-Hybrid ST,,Plug-in Hybrid,700,12,Premium Gasoline,0,Electricity,17,,3,,0,43921
+2022,Porsche,Panamera TurboS E-Hybrid/Exec/ST,,Plug-in Hybrid,700,12,Premium Gasoline,0,Electricity,17,,3,,0,44830
+2021,Porsche,Taycan 4 Cross Turismo,,EV,440,95,Electricity,215,,,,10.5,,0,44721
+2022,Porsche,Taycan 4 Cross Turismo,,EV,440,95,Electricity,215,,,,10.5,,0,44793
+2021,Porsche,Taycan 4S Cross Turismo,,EV,450,97,Electricity,215,,,,10.5,,0,44722
+2022,Porsche,Taycan 4S Cross Turismo,,EV,450,97,Electricity,215,,,,10.5,,0,44794
+2021,Porsche,Taycan 4S Perf Battery,,EV,424,84,Electricity,199,,,,9.5,,0,43684
+2022,Porsche,Taycan 4S Perf Battery,,EV,424,84,Electricity,199,,,,9.5,,0,44787
+2020,Porsche,Taycan 4S Perf Battery Plus,,EV,488,99,Electricity,203,,,,10.5,,0,42590
+2021,Porsche,Taycan 4S Perf Battery Plus,,EV,434,99,Electricity,227,,,,10.5,,0,43685
+2022,Porsche,Taycan 4S Perf Battery Plus,,EV,434,99,Electricity,227,,,,10.5,,0,44788
+2021,Porsche,Taycan Perf Battery,,EV,410,82,Electricity,200,,,,9.5,,0,43802
+2022,Porsche,Taycan Perf Battery,,EV,420,84,Electricity,200,,,,9.5,,0,44789
+2021,Porsche,Taycan Perf Battery Plus,,EV,449,101,Electricity,225,,,,10.5,,0,43803
+2022,Porsche,Taycan Perf Battery Plus,,EV,449,101,Electricity,225,,,,10.5,,0,44790
+2020,Porsche,Taycan Turbo,,EV,486,98,Electricity,201,,,,10,,0,42383
+2021,Porsche,Taycan Turbo,,EV,450,95,Electricity,212,,,,10.5,,0,43910
+2022,Porsche,Taycan Turbo,,EV,460,98,Electricity,212,,,,10.5,,0,44791
+2021,Porsche,Taycan Turbo Cross Turismo,,EV,468,96,Electricity,204,,,,10.5,,0,44724
+2022,Porsche,Taycan Turbo Cross Turismo,,EV,468,96,Electricity,204,,,,10.5,,0,44795
+2020,Porsche,Taycan Turbo S,,EV,499,96,Electricity,192,,,,10.5,,0,42427
+2021,Porsche,Taycan Turbo S,,EV,480,97,Electricity,201,,,,10.5,,0,43911
+2022,Porsche,Taycan Turbo S,,EV,480,97,Electricity,201,,,,10.5,,0,44792
+2021,Porsche,Taycan Turbo S Cross Turismo,,EV,460,93,Electricity,202,,,,10.5,,0,44723
+2022,Porsche,Taycan Turbo S Cross Turismo,,EV,460,93,Electricity,202,,,,10.5,,0,44796
+2019,Prototype,1,,EV,300,114,Electricity,380,,,,5.7,,,99999998
+2020,Prototype,2,,EV,300,114,Electricity,380,,,,5.7,,,99999999
+2022,Rivian,R1S,,EV,486,154,Electricity,316,,,,13,,0,44461
+2024,Rivian,R1S All-Terrain Quad Large (20 inch),,,,144,,,,,,,,,
+2024,Rivian,R1S Performance Dual Large (22in),,,,144,,,,,,,,,
+2024,Rivian,R1S Quad Large (22in),,,,144,,,,,,,,,
+2022,Rivian,R1T,,EV,480,151,Electricity,314,,,,13,,0,44462
+2024,Rivian,R1T All-Terrain Quad Large (20in),,,,144,,,,,,,,,
+2024,Rivian,R1T Quad Large (22in),,,,144,,,,,,,,,
+2013,Scion,iQ EV,,EV,280,11,Electricity,38,,,,4,,0,33307
+2019,smart,EQ fortwo (convertible),,EV,330,19,Electricity,57,,,,3,,0,41187
+2019,smart,EQ fortwo (coupe),,EV,310,18,Electricity,58,,,,3,,0,41186
+2011,smart,fortwo electric drive cabriolet,,EV,390,25,Electricity,63,,,,8,,0,31064
+2013,smart,fortwo electric drive convertible,,EV,320,22,Electricity,68,,,,6,,0,33305
+2014,smart,fortwo electric drive convertible,,EV,320,22,Electricity,68,,,,6,,0,34393
+2015,smart,fortwo electric drive convertible,,EV,315,21,Electricity,68,,,,6,,0,35858
+2016,smart,fortwo electric drive convertible,,EV,315,21,Electricity,68,,,,6,,0,36860
+2017,smart,fortwo electric drive convertible,,EV,330,19,Electricity,57,,,,3,,0,39603
+2018,smart,fortwo electric drive convertible,,EV,330,19,Electricity,57,,,,3,,0,39785
+2011,smart,fortwo electric drive coupe,,EV,390,25,Electricity,63,,,,8,,0,31065
+2013,smart,fortwo electric drive coupe,,EV,320,22,Electricity,68,,,,6,,0,33306
+2014,smart,fortwo electric drive coupe,,EV,320,22,Electricity,68,,,,6,,0,34394
+2015,smart,fortwo electric drive coupe,,EV,315,21,Electricity,68,,,,6,,0,35859
+2016,smart,fortwo electric drive coupe,,EV,315,21,Electricity,68,,,,6,,0,36861
+2017,smart,fortwo electric drive coupe,,EV,310,18,Electricity,58,,,,3,,0,39192
+2018,smart,fortwo electric drive coupe,,EV,310,18,Electricity,58,,,,3,,0,39784
+2019,Subaru,Crosstrek Hybrid AWD,,Plug-in Hybrid,380,6,Regular Gasoline,0,Electricity,17,,2,,0,41134
+2020,Subaru,Crosstrek Hybrid AWD,,Plug-in Hybrid,380,6,Regular Gasoline,0,Electricity,17,,2,,0,42292
+2021,Subaru,Crosstrek Hybrid AWD,,Plug-in Hybrid,380,6,Regular Gasoline,0,Electricity,17,,2,,0,43687
+2024,Subaru,Solterra AWD,,,,72,,,,,,,,,
+2024,Subaru,Solterra Limited/Touring AWD,,,,72,,,,,,,,,
+2017,Tesla,Model 3 Long Range,,EV,268,83,Electricity,310,,,standard charger,12,80 amp dual charger,8.5,39769
+2018,Tesla,Model 3 Long Range,,EV,258,80,Electricity,310,,,standard charger,10,80 amp dual charger,8.5,39836
+2019,Tesla,Model 3 Long Range,,EV,258,80,Electricity,310,,,standard charger,10,with 48A high power charger connector option,8.5,41189
+2020,Tesla,Model 3 Long Range,,EV,258,85,Electricity,330,,,standard charger,10,with 48A high power charger connector option,8.5,42274
+2018,Tesla,Model 3 Long Range  AWD,Model 3 LR AWD,EV,289,90,Electricity,310,,,standard charger,10,80 amp dual charger,8.5,40385
+2018,Tesla,Model 3 Long Range  AWD Performance,Model 3 LR AWD Performance,EV,289,90,Electricity,310,,,standard charger,10,80 amp dual charger,8.5,40386
+2019,Tesla,Model 3 Long Range AWD,Model 3 LR AWD,EV,289,90,Electricity,310,,,standard charger,10,with 48A high power charger connector option,8.5,41190
+2020,Tesla,Model 3 Long Range AWD,Model 3 LR AWD,EV,279,90,Electricity,322,,,standard charger,10,with 48A high power charger connector option,8.5,42275
+2021,Tesla,Model 3 Long Range AWD,,EV,251,89,Electricity,353,,,standard charger,11.2,with 48A high power charger connector option,9.3,43401
+2022,Tesla,Model 3 Long Range AWD,,EV,258,92,Electricity,358,,,standard charger,11.5,with 48A high power charger connector option,9.6,45011
+2024,Tesla,Model 3 Long Range AWD,,,,81.4,,,,,,,,,
+2019,Tesla,Model 3 Long Range AWD Performance,Model 3 LR AWD Performance,EV,289,90,Electricity,310,,,standard charger,10,with 48A high power charger connector option,8.5,41191
+2020,Tesla,Model 3 Long Range Performance AWD (18in),"Model 3 LR Performance AWD (18"")",EV,280,90,Electricity,322,,,standard charger,10,with 48A high power charger connector option,8.5,42279
+2020,Tesla,Model 3 Long Range Performance AWD (19in),"Model 3 LR Performance AWD (19"")",EV,291,89,Electricity,304,,,standard charger,10,with 48A high power charger connector option,8.5,42280
+2020,Tesla,Model 3 Long Range Performance AWD (20in),"Model 3 LR Performance AWD (20"")",EV,298,89,Electricity,299,,,standard charger,10,with 48A high power charger connector option,8.5,42281
+2018,Tesla,Model 3 Mid Range,,EV,274,71,Electricity,260,,,standard charger,10,80 amp dual charger,8.5,41056
+2019,Tesla,Model 3 Mid Range,,EV,274,73,Electricity,264,,,standard charger,10,with 48A high power charger connector option,8.5,41188
+2020,Tesla,Model 3 Mid Range,,EV,274,73,Electricity,264,,,standard charger,10,with 48A high power charger connector option,8.5,42276
+2021,Tesla,Model 3 Performance AWD,,EV,299,94,Electricity,315,,,standard charger,11.6,with 48A high power charger connector option,9.6,43402
+2022,Tesla,Model 3 Performance AWD,,EV,299,94,Electricity,315,,,standard charger,10,with 48A high power charger connector option,9.6,45012
+2022,Tesla,Model 3 RWD,,EV,254,69,Electricity,272,,,standard charger,10.4,with 48A high power charger connector option,5.8,45013
+2024,Tesla,Model 3 RWD,,,,60.2,,,,,,,,,
+2019,Tesla,Model 3 Standard Range,,EV,256,57,Electricity,220,,,standard charger,8.5,,0,41415
+2020,Tesla,Model 3 Standard Range,,EV,256,57,Electricity,220,,,standard charger,8.5,,0,42277
+2019,Tesla,Model 3 Standard Range Plus,,EV,253,61,Electricity,240,,,standard charger,9.5,,0,41416
+2020,Tesla,Model 3 Standard Range Plus,,EV,239,60,Electricity,250,,,standard charger,8.5,,0,42278
+2021,Tesla,Model 3 Standard Range Plus RWD,,EV,237,62,Electricity,263,,,standard charger,7.8,with 72A high power charger connector option,6.5,43821
+2012,Tesla,Model S,,EV,380,101,Electricity,265,,,,12,,0,32557
+2022,Tesla,Model S,,EV,281,114,Electricity,405,,,standard charger,15,with 72A high power charger connector option,8.3,45014
+2013,Tesla,Model S (40 kW-hr battery pack),Model S 40,EV,360,50,Electricity,139,,,single charger,6,dual charger,2.5,33612
+2013,Tesla,Model S (60 kW-hr battery pack),Model S 60,EV,350,73,Electricity,208,,,single charger,10,dual charger,3.75,33367
+2014,Tesla,Model S (60 kW-hr battery pack),Model S 60,EV,350,73,Electricity,208,,,standard charger,10,80 amp dual charger,3.75,34776
+2015,Tesla,Model S (60 kW-hr battery pack),Model S 60,EV,350,73,Electricity,208,,,standard charger,10,80 amp dual charger,3.75,36017
+2016,Tesla,Model S (60 kW-hr battery pack),Model S 60,EV,340,71,Electricity,210,,,standard charger,10,80 amp dual charger,3.75,38170
+2017,Tesla,Model S (60 kW-hr battery pack),Model S 60,EV,340,71,Electricity,210,,,standard charger,10,80 amp dual charger,3.75,38557
+2016,Tesla,Model S (70 kW-hr battery pack),Model S 70,EV,380,89,Electricity,234,,,standard charger,10,80 amp dual charger,3.75,37233
+2016,Tesla,Model S (75 kW-hr battery pack),Model S 75,EV,340,85,Electricity,249,,,standard charger,12,80 amp dual charger,4.75,37421
+2017,Tesla,Model S (75 kW-hr battery pack),Model S 75,EV,340,85,Electricity,249,,,standard charger,12,80 amp dual charger,4.75,38558
+2013,Tesla,Model S (85 kW-hr battery pack),Model S 85,EV,380,101,Electricity,265,,,single charger,12,dual charger,4.75,33368
+2014,Tesla,Model S (85 kW-hr battery pack),Model S 85,EV,380,101,Electricity,265,,,standard charger,12,80 amp dual charger,4.75,34775
+2015,Tesla,Model S (85 kW-hr battery pack),Model S 85,EV,380,101,Electricity,265,,,standard charger,12,80 amp dual charger,4.75,35980
+2016,Tesla,Model S (85 kW-hr battery pack),Model S 85,EV,380,101,Electricity,265,,,standard charger,12,80 amp dual charger,4.75,37234
+2016,Tesla,Model S (90 kW-hr battery pack),Model S 90,EV,380,101,Electricity,265,,,standard charger,12,80 amp dual charger,4.75,37235
+2015,Tesla,Model S (90 kW-hr battery pack),Model S 90,EV,380,101,Electricity,265,,,standard charger,12,80 amp dual charger,4.75,37236
+2018,Tesla,Model S 100D,,EV,331,111,Electricity,335,,,standard charger,12,80 amp dual charger,4.75,39839
+2019,Tesla,Model S 100D,,EV,331,111,Electricity,335,,,standard charger,12,with 80A dual charger option,4.75,41193
+2018,Tesla,Model S 75D,,EV,326,84,Electricity,259,,,standard charger,12,80 amp dual charger,4.75,39838
+2019,Tesla,Model S 75D,,EV,326,84,Electricity,259,,,standard charger,12,with 80A dual charger option,4.75,41192
+2018,Tesla,Model S 75kWh,Model S 75,EV,342,85,Electricity,249,,,standard charger,10,80 amp dual charger,3.75,39837
+2017,Tesla,Model S AWD - 100D,Model S 100D,EV,330,111,Electricity,335,,,standard charger,12,80 amp dual charger,4.75,38640
+2016,Tesla,Model S AWD - 60D,Model S 60D,EV,320,70,Electricity,218,,,standard charger,12,80 amp dual charger,3.75,38171
+2017,Tesla,Model S AWD - 60D,Model S 60D,EV,320,70,Electricity,218,,,standard charger,12,80 amp dual charger,3.75,38523
+2015,Tesla,Model S AWD - 70D,Model S 70D,EV,330,79,Electricity,240,,,standard charger,12,80 amp dual charger,4.75,36126
+2016,Tesla,Model S AWD - 70D,Model S 70D,EV,330,79,Electricity,240,,,standard charger,12,80 amp dual charger,4.75,37238
+2016,Tesla,Model S AWD - 75D,Model S 75D,EV,330,85,Electricity,259,,,standard charger,12,80 amp dual charger,4.75,37422
+2017,Tesla,Model S AWD - 75D,Model S 75D,EV,330,85,Electricity,259,,,standard charger,12,80 amp dual charger,4.75,38524
+2015,Tesla,Model S AWD - 85D,Model S 85D,EV,340,92,Electricity,270,,,standard charger,12,80 amp dual charger,4.75,36009
+2016,Tesla,Model S AWD - 85D,Model S 85D,EV,340,92,Electricity,270,,,standard charger,12,80 amp dual charger,4.75,37239
+2015,Tesla,Model S AWD - 90D,Model S 90D,EV,340,92,Electricity,270,,,standard charger,12,80 amp dual charger,4.75,36786
+2016,Tesla,Model S AWD - 90D,Model S 90D,EV,330,97,Electricity,294,,,standard charger,12,80 amp dual charger,4.75,37240
+2017,Tesla,Model S AWD - 90D,Model S 90D,EV,320,94,Electricity,294,,,standard charger,12,80 amp dual charger,4.75,38569
+2016,Tesla,Model S AWD - P100D,Model S P100D,EV,350,110,Electricity,315,,,standard charger,12,80 amp dual charger,4.75,38172
+2017,Tesla,Model S AWD - P100D,Model S P100D,EV,350,110,Electricity,315,,,standard charger,12,80 amp dual charger,4.75,38525
+2015,Tesla,Model S AWD - P85D,Model S P85D,EV,360,91,Electricity,253,,,standard charger,12,80 amp dual charger,4.75,36008
+2016,Tesla,Model S AWD - P85D,Model S P85D,EV,360,91,Electricity,253,,,standard charger,12,80 amp dual charger,4.75,37241
+2015,Tesla,Model S AWD - P90D,Model S P90D,EV,360,91,Electricity,253,,,standard charger,12,80 amp dual charger,4.75,36787
+2016,Tesla,Model S AWD - P90D,Model S P90D,EV,350,95,Electricity,270,,,standard charger,12,80 amp dual charger,4.75,37242
+2017,Tesla,Model S AWD - P90D,Model S P90D,EV,350,95,Electricity,270,,,standard charger,12,80 amp dual charger,4.75,38537
+2014,Tesla,Model S AWD (85 kW-hr battery pack),Model S 85D,EV,380,92,Electricity,242,,,standard charger,12,80 amp dual charger,4.75,35994
+2019,Tesla,Model S Long Range,,EV,302,112,Electricity,370,,,standard charger,12,with 72A high power charger connector option,8,41417
+2020,Tesla,Model S Long Range,,EV,302,113,Electricity,373,,,standard charger,12,with 72A high power charger connector option,8,42282
+2021,Tesla,Model S Long Range,,EV,281,114,Electricity,405,,,standard charger,15,with 72A high power charger connector option,8.3,44051
+2020,Tesla,Model S Long Range Plus,,EV,289,116,Electricity,402,,,standard charger,15.3,with 72A high power charger connector option,0,42755
+2018,Tesla,Model S P100D,,EV,345,109,Electricity,315,,,standard charger,12,80 amp dual charger,4.75,39840
+2019,Tesla,Model S P100D,,EV,345,109,Electricity,315,,,standard charger,12,with 80A dual charger option,4.75,41194
+2019,Tesla,Model S Performance (19in Wheels),"Model S Performance (19"")",EV,324,112,Electricity,345,,,standard charger,12,with 72A high power charger connector option,8,41418
+2020,Tesla,Model S Performance (19in Wheels),"Model S Performance (19"")",EV,324,113,Electricity,348,,,standard charger,12,with 72A high power charger connector option,8,42283
+2021,Tesla,Model S Performance (19in Wheels),,EV,305,118,Electricity,387,,,standard charger,14.7,with 72A high power charger connector option,8.2,43516
+2019,Tesla,Model S Performance (21in Wheels),"Model S Performance (21"")",EV,347,113,Electricity,325,,,standard charger,12,with 72A high power charger connector option,8,41419
+2020,Tesla,Model S Performance (21in Wheels),"Model S Performance (21"")",EV,347,113,Electricity,326,,,standard charger,12,with 72A high power charger connector option,8,42284
+2021,Tesla,Model S Performance (21in Wheels),,EV,352,118,Electricity,334,,,standard charger,14.7,with 72A high power charger connector option,8.2,43517
+2022,Tesla,Model S Plaid (19in Wheels),,EV,291,115,Electricity,396,,,standard charger,15,with 72A high power charger connector option,8,45015
+2021,Tesla,Model S Plaid (21in Wheels),,EV,334,116,Electricity,348,,,standard charger,15,with 72A high power charger connector option,8,44069
+2022,Tesla,Model S Plaid (21in Wheels),,EV,334,116,Electricity,348,,,standard charger,15,with 72A high power charger connector option,8,45016
+2019,Tesla,Model S Standard Range,,EV,308,88,Electricity,285,,,standard charger,9.2,with 72A high power charger connector option,6.2,41513
+2020,Tesla,Model S Standard Range,,EV,308,88,Electricity,287,,,standard charger,9.2,with 72A high power charger connector option,6.2,42285
+2022,Tesla,Model X,,EV,330,115,Electricity,348,,,standard charger,14,with 72A high power charger connector option,8,45020
+2024,Tesla,Model X,,,,105,,,,,,,,,
+2018,Tesla,Model X 100D,,EV,386,114,Electricity,295,,,standard charger,12,80 amp dual charger,4.75,39842
+2019,Tesla,Model X 100D,,EV,386,114,Electricity,295,,,standard charger,12,with 80A dual charger option,4.75,41196
+2018,Tesla,Model X 75D,,EV,362,86,Electricity,238,,,standard charger,12,80 amp dual charger,4.75,39841
+2019,Tesla,Model X 75D,,EV,362,86,Electricity,238,,,standard charger,12,with 80A dual charger option,4.75,41195
+2017,Tesla,Model X AWD - 100D,Model X 100D,EV,386,114,Electricity,295,,,standard charger,12,80 amp dual charger,4.75,39831
+2016,Tesla,Model X AWD - 60D,Model X 60D,EV,360,72,Electricity,200,,,standard charger,12,80 amp dual charger,4.75,38173
+2017,Tesla,Model X AWD - 60D,Model X 60D,EV,360,72,Electricity,200,,,standard charger,12,80 amp dual charger,4.75,38526
+2016,Tesla,Model X AWD - 75D,Model X 75D,EV,360,86,Electricity,238,,,standard charger,12,80 amp dual charger,4.75,37423
+2017,Tesla,Model X AWD - 75D,Model X 75D,EV,360,86,Electricity,238,,,standard charger,12,80 amp dual charger,4.75,38527
+2016,Tesla,Model X AWD - 90D,Model X 90D,EV,370,95,Electricity,257,,,standard charger,12,80 amp dual charger,4.75,36979
+2017,Tesla,Model X AWD - 90D,Model X 90D,EV,370,95,Electricity,257,,,standard charger,12,80 amp dual charger,4.75,38528
+2016,Tesla,Model X AWD - P100D,Model X P100D,EV,390,113,Electricity,289,,,standard charger,12,80 amp dual charger,4.75,38500
+2017,Tesla,Model X AWD - P100D,Model X P100D,EV,390,113,Electricity,289,,,standard charger,12,80 amp dual charger,4.75,38530
+2016,Tesla,Model X AWD - P90D,Model X P90D,EV,380,95,Electricity,250,,,standard charger,12,80 amp dual charger,4.75,36980
+2017,Tesla,Model X AWD - P90D,Model X P90D,EV,380,95,Electricity,250,,,standard charger,12,80 amp dual charger,4.75,38529
+2019,Tesla,Model X Long Range,,EV,350,114,Electricity,325,,,standard charger,12,with 72A high power charger connector option,8,41514
+2020,Tesla,Model X Long Range,,EV,350,115,Electricity,328,,,standard charger,12,with 72A high power charger connector option,8,42286
+2021,Tesla,Model X Long Range Plus,,EV,320,119,Electricity,371,,,standard charger,15,with 72A high power charger connector option,8.3,43403
+2020,Tesla,Model X Long Range Plus,,EV,321,113,Electricity,351,,,standard charger,12,with 72A high power charger connector option,8,43413
+2018,Tesla,Model X P100D,,EV,395,114,Electricity,289,,,standard charger,12,80 amp dual charger,4.75,39843
+2019,Tesla,Model X P100D,,EV,395,114,Electricity,289,,,standard charger,12,with 80A dual charger option,4.75,41197
+2020,Tesla,Model X Performance (20in Wheels),"Model X Performance (20"")",EV,375,115,Electricity,305,,,standard charger,12,with 72A high power charger connector option,8,42287
+2021,Tesla,Model X Performance (20in Wheels),,EV,345,118,Electricity,341,,,standard charger,15,with 72A high power charger connector option,8.3,43404
+2019,Tesla,Model X Performance (22in Wheels),"Model X Performance (22"")",EV,428,116,Electricity,270,,,standard charger,12,with 72A high power charger connector option,8,41515
+2020,Tesla,Model X Performance (22in Wheels),"Model X Performance (22"")",EV,428,116,Electricity,272,,,standard charger,12,with 72A high power charger connector option,8,42288
+2021,Tesla,Model X Performance (22in Wheels),,EV,392,118,Electricity,300,,,standard charger,15,with 72A high power charger connector option,8.3,43405
+2022,Tesla,Model X Plaid (20in Wheels),,EV,343,114,Electricity,333,,,standard charger,14,with 72A high power charger connector option,8,45021
+2022,Tesla,Model X Plaid (22in Wheels),,EV,369,115,Electricity,311,,,standard charger,14,with 72A high power charger connector option,8,45022
+2020,Tesla,Model X Standard Range,,EV,332,86,Electricity,258,,,standard charger,9.2,with 72A high power charger connector option,6.2,42289
+2022,Tesla,Model Y AWD,,EV,275,77,Electricity,279,,,standard charger,9.4,with 72A high power charger connector option,0,45196
+2020,Tesla,Model Y Long Range AWD,,EV,278,88,Electricity,316,,,standard charger,10,with 72A high power charger connector option,0,42916
+2021,Tesla,Model Y Long Range AWD,,EV,270,88,Electricity,326,,,standard charger,10,with 72A high power charger connector option,6.2,43406
+2022,Tesla,Model Y Long Range AWD,,EV,276,91,Electricity,330,,,standard charger,11.5,with 48A high power charger connector option,9.6,45018
+2024,Tesla,Model Y Long Range AWD,,,,83.4,,,,,,,,,
+2024,Tesla,Model Y Long Range AWD-I,,,,83.4,,,,,,,,,
+2024,Tesla,Model Y Long Range RWD,,,,83.4,,,,,,,,,
+2020,Tesla,Model Y Performance AWD,,EV,279,88,Electricity,315,,,standard charger,10,with 72A high power charger connector option,0,42474
+2021,Tesla,Model Y Performance AWD,,EV,304,92,Electricity,303,,,standard charger,11.8,with 72A high power charger connector option,6.6,43407
+2022,Tesla,Model Y Performance AWD,,EV,304,92,Electricity,303,,,standard charger,11.8,with 72A high power charger connector option,6.6,45019
+2024,Tesla,Model Y Performance AWD,,,,83.4,,,,,,,,,
+2020,Tesla,Model Y Performance AWD (21in Wheels),,EV,303,88,Electricity,291,,,standard charger,10,with 72A high power charger connector option,0,42816
+2022,Tesla,Model Y RWD,,EV,260,64,Electricity,244,,,standard charger,8,with 72A high power charger connector option,4.4,45017
+2024,Tesla,Model Y RWD,,,,66.5,,,,,,,,,
+2021,Tesla,Model Y Standard Range RWD,,EV,260,64,Electricity,244,,,standard charger,8,with 72A high power charger connector option,4.4,43880
+2024,Toyota,bZ4X AWD,,,,72.8,,,,,,,,,
+2012,Toyota,Prius Plug-in Hybrid,,Plug-in Hybrid,290,3,Regular Gasoline,0,Electricity,11,,1.5,,0,32484
+2013,Toyota,Prius Plug-in Hybrid,,Plug-in Hybrid,290,3,Regular Gasoline,0,Electricity,11,,1.5,,0,33335
+2014,Toyota,Prius Plug-in Hybrid,,Plug-in Hybrid,290,3,Regular Gasoline,0,Electricity,11,,1.5,,0,34516
+2015,Toyota,Prius Plug-in Hybrid,,Plug-in Hybrid,290,3,Regular Gasoline,0,Electricity,11,,1.5,,0,35598
+2017,Toyota,Prius Prime,,Plug-in Hybrid,250,6,Regular Gasoline,0,Electricity,25,,2,,0,38531
+2018,Toyota,Prius Prime,,Plug-in Hybrid,250,6,Regular Gasoline,0,Electricity,25,,2,,0,39882
+2019,Toyota,Prius Prime,,Plug-in Hybrid,250,6,Regular Gasoline,0,Electricity,25,,2,,0,41184
+2020,Toyota,Prius Prime,,Plug-in Hybrid,250,6,Regular Gasoline,0,Electricity,25,,2,,0,41489
+2021,Toyota,Prius Prime,,Plug-in Hybrid,250,6,Regular Gasoline,0,Electricity,25,,2,,0,42814
+2022,Toyota,Prius Prime,,Plug-in Hybrid,250,6,Regular Gasoline,0,Electricity,25,,2,,0,44362
+2024,Toyota,Prius Prime,,,,13,,,,,,,,,
+2024,Toyota,Prius Prime SE,,,,13,,,,,,,,,
+2000,Toyota,RAV4 EV,,EV,470,41,Electricity,88,,,,0,,0,16424
+2001,Toyota,RAV4 EV,,EV,470,41,Electricity,88,,,,0,,0,17328
+2002,Toyota,RAV4 EV,,EV,430,41,Electricity,95,,,,0,,0,18290
+2003,Toyota,RAV4 EV,,EV,430,41,Electricity,95,,,,0,,0,19296
+2012,Toyota,RAV4 EV,,EV,440,45,Electricity,103,,,,6,,0,33308
+2013,Toyota,RAV4 EV,,EV,440,45,Electricity,103,,,,6,,0,33397
+2014,Toyota,RAV4 EV,,EV,440,45,Electricity,103,,,,6,,0,34425
+2021,Toyota,RAV4 Prime 4WD,,Plug-in Hybrid,360,15,Regular Gasoline,0,Electricity,42,,4.5,,0,42793
+2022,Toyota,RAV4 Prime 4WD,,Plug-in Hybrid,360,15,Regular Gasoline,0,Electricity,42,,4.5,,0,44984
+2024,Toyota,RAV4 Prime 4WD,,,,18,,,,,,,,,
+2015,Volkswagen,e-Golf,,EV,291,24,Electricity,83,,,,4,,0,35849
+2016,Volkswagen,e-Golf,,EV,291,24,Electricity,83,,,7.2 kW charger,3.7,3.6 kW charger,7,36834
+2017,Volkswagen,e-Golf,,EV,284,36,Electricity,125,,,7.2 kW charger,5.3,3.6 kW charger,0,38549
+2018,Volkswagen,e-Golf,,EV,284,36,Electricity,125,,,,5.3,,0,39871
+2019,Volkswagen,e-Golf,,EV,284,36,Electricity,125,,,,5.3,,0,40769
+2020,Volkswagen,e-Golf,,EV,297,37,Electricity,123,,,,5.3,,0,42137
+2024,Volkswagen,ID.4,,,,81,,,,,,,,,
+2021,Volkswagen,ID.4 1st,,EV,350,88,Electricity,250,,,,7.5,,0,43557
+2021,Volkswagen,ID.4 AWD Pro,,EV,349,87,Electricity,249,,,,7.5,,0,44725
+2022,Volkswagen,ID.4 AWD Pro,,EV,333,84,Electricity,251,,,,7.5,,0,45257
+2021,Volkswagen,ID.4 AWD Pro S,,EV,362,87,Electricity,240,,,,7.5,,0,44726
+2022,Volkswagen,ID.4 AWD Pro S,,EV,354,87,Electricity,245,,,,7.5,,0,45258
+2021,Volkswagen,ID.4 Pro,,EV,340,88,Electricity,260,,,,7.5,,0,44052
+2022,Volkswagen,ID.4 Pro,,EV,320,88,Electricity,275,,,,7.5,,0,45259
+2021,Volkswagen,ID.4 Pro S,,EV,350,88,Electricity,250,,,,7.5,,0,43558
+2022,Volkswagen,ID.4 Pro S,,EV,330,86,Electricity,262,,,,7.5,,0,45413
+2024,Volvo,C40 Recharge,,,,77,,,,,,,,,
+2022,Volvo,C40 Recharge twin,,EV,385,87,Electricity,226,,,,8,,0,44929
+2019,Volvo,S60 AWD PHEV,,Plug-in Hybrid,430,9,Premium Gasoline,0,Electricity,22,,3,,0,41255
+2020,Volvo,S60 AWD PHEV,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,22,,3,,0,41944
+2021,Volvo,S60 AWD PHEV,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,22,,3,,0,43408
+2022,Volvo,S60 T8 AWD Recharge,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,22,,3,,0,44266
+2022,Volvo,S60 T8 AWD Recharge ext. Range,,Plug-in Hybrid,440,18,Premium Gasoline,0,Electricity,40,,5,,0,45197
+2018,Volvo,S90 AWD PHEV,,Plug-in Hybrid,450,9,Premium Gasoline,0,Electricity,21,,3,,0,39381
+2019,Volvo,S90 AWD PHEV,,Plug-in Hybrid,450,9,Premium Gasoline,0,Electricity,21,,3,,0,40405
+2020,Volvo,S90 AWD PHEV,,Plug-in Hybrid,500,11,Premium Gasoline,0,Electricity,21,,3,,0,41945
+2021,Volvo,S90 AWD PHEV,,Plug-in Hybrid,500,11,Premium Gasoline,0,Electricity,21,,3,,0,42984
+2022,Volvo,S90 T8 AWD Recharge,,Plug-in Hybrid,510,11,Premium Gasoline,0,Electricity,21,,3,,0,44267
+2022,Volvo,S90 T8 AWD Recharge ext. Range,,Plug-in Hybrid,480,18,Premium Gasoline,0,Electricity,38,,5,,0,45198
+2020,Volvo,V60 AWD PHEV,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,22,,3,,0,41946
+2021,Volvo,V60 AWD PHEV,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,22,,3,,0,42985
+2022,Volvo,V60 T8 AWD Recharge,,Plug-in Hybrid,470,10,Premium Gasoline,0,Electricity,22,,3,,0,44363
+2022,Volvo,V60 T8 AWD Recharge ext. Range,,Plug-in Hybrid,440,18,Premium Gasoline,0,Electricity,40,,5,,0,45199
+2021,Volvo,XC40 AWD BEV,,EV,428,89,Electricity,208,,,,8,,0,43295
+2024,Volvo,XC40 Recharge,,,,77,,,,,,,,,
+2022,Volvo,XC40 Recharge twin,,EV,394,88,Electricity,223,,,,8,,0,44450
+2024,Volvo,XC40 Recharge twin,,,,77,,,,,,,,,
+2018,Volvo,XC60 AWD PHEV,,Plug-in Hybrid,530,10,Premium Gasoline,0,Electricity,18,,3,,0,39382
+2019,Volvo,XC60 AWD PHEV,,Plug-in Hybrid,550,9,Premium Gasoline,0,Electricity,17,,3,,0,40406
+2020,Volvo,XC60 AWD PHEV,,Plug-in Hybrid,570,11,Premium Gasoline,0,Electricity,19,,3,,0,41947
+2021,Volvo,XC60 AWD PHEV,,Plug-in Hybrid,570,11,Premium Gasoline,0,Electricity,19,,3,,0,43145
+2022,Volvo,XC60 T8 AWD Recharge,,Plug-in Hybrid,560,11,Premium Gasoline,0,Electricity,19,,3,,0,44268
+2024,Volvo,XC60 T8 AWD Recharge,,,,18,,,,,,,,,
+2022,Volvo,XC60 T8 AWD Recharge ext. Range,,Plug-in Hybrid,500,18,Premium Gasoline,0,Electricity,36,,5,,0,45200
+2016,Volvo,XC90 AWD PHEV,,Plug-in Hybrid,580,8,Premium Gasoline,0,Electricity,14,,3,,0,37224
+2017,Volvo,XC90 AWD PHEV,,Plug-in Hybrid,600,8,Premium Gasoline,0,Electricity,14,,3,,0,37703
+2018,Volvo,XC90 AWD PHEV,,Plug-in Hybrid,500,10,Premium Gasoline,0,Electricity,19,,3,,0,39383
+2019,Volvo,XC90 AWD PHEV,,Plug-in Hybrid,550,9,Premium Gasoline,0,Electricity,17,,3,,0,40407
+2020,Volvo,XC90 AWD PHEV,,Plug-in Hybrid,580,10,Premium Gasoline,0,Electricity,18,,3,,0,41948
+2021,Volvo,XC90 AWD PHEV,,Plug-in Hybrid,580,10,Premium Gasoline,0,Electricity,18,,3,,0,42804
+2022,Volvo,XC90 T8 AWD Recharge,,Plug-in Hybrid,580,10,Premium Gasoline,0,Electricity,18,,3,,0,44269
+2024,Volvo,XC90 T8 AWD Recharge,,,,18,,,,,,,,,
+2022,Volvo,XC90 T8 AWD Recharge ext. Range,,Plug-in Hybrid,490,18,Premium Gasoline,0,Electricity,36,,5,,0,45201
+2016,Zenith,060616-542AA,Zenith,EV,400,62,Electricity,155,,,Standard Charger,6.5,,,1
