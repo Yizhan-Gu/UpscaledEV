@@ -46,7 +46,7 @@ import joblib
 def KnownUser(known_thres,User,test_sessions_data):
     
     #Use the current user's ID to import the user's saved data
-    Data_User = pd.read_csv ('/Users/avikghosh/Desktop/EV_Forecast_MPC/Total Transfer/Forecasting/Driver_sessions_x/Driver_Sessions_'+str(known_thres)+'/Sessions_Data_'+str(int(User))+'.csv');
+    Data_User = pd.read_csv ('/Users/admin/Desktop/EV_program/Total Transfer/Forecasting/Driver_sessions_x/Driver_Sessions_'+str(known_thres)+'/Sessions_Data_'+str(int(User))+'.csv');
     Data_User['Session start'] = pd.to_datetime(Data_User['Session start']);
     
     
@@ -97,7 +97,7 @@ def KnownUser(known_thres,User,test_sessions_data):
 def UnKnownUser(test_sessions_data):
     
     #read all sessions data from all users for all time
-    Train_Data = pd.read_csv ('/Users/avikghosh/Desktop/EV_Forecast_MPC/Total Transfer/Forecasting/Train and Test Data_Unknown_Drivers/Train_Data.csv')
+    Train_Data = pd.read_csv ('/Users/admin/Desktop/EV_program/Total Transfer/Forecasting/Train and Test Data_Unknown_Drivers/Train_Data.csv')
     Train_Data['Session start'] = pd.to_datetime(Train_Data['Session start'])
     
     #read the current session arrival time
