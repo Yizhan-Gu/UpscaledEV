@@ -447,18 +447,10 @@ for month in np.array(range(1))+12:
             plt.show()
             
             
-            
+
             
             
             # AS baseline
-            
-            
-            
-            
-            
-            
-            
-            
             
             
             
