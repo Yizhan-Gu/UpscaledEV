@@ -1,0 +1,4 @@
+DA is day-ahead hourly
+FM is 5-min
+RT is 15-min
+Anne's code uses 'IN' which is now 'FM'

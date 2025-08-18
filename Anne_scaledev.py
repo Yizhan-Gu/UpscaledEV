@@ -134,7 +134,7 @@ Data['Session start'] = pd.to_datetime(Data['Session start'])
 Data['Session end'] = pd.to_datetime(Data['Session end'])
 Data.columns
 
-# FIXME: is this method the Avik's known and unknown?
+
 if Fc_AtArrival == 'MLatArrival':
     User_Data = pd.read_csv("/Users/admin/Desktop/EV_program/Total Transfer/Forecasting/Driver Table and Sessions/Driver_Table.csv")
     User_known = User_Data['driver_id'][User_Data['TotSession']>10].unique()
@@ -449,13 +449,7 @@ for month in np.array(range(1))+12:
             
 
             
-            
-            # AS baseline
-            
-            
-            
-            
-            
+
             
             
             # DRAM baseline Anne Version

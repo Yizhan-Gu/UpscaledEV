@@ -19,6 +19,7 @@ import requests
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
+# conda install services::gridstatus
 import gridstatus
 # import plotly.express as px
 import matplotlib
@@ -33,16 +34,16 @@ def AS_download(year, market):
 
     if market == 'DAM':
         # df = iso.get_as_prices(date="Oct 15, 2022")  # specific date
-        df = iso.get_as_prices(start=f"May 1, {year}", end=f"Jan 1, {year + 1}", market=market)  # whole range
+        df = iso.get_as_prices(start=f"Jan 1, {year}", end=f"Aug 1, {year}", market=market, verbose = True)  # whole range
     else:
         # df = iso.get_interval_as_prices(date="Oct 15, 2022")  # specific date
-        df = iso.get_interval_as_prices(start=f"May 1, {year}", end=f"Jan 1, {year + 1}", market=market)
-    df.to_csv('./Exp_data22/LMP_AS_{}/AS_price_{}.csv'.format(market, year), index=False)
+        df = iso.get_interval_as_prices(start=f"Jan 1, {year}", end=f"Aug 1, {year}", market=market, verbose = True)  # whole range
+    df.to_csv('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/2025Data/LMP_AS_{}/AS_price_{}.csv'.format(market, year), index=False)
     # print(df.head())
 
 
 def AS_process(year, market):
-    df_all = pd.read_csv('./Exp_data22/LMP_AS_{}/AS_price_{}.csv'.format(market, year))
+    df_all = pd.read_csv('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/2025Data/LMP_AS_{}/AS_price_{}.csv'.format(market, year))
     df = df_all[(df_all["Region"] == "AS_CAISO_EXP") & (df_all["Market"] == market)]
     # df = df_all[(df_all["Region"] == "AS_CAISO") & (df_all["Market"] == market)]
 
@@ -65,16 +66,16 @@ def AS_process(year, market):
         'Spinning Reserves': 'Spin'
     }, inplace=True)
 
-    df.to_csv('./Exp_data22/LMP_AS_{}/AS_price_{}_{}.csv'.format(market, year, market), index=False)
+    df.to_csv('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/2025Data/LMP_AS_{}/AS_price_{}_{}.csv'.format(market, year, market), index=False)
 
 
 if __name__ == '__main__':
-    year = 2022
+    year = 2025
 
     # Download Ancillary service price
     markets = ["DAM", 'RTM']
     for market in markets:
-        print(year, market)
+        print(f"Downloading AS prices for {market} in {year}...")
         AS_download(year, market)
         AS_process(year, market)
 
