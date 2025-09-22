@@ -211,6 +211,8 @@ Created on Mon Mar 27 08:52:16 2023
 
 
 import os.path
+os.chdir('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024') 
+print("Path is:", os.getcwd(), "\n")
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
