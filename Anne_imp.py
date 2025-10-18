@@ -173,7 +173,7 @@ if len(Y_WeekdaysWOH) + len(Y_WeekendsWH) != len(DateSeries_ThisY):
 #################################################################################
 # Main Loop
 #################################################################################
-for month in np.array(range(1))+12:
+for month in np.array(range(1))+11:
     #month = 12
     num_days = calendar.monthrange(year,month)[1] 
     
@@ -204,7 +204,7 @@ for month in np.array(range(1))+12:
     if DAM == 1:
         M_baseline_Opt = pd.DataFrame()
 
-    for Day in np.array(range(1))+1: #np.array(range(num_days))+1:
+    for Day in np.array(range(num_days))+1: #np.array(range(num_days))+1:
         # Day = 1
 
         TheDate_Day0 = datetime(year, month, Day)   
@@ -295,7 +295,7 @@ for month in np.array(range(1))+12:
             Dispatch_2022 = pd.read_csv(filename_Input)
             
             # make sure dropping the earlier data for duplicated rows                
-            Dispatch_2022['Interval start'] = pd.to_datetime(Dispatch_2022['Interval start'])
+            Dispatch_2022['Interval start'] = pd.to_datetime(Dispatch_2022['Interval start'], format = 'mixed')
             Dispatch_2022 = Dispatch_2022.drop_duplicates('Interval start',keep='last')
 
 
@@ -368,8 +368,7 @@ for month in np.array(range(1))+12:
                                     
                                 
 
-                        
-                    # TODO: i_case=2 the Baseline_Opt_avg is not the same data type
+                    
                     else: # for i_case==2 no market participation
                         for j in range(45):
                             ThisDay = TheDate[i_d] - timedelta(days=j+1)
@@ -986,6 +985,7 @@ for month in np.array(range(1))+12:
                    Operator_SumRow @ EnergyDemand_Table_Opt == SessionkWh_table_fc_fix[0][2], \
                    EnergyDemand_Table_Opt >= 0 ,EnergyDemand_Table_Opt <= IntervalkWh_max_fc_fix[0][2].iloc[:,:]]
             
+        '''
         constraints += [
             P_BESS == P_BESS_pos + P_BESS_neg,
             P_BESS_pos >= 0,
@@ -1000,6 +1000,7 @@ for month in np.array(range(1))+12:
             SOC_BESS[1:] <= SOC_BESS_max,
             dt_h * cp.sum(cp.abs(P_BESS)) <= 2 * C_BESS,
         ]
+        '''
    
   
             
@@ -1332,7 +1333,7 @@ for month in np.array(range(1))+12:
             var_list = [UpperBound[0], SessionkWh_nEta[0][1]]
             name_list = ['UpperBound', 'Session_nEta']
             for var in range(len(var_list)):
-                dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/Results/Dispatch/0_'+name_list[var]+'.csv')
+                dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Tables/Dispatch/0_'+name_list[var]+'.csv')
                 filepath = Path(dir_Output)
                 filepath.parent.mkdir(parents=True, exist_ok=True)    
                 # var_list[var].to_csv(dir_Output, mode='a', index=False, header=True)
@@ -1594,7 +1595,7 @@ for month in np.array(range(1))+12:
                     pd.DataFrame(Dispatch[0][1].iloc[i_t, :]).T]
             name_list = ['MPC', 'UpperBound', 'Session_nEta', 'Dispatch']
             for var in range(len(var_list)):
-                dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/Results/Dispatch/1_'+name_list[var]+'.csv')
+                dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Tables/Dispatch/1_'+name_list[var]+'.csv')
                 filepath = Path(dir_Output)
                 filepath.parent.mkdir(parents=True, exist_ok=True)    
                 # var_list[var].to_csv(dir_Output, mode='a', index=False, header=True)
@@ -1657,25 +1658,14 @@ for month in np.array(range(1))+12:
             D_all = pd.concat([ D_all, temp], axis=1)
 
         
-        '''
-        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/Results/Dispatch/' +\
-                                  H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival  +'_implementation.csv')
+
+        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/' +\
+                                  H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival  +'_MonthlyTh_Eta_v5_test4.csv')
+        filepath = Path(dir_Output)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         
-        # NOTE: csv save append method is modified in case of overwriting
-        if os.path.exists(dir_Output):
-            Dispatch_existing = pd.read_csv(dir_Output)
-            Dispatch_existing['Interval start'] = pd.to_datetime(Dispatch_existing['Interval start'])
-            if D_all['Interval start'][0] in Dispatch_existing['Interval start'].values:
-                # Remove old rows with same timestamps
-                Dispatch_existing = Dispatch_existing[~Dispatch_existing['Interval start'].isin(D_all['Interval start'])]
-                # Append updated rows
-                Dispatch_2022_update = pd.concat([Dispatch_existing, D_all], axis=0)
-            else:
-                Dispatch_2022_update = pd.concat([Dispatch_existing, D_all], axis=0)
-            Dispatch_2022_update.sort_values('Interval start').to_csv(dir_Output, mode='w', index=False, header=True)
-        else:
-            D_all.to_csv(dir_Output, mode='w', index=False, header=True)
-        '''
+        D_all.to_csv(dir_Output, mode='a', index=False, header=False)
+        
 
 
         #################################################################################
@@ -1709,25 +1699,15 @@ for month in np.array(range(1))+12:
         A.index = [H_Start_RT.strftime("%Y%m%d")] * len(A) 
         A.index.name = "Date"
                 
-        '''              
-        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024/Results/Dispatch/' +\
-                                  H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'daily_summary.csv')
+       
+        dir_Output = os.path.join('/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Tables/Forecast/' +\
+                                  H_Start_RT.strftime("%Y") +'_' +Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'_MonthlyTh_Eta_v5_test4_session.csv')
+        filepath = Path(dir_Output)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        
+        A.to_csv(dir_Output, mode='a', index=True, header=True)
 
-        if os.path.exists(dir_Output):
-            A_existing = pd.read_csv(dir_Output, index_col=0)
-            A_existing.index = A_existing.index.astype(str)
-            date_str = H_Start_RT.strftime("%Y%m%d")
-
-            if date_str in A_existing.index:
-                A_existing.loc[date_str] = A.loc[date_str]
-                A_update = A_existing
-            else:
-                A_update = pd.concat([A_existing, A], axis=0)  
-            A_update.to_csv(dir_Output, mode='w', index=True, header=True)
-                
-        else:
-            A.to_csv(dir_Output, mode='w', index=True, header=True)
-        '''
+        
 
 #%%     #################################################################################
         # Plot Energy Demand with Optimal control algorithm
@@ -1823,269 +1803,16 @@ for month in np.array(range(1))+12:
   
 
         plt.tight_layout()
-        # plt.savefig(H_Start_RT.strftime("%Y%m%d") + '_Implemented_Pw_stair.png', bbox_inches='tight', facecolor='white', dpi=300)
+        path = '/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/2024_RO3.4/Results/Plots/'+ H_Start_RT.strftime("%Y")+'_'+\
+                Fc_SessionkWh+'_'+Fc_NumbEV+'_'+Fc_AtArrival +'/'
+        os.makedirs(path, exist_ok=True)
+        plt.savefig(path + H_Start_RT.strftime("%Y%m%d") + '_Implemented_Pw_stair.png', bbox_inches='tight', facecolor='white', dpi=300)
         # plt.show()
         plt.close()
         
         
         
         
-#%%     #################################################################################
-        # Costs Analysis (for one day optimization)
-        #################################################################################
-        
-        
-# =============================================================================
-#         EnergyDemand_Step_Opt_Implemented =  []
-#         Dispatch_sessionkWh = []
-#         for j in range(len(x)):
-#             EnergyDemand_Step_Opt_Implemented = EnergyDemand_Step_Opt_Implemented + [np.array(Dispatch[j].sum(axis=1))]
-#             Dispatch_sessionkWh = Dispatch_sessionkWh + [Dispatch[j].sum(axis=0)]
-#         
-#         StepkWh = [np.array(EnergyDemand_Table_V0G_real.sum(axis=1)),\
-#                    np.array(EnergyDemand_Table_V1G_real.sum(axis=1)),\
-#                    np.array(dispatch_Offline.sum(axis=1)) ]
-#             
-#         SessionkWh_ = [EnergyDemand_Table_V0G_real.sum(axis=0),\
-#                        EnergyDemand_Table_V1G_real.sum(axis=0),\
-#                        dispatch_Offline.sum(axis=0)    ]    
-#         
-#         
-#         StepkWh = StepkWh + EnergyDemand_Step_Opt_Implemented # a list of 9 series
-#         
-#         SessionkWh_ = SessionkWh_ + Dispatch_sessionkWh
-#         # =============================================================================
-#         # elif Fc_SessionkWh == 'Persistence':
-#         #     
-#         #     StepkWh = StepkWh + EnergyDemand_Step_Opt_Implemented + \
-#         #                         EnergyDemand_V1G_Perf_max # a list of 10 series
-#         # =============================================================================
-#         
-#         TotkWh = []
-#         TotkWh_reduce = []
-#         cost_NCD = []
-#         cost_PD = []
-#         cost_TOU = []
-#         cost_tax = []
-#         cost_DAM = [] 
-#         cost_RTM = []
-#         # market participation assumptions: 
-#             #7:00-16:00 as most plateau lasts during thses hours, ie StepkWh[k][7*4:16*4]
-#             #only when the whole baseline plateau is larger than the whole offline plateau 
-#             #will the operator participate in the DR market
-#             
-#         
-#         cost_NCD_ = []
-#         cost_PD_ = []
-#         cost_TOU_ = []
-#         cost_tax_ = []
-#         cost_service = []
-#         
-#         
-#         #DA market bidding demand response power:
-#         #Bid_Pw_DA = np.clip(np.array(Baseline_Opt[7*4:16*4])-StepkWh[2][7*4:16*4],0,100) 
-#         Bid_En_DA = (Baseline_Opt[7*4:16*4].reshape(36,1)-StepkWh[2][7*4:16*4].reshape(36,1) )
-#         
-# 
-#         
-#         for k in range(len(StepkWh)):
-#             #k=1
-#             StepkWh[k] = np.array(StepkWh[k]).reshape(96,1)  
-#             TotkWh  = TotkWh + [sum(StepkWh[k])] # Since the daily kWh is different for each case, calculate cost per kWh
-#             TotkWh_reduce = TotkWh_reduce + [sum(StepkWh[0])-sum(StepkWh[k])]
-#             cost_NCD = cost_NCD + [c_NCD *max(StepkWh[k])/dt_h]
-#             cost_PD  = cost_PD  + [c_PD  *max(StepkWh[k][16*4:21*4])/dt_h]
-#             cost_TOU = cost_TOU + [sum(np.multiply(c_e_TOU_AL,StepkWh[k]))]
-#             cost_tax = cost_tax + [c_tax_all*sum(StepkWh[k])]
-#             cost_service = cost_service + [-0.3*TotkWh[k]]
-#             
-#             if (k <2) | (np.any(Bid_En_DA < 0)):
-#                 cost_DAM = cost_DAM + [np.zeros(1)]
-#                 cost_RTM = cost_RTM + [np.zeros(1)]
-#             else: 
-#                 Reduction_En_DA = np.clip(np.array(Baseline_Opt[7*4:16*4].reshape(36,1)-StepkWh[k][7*4:16*4].reshape(36,1) ),0,Bid_En_DA)
-#                 cost_DAM = cost_DAM + [-sum(Reduction_En_DA*Bid_Pr_DA[7*4:16*4].reshape(36,1))]
-#                 
-#                 Reduction_En_RT = np.clip(np.array(StepkWh[2][7*4:16*4].reshape(36,1) -StepkWh[k][7*4:16*4].reshape(36,1) ),-Bid_En_DA,100)
-#                 cost_RTM =  cost_RTM + [-sum(Reduction_En_RT*Bid_Pr_RT[7*4:16*4].reshape(36,1))]
-#                 
-#         
-#                               
-#         TotkWh = np.array(TotkWh)
-#         TotkWh_reduce = np.array(TotkWh_reduce)
-#         cost_NCD = np.array(cost_NCD)
-#         cost_PD = np.array(cost_PD)
-#         cost_TOU = np.array(cost_TOU)
-#         cost_tax = np.array(cost_tax)
-#         cost_DAM = np.array(cost_DAM)
-#         cost_RTM = np.array(cost_RTM)
-#         cost_DRM = cost_DAM + cost_RTM
-#         cost_revenue = -cost_DRM - cost_service 
-#         
-#         cost_NCD_ = cost_NCD/TotkWh
-#         cost_PD_ = cost_PD/TotkWh
-#         cost_TOU_ = cost_TOU/TotkWh
-#         cost_tax_ = cost_tax/TotkWh
-#         cost_DAM_ = cost_DAM/TotkWh_reduce
-#         cost_RTM_ = cost_RTM/TotkWh_reduce
-#         cost_DRM_ = cost_DAM_ + cost_RTM_
-#         
-#         
-#         #cost_TOU_M =  cost_TOU*30
-#         cost_TOU_M =  cost_TOU
-#         cost_TOU_M_ = cost_TOU_
-#         #cost_tax_M =  cost_tax*30 + c_tax_SD_Franchise *(np.array(cost_NCD)+np.array(cost_PD)+np.array(cost_TOU)*30)
-#         #cost_tax_M_ = cost_tax_M/(TotkWh*30)
-#         cost_tax_M =  cost_tax + c_tax_SD_Franchise *(np.array(cost_NCD)+np.array(cost_PD)+np.array(cost_TOU))
-#         cost_tax_M_ = cost_tax_M/TotkWh
-#         
-#         cost_Tot_M =  cost_NCD+cost_PD+cost_TOU_M+cost_tax_M+cost_DAM+cost_RTM+cost_service
-#         cost_Tot_M_ = cost_Tot_M/TotkWh
-# =============================================================================
-            
-    #end of the day    
-
-
-
-
-
-
-#%%
-#################################################################################
-# Monthly stair plot from saved data
-#################################################################################   
-
-
-# =============================================================================
-# #kWh data fron saved data
-# dir_Input = os.path.join( "C:/Users/Anne/Desktop/Total/Data/EV_PF_UCSD/Flexibility/Dispatch/")
-# # 2022_PersistenceSessionkWh_PersistenceNumbEV_MLatArrival_MonthlyTh_Eta_v5_test2.csv
-# #'/2022_Perfect_SessionkWhFc_MonthlyTh_Eta_v5_test2.csv'
-# filename_Input = dir_Input + '2022_PersistenceSessionkWh_PersistenceNumbEV_MLatArrival_MonthlyTh_Eta_v5_test3.csv'
-# Dispatch_2022 = pd.read_csv(filename_Input)
-# Dispatch_2022['Interval start'] = pd.to_datetime(Dispatch_2022['Interval start'])
-# 
-#  
-# year = 2022
-# month = 12
-# start_ind = datetime(year, month, 7, 0, 0, 0) #datetime(year, month, 0, 0, 0, 0)
-# end_ind = datetime(year, month, 8, 0, 0, 0) #start_ind + timedelta(days=int(num_days))
-# 
-# 
-# start_M = start_ind
-# end_M   = end_ind
-# TimeSeries_ThisM = []
-# while start_ind < end_ind:
-#     TimeSeries_ThisM.append(start_ind)
-#     start_ind += interval
-# 
-# M_t2 = TimeSeries_ThisM.copy()
-# M_t2.append(TimeSeries_ThisM[-1] + timedelta(minutes=dt_m_EV))
-# 
-# # =============================================================================
-# # M_xmin_1 = pd.to_datetime(TimeSeries_ThisM[0])
-# # M_xmax_1 = pd.to_datetime(TimeSeries_ThisM[959]+timedelta(minutes = dt_m_EV))  #09/10 23:45
-# # M_xmin_2 = pd.to_datetime(TimeSeries_ThisM[959])
-# # M_xmax_2 = pd.to_datetime(TimeSeries_ThisM[1919]+timedelta(minutes = dt_m_EV))  #09/20 23:45
-# # M_xmin_3 = pd.to_datetime(TimeSeries_ThisM[1919])
-# # M_xmax_3 = pd.to_datetime(TimeSeries_ThisM[-1]+timedelta(minutes = dt_m_EV))
-# # 
-# # M_xmin_list = [M_xmin_1,M_xmin_2,M_xmin_3]
-# # M_xmax_list = [M_xmax_1,M_xmax_2,M_xmax_3]
-# # =============================================================================
-# 
-# 
-# Dispatch_2022_ThisM = Dispatch_2022[(Dispatch_2022['Interval start']>=start_M)&(Dispatch_2022['Interval start']<end_M)]
-# Dispatch_2022_ThisM = Dispatch_2022_ThisM.drop_duplicates('Interval start',keep='last')    
-# 
-# Dispatch_2022_ThisM = Dispatch_2022_ThisM.reset_index() 
-#   
-# M_Pw_V0G = Dispatch_2022_ThisM['V0G [kWh]']/unit
-# M_Pw_V1G = Dispatch_2022_ThisM['V1G_real [kWh]']/unit
-# M_Pw_Opt_DA = Dispatch_2022_ThisM['Opt_DA [kWh]']/unit
-# M_Pw_Opt_RT_t0 = Dispatch_2022_ThisM['Opt_RT_t0 [kWh]']/unit
-# M_Pw_Opt_Imp_base  = Dispatch_2022_ThisM['Base [kWh]']/unit
-# M_Pw_Opt_Imp_case1 = Dispatch_2022_ThisM['Case1 [kWh]']/unit
-# M_Pw_Baseline_base = Dispatch_2022_ThisM['baseline_Base [kWh]']/unit
-# M_Pw_Baseline_case1 = Dispatch_2022_ThisM['baseline_Case1 [kWh]']/unit
-# 
-# NCD_start_Base = Dispatch_2022_ThisM['NCD_Base'].iloc[0]
-# NCD_start_Case1 = Dispatch_2022_ThisM['NCD_Case1'].iloc[0]
-# PD_start_Base = Dispatch_2022_ThisM['PD_Base'].iloc[0]
-# PD_start_Case1 = Dispatch_2022_ThisM['PD_Case1'].iloc[0]
-# 
-# Event_Base = np.array(Dispatch_2022_ThisM['event hour_Base'])*140
-# Event_Case1 = np.array(Dispatch_2022_ThisM['event hour_Case1'])*140
-# 
-# M_Pw_V0G_stair           = pd.concat([pd.Series(M_Pw_V0G.iloc[0])          ,M_Pw_V0G])
-# M_Pw_V1G_stair           = pd.concat([pd.Series(M_Pw_V1G.iloc[0])          ,M_Pw_V1G])
-# M_Pw_Opt_DA_stair        = pd.concat([pd.Series(M_Pw_Opt_DA.iloc[0])       ,M_Pw_Opt_DA])
-# M_Pw_Opt_RT_t0_stair     = pd.concat([pd.Series(M_Pw_Opt_RT_t0.iloc[0])    ,M_Pw_Opt_RT_t0])
-# M_Pw_Opt_Imp_base_stair  = pd.concat([pd.Series(M_Pw_Opt_Imp_base.iloc[0]),M_Pw_Opt_Imp_base])
-# M_Pw_Opt_Imp_case1_stair = pd.concat([pd.Series(M_Pw_Opt_Imp_case1.iloc[0]),M_Pw_Opt_Imp_case1])
-# M_Pw_Baseline_base_stair = pd.concat([pd.Series(M_Pw_Baseline_base.iloc[0]),M_Pw_Baseline_base])
-# M_Pw_Baseline_case1_stair= pd.concat([pd.Series(M_Pw_Baseline_case1.iloc[0]),M_Pw_Baseline_case1])
-# 
-# M_Pw_NCD_start_Base_stair  = pd.concat([pd.Series(NCD_start_Base),pd.Series(NCD_start_Base)])
-# M_Pw_NCD_start_Case1_stair = pd.concat([pd.Series(NCD_start_Case1),pd.Series(NCD_start_Case1)])
-# M_Pw_PD_start_Base_stair   = pd.concat([pd.Series(PD_start_Base),pd.Series(PD_start_Base)])
-# M_Pw_PD_start_Case1_stair  = pd.concat([pd.Series(PD_start_Case1),pd.Series(PD_start_Case1)])
-# 
-# t2 = M_t2[0:2]
-# 
-# 
-# for i in range(3):
-# #i=0
-#     #plt.figure(figsize=(20,6))          
-#     M_V0G_,          = plt.step(M_t2, M_Pw_V0G_stair         , linestyle=':', color='k', linewidth=0.5)
-#     M_V1G_,          = plt.step(M_t2, M_Pw_V1G_stair         , linestyle='--', color='k', linewidth=0.5)
-#     M_Opt_DA_,       = plt.step(M_t2, M_Pw_Opt_DA_stair      , linestyle='--', color=Blue1, linewidth=2)
-#     M_Opt_RT_t0,     = plt.step(M_t2, M_Pw_Opt_RT_t0_stair   , linestyle='--', color=Blue3, linewidth=2)
-#     M_Opt_Imp_base,  = plt.step(M_t2, M_Pw_Opt_Imp_base_stair, linestyle='-',  color=Red1, linewidth=1)
-#     M_Opt_Imp_case1, = plt.step(M_t2, M_Pw_Opt_Imp_case1_stair, linestyle='--', color=Red3, linewidth=1)
-#     M_Baseline_base, = plt.step(M_t2, M_Pw_Baseline_base_stair , linestyle='-', color=Blue4 , linewidth=1)
-#     M_Baseline_case1,= plt.step(M_t2, M_Pw_Baseline_case1_stair , linestyle='-', color=Blue6 , linewidth=1)
-#     
-#     M_NCD_start_Base = plt.step(t2, M_Pw_NCD_start_Base_stair, linestyle='-', color=Red1, linewidth=2)
-#     M_NCD_start_Case1= plt.step(t2, M_Pw_NCD_start_Case1_stair, linestyle='', color=Red3, linewidth=0.5, marker='2')
-#     M_PD_start_Base  = plt.step(t2, M_Pw_PD_start_Base_stair, linestyle='-', color=Red1, linewidth=2)
-#     M_PD_start_Case1 = plt.step(t2, M_Pw_PD_start_Case1_stair, linestyle='', color=Red3, linewidth=0.5, marker='2')       
-# 
-#     M_Event_Base = plt.plot(TimeSeries_ThisM, Event_Base, linestyle='', color=Red1, linewidth=0.5, marker='x')  
-#     M_Event_Case1 = plt.plot(TimeSeries_ThisM, Event_Case1, linestyle='', color=Red3, linewidth=0.5, marker='+')      
-# 
-#     plt.title("DA and Implemented EV scheduling " + start_M.strftime("%Y/%m/%d")) #start_ind.strftime("%Y/%m"))
-#     plt.xlabel('Time [-]')
-#     plt.ylabel('Power Demand [kW]')
-# # =============================================================================
-# #     plt.legend([M_Baseline_Opt_,       M_Opt_DA_, M_Opt_RT_t0,
-# #                 M_Opt_Imp_base, M_Opt_Imp_case1, M_V0G_, M_V1G_ ],
-# #                [r'$baseline_{opt}$' ,   r'$V1G_{opt,DA,100\%}$', r'$V1G_{opt,RT,t0,100\%}$',
-# #                 r'$V1G_{opt,imp,100\%}$', r'$V1G_{opt,imp,\eta \%}$', r'$V0G_{100\%}$',   r'$V1G_{real,100\%}$'],
-# #                bbox_to_anchor=(1.05, 1.0), loc='upper left', ncol=1)    
-# # =============================================================================
-#     plt.legend([M_Baseline_base,  M_Baseline_case1, M_Opt_DA_, M_Opt_RT_t0, M_Opt_Imp_base, M_Opt_Imp_case1, M_V0G_, M_V1G_,\
-#                 M_NCD_start_Base, M_NCD_start_Case1, M_PD_start_Base, M_PD_start_Case1,\
-#                 M_Event_Base,  M_Event_Case1 ],\
-#                [r'$baseline_{100\%}$'   ,   r'$baseline_{\eta\%}$'  , r'$V1G_{opt,DA,100\%}$', r'$V1G_{opt,RT,t0,100\%}$',\
-#                 r'$V1G_{opt,imp,100\%}$', r'$V1G_{opt,imp,\eta \%}$', r'$V0G_{100\%}$',   r'$V1G_{real,100\%}$',\
-#                 r'$NCD_{opt,imp,100\%}$', r'$NCD_{opt,imp,\eta \%}$', r'$PD_{opt,imp,100\%}$', r'$PD_{opt,imp,\eta \%}$',\
-#                 r'$event hour_{opt,imp,100\%}$', r'$event hour_{opt,imp,\eta \%}$'    ],\
-#                 bbox_to_anchor=(1.4, 1.0))    
-#     # beautify the x-labels
-#     plt.gcf().autofmt_xdate()
-#     myFmt = mdates.DateFormatter('%H:%M') #myFmt = mdates.DateFormatter('%Y/%m/%d')
-#     plt.gca().xaxis.set_major_formatter(myFmt)
-#     plt.xticks(rotation=45)    
-#     plt.xlim(M_t2[0], M_t2[-1]) #plt.xlim(M_xmin_list[i], M_xmax_list[i])
-#     plt.ylim(-3, 203)
-#     #save plot
-# # =============================================================================
-# #         path = 'C:/Users/Anne/Desktop/Total/Results/Plots/Flexibility/Results_Eta_v1_2_'+ H_Start_RT.strftime("%Y")+'/'+Fc_SessionkWh+'/'
-# #         plt.savefig(path  + H_Start_RT.strftime("%Y%m") + '_Implemented_Pw_stair_'+ str(i) +'.png', bbox_inches='tight')
-# # =============================================================================
-#     plt.show()
-# =============================================================================
 
 
 
@@ -2097,36 +1824,10 @@ for month in np.array(range(1))+12:
 Time_Run_End = process_time()
 Time_Process = time.strftime(
     '%H:%M:%S', time.gmtime(Time_Run_End-Time_Run_Start))
-print(f"Script run time is: {Time_Process} seconds\n")
+print(f"Script run time is: {Time_Process} \n")
 
 
 #Error_Fc = Numb_AbsDiffEVs/Numb_EVs  #18.86%
-
-#################################################################################
-# Debug
-#################################################################################
-
-Dispatch_df = pd.DataFrame(Dispatch, columns=["0", "1"])
-Dispatch_df.to_csv('Anne_Dispatch_test.csv', mode='w', index=False, header=True)
-D_all.to_csv('Anne_D_all_test.csv', mode='w', index=False, header=True)
-
-
-
-# Energy analysis
-D_day = D_all 
-energy_V0G = D_day['V0G [kWh]'].sum()
-energy_V1G_real = D_day['V1G_real [kWh]'].sum()
-energy_Opt_DA = D_day['Opt_DA [kWh]'].sum()
-energy_Opt_RT_t0 = D_day['Opt_RT_t0 [kWh]'].sum()
-energy_Opt_imp_base = D_day['Base [kWh]'].sum()
-energy_Opt_imp_case1 = D_day['Case1 [kWh]'].sum()
-
-if not (np.isclose(energy_V0G, energy_V1G_real, atol=0.1) and
-    np.isclose(energy_V0G, energy_Opt_DA, atol=0.1) and
-    np.isclose(energy_V0G, energy_Opt_RT_t0, atol=0.1) and
-    np.isclose(energy_V0G, energy_Opt_imp_base, atol=0.1)):
-    print(f"Energy mismatch: V0G={energy_V0G}, V1G_real={energy_V1G_real}, Opt_DA={energy_Opt_DA}, Opt_RT_t0={energy_Opt_RT_t0}, Opt_imp_base={energy_Opt_imp_base}, Opt_imp_case1={energy_Opt_imp_case1} (this is expected if eta<100%)")
-
 
 
 
