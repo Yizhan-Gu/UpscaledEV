@@ -1,5 +1,6 @@
 *.csv
 *.zip
 *.png
-echo ".DS_Store" >> .gitignore
-echo "Results/" >> .gitignore
+Results/
+.DS_Store
+**/.DS_Store

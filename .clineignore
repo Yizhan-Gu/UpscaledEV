@@ -1,0 +1,25 @@
+# 1. 依然屏蔽最大的毒瘤：数据、输出和编译文件
+Results/
+2025Data/
+*.csv
+*.mat
+*.png
+*.jpg
+*.pdf
+*.log
+__pycache__/
+.git/
+
+# 2. 屏蔽所有 Notebook，但保留你正在改的那几个
+*.ipynb
+!upscaledev_imp.ipynb
+
+# 3. 允许 Cline 看到项目里的 Python 脚本和说明文档
+# 这能帮它理解你的函数调用逻辑
+!*.py
+!*.md
+!*.txt
+
+# 4. 屏蔽掉 VS Code 和 Jupyter 的临时备份文件
+.ipynb_checkpoints/
+.vscode/

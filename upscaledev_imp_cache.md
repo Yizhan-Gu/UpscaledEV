@@ -26,9 +26,9 @@ Notebook 主要分成 7 个部分：
 2. **环境与包导入**
 3. **参数设置**
 4. **数据读取与预处理**
-5. **绘图与结果导出函数**
-6. **主循环（DA + RT/MPC 优化）**
-7. **批量运行与财务汇总后处理**
+5. **绘图与结果导出函数**（Cell 9）
+6. **主循环（DA + RT/MPC 优化）**（Cell 11）
+7. **批量运行与财务汇总后处理**（Cell 12-14）
 
 ---
 
@@ -142,7 +142,7 @@ Notebook 主要分成 7 个部分：
 
 ## 6. 两个主要辅助函数
 
-### 6.1 `plot_daily_solver_choice_figures(...)`
+### 6.1 `plot_daily_solver_choice_figures(...)`（Cell 9）
 作用：
 - 生成每天的 6-panel 图
 - 导出 daily price table
@@ -155,6 +155,9 @@ Notebook 主要分成 7 个部分：
 - BESS 的 WM / NWM 充放电拆分
 - SOC 曲线
 - EV / Baseline / BESS / GI 的整体功率关系
+
+Panel f (ax6) 显示整体系统功率，demand charge threshold 用 dashes 表示。
+所有 6 个 panel 均无 grid lines。
 
 ### 6.2 `save_old_stairplot_beautified(...)`
 作用：
@@ -209,7 +212,7 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 - daily summary
 - 供后续天数 baseline 使用的数据
 
-这意味着 notebook 不只是“算一次”，而是形成了 **多天串联仿真**。
+这意味着 notebook 不只是"算一次"，而是形成了 **多天串联仿真**。
 
 ---
 
@@ -287,7 +290,9 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 
 约束里主要管三件事：
 
-1. **容量上限**：不能超过 EV + BESS 提供能力
+1. **容量上限**：
+   - `p_up = P_BESS_max + B_EV`（上调能力）
+   - `p_down = P_BESS_max - B_EV + P_EV_max`（下调能力）
 2. **方向一致性**：避免同一时段同时做互相冲突的动作
 3. **SOC 可行性**：确保 BESS 有足够电量/空间履约
 
@@ -296,6 +301,19 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 - DA / RT 能量收益
 - AS capacity 收益
 - activation 对应的能量项
+
+### WM Revenue 列结构（wm_profit_table）
+
+Energy products:
+- `p_DA_profit`, `p_RT_profit`
+
+Capacity products (up-side, p_up relevant):
+- `c_RU_DA_profit`, `c_RU_RT_profit`
+- `c_SP_DA_profit`, `c_SP_RT_profit`
+- `c_NSP_DA_profit`, `c_NSP_RT_profit`
+
+Capacity products (down-side, p_down relevant):
+- `c_RD_DA_profit`, `c_RD_RT_profit`
 
 ---
 
@@ -306,7 +324,7 @@ Notebook 里 baseline 不是一个固定曲线，而是会根据历史非事件�
 ### baseline 的核心逻辑
 - 若目标日是工作日，则从过去工作日找样本
 - 若目标日是周末/节假日，则从过去周末/节假日找样本
-- Base / Case1 会逐小时找“非 event hour”样本
+- Base / Case1 会逐小时找"非 event hour"样本
 
 ### Event hour 判定
 通过：
@@ -350,18 +368,24 @@ Notebook 里 baseline 不是一个固定曲线，而是会根据历史非事件�
 - `Results/Plots/Daily_Price_Tables/...`
 - `Results/Plots/Imp_Stair/...`
 
-### 财务汇总
-最后一个 code cell 会：
-
-- 汇总 DA WM profit breakdown
-- 汇总 DA WM TOU breakdown
-- 生成 daily 2x5 financial table
+### 财务汇总（Cell 13）
+Cell 13 现在会生成：
+- 每日产品拆分 CSV：`DA_WM_profit_breakdown_summary_YYYYMMDD.csv`
+- 每日 TOU 拆分 CSV：`DA_WM_TOU_breakdown_summary_YYYYMMDD.csv`
+- 每日 2x5 财务表：`DA_financial_tables/DA_financial_table_YYYYMMDD.csv`
+- **每日 WM revenue 拆分汇总表**：`DA_financial_tables/WM_Revenue_Breakdown_Daily.csv`
+  - 列：Date, WM_Revenue_Total, Energy_Revenue, Capacity_Revenue, EV_WM_Revenue, BESS_WM_Revenue
+  - Energy + Capacity = WM_Revenue_Total（验证列 Check_EC）
+  - EV + BESS = WM_Revenue_Total（验证列 Check_EB，基于比例分配）
+- **Stacked bar 图**：`DA_financial_tables/WM_Revenue_Breakdown_Stacked_Bar.png`
+  - 2x1 图：上图=Energy vs Capacity，下图=EV vs BESS
+  - 每行是一天
 
 ---
 
 ## 14. notebook 末尾额外两个 code cell 的作用
 
-### 倒数第二个 cell
+### Cell 12（倒数第二个）
 不是重新写主循环，而是：
 
 - 用 `nbformat` 直接读取 notebook 自己
@@ -375,14 +399,19 @@ Notebook 里 baseline 不是一个固定曲线，而是会根据历史非事件�
 
 也就是说，这个 cell 是一个 **批量运行器**。
 
-### 最后一个 cell
+### Cell 13（最后一个财务分析 cell）
 基于已经生成的结果文件，做：
 
 - 每日 WM profit summary
 - 每日 WM TOU summary
 - 2x5 财务表（TOU only / Both）
+- **WM revenue 拆分分析**（Energy/Capacity + EV/BESS）
+- **Stacked bar plot**
 
 这个 cell **不重新优化**，只是读取已有 CSV 做后处理。
+
+### Cell 14
+月度汇总表 + 每日各指标趋势图，保存至 `Results/Plots/Cost/`
 
 ---
 
@@ -392,57 +421,52 @@ Notebook 里 baseline 不是一个固定曲线，而是会根据历史非事件�
 
 ---
 
-## 16. 后续改代码时最重要的上下文缓存
+## 16. 已完成的代码修改记录
 
-如果后面要改代码，优先记住下面这些：
+本次任务对 `upscaledev_imp.ipynb` 做了以下四处修改：
 
-### A. 最核心主线
-- 先做 **DA 优化**
-- 再做 **RT/MPC implementation**
-- 最后把结果写到 `Results/Dispatch/*.csv`
+__1. Cell 11 主循环（Main Loop）— 新增 `DA_WM_cap_bids_{WM_Mode}.csv` 输出__ 每天DA优化后，额外保存一个 interval 级别的 CSV 文件，包含：`B_EV_kW`（真实 baseline kW，不再用日均近似）、`P_EV_max_kW`、`p_up`、`p_down`、`sum_up_bids`、`sum_dn_bids`、`up_bound_hit`（0/1，该 interval 上调约束是否紧绑定）、`dn_bound_hit`（下调约束是否紧绑定）、`p_ch_EV`、`p_dch_EV`、`p_ch_BESS_WM`、`p_dch_BESS_WM`。
 
-### B. 三种模式
-- `full`: 零售 + WM 都参与
-- `wm_only`: 只保留 WM 驱动（代码里有对应约束）
-- `retail_only`: 只做零售侧，但 notebook 内部有一处 `Enable_WM` 定义不完全一致，需要特别小心
+__2. Cell 9 图c（Capacity Products 面板）— 加 p_up 和 p_down 边界线__ 在 stacked bar 之后，从 `Solver_Outputs_DA` 中读取真实 `Baseline(kW)` 和 `P_EV_max`，计算并绘制：
 
-### C. 两个 case
-- `Base`
-- `Case1`
+- 橙色实线 `p_up bound`（= P_BESS_max + B_EV，上调约束上界）
+- 蓝色实线 `-p_down bound`（= -(P_BESS_max - B_EV + P_EV_max)，下调约束上界取负） 直观显示哪些时刻 bid 已碰到约束边界。
 
-### D. 最关键结果变量
-- `Solver_Outputs_DA`
-- `Solver_Outputs_RT`
-- `Dispatch`
-- `Baseline_96`
-- `EventHour_96`
-- `p_BESS_value_RT`
-- `p_GI_DA`
+__3. Cell 14 末尾 WM Revenue Breakdown — 改为 interval 级精确分析__
 
-### E. 最容易改坏的区域
-- baseline/event hour 逻辑
-- WM 和 BESS 的方向约束
-- RT 中 arrival 更新和 `SessionkWh_nEta` / `UpperBound` 的维护
-- `Enable_WM` 与 `WM_Mode` 的一致性
-- notebook 中 runner cell 对 main-loop source 的正则替换
+- __Energy vs Capacity__：不变，`p_DA_profit + p_RT_profit` = Energy，`c_*_profit` 之和 = Capacity
+
+- __EV vs BESS__：改为逐 interval 从 `DA_WM_cap_bids` 文件读取真实 B_EV、p_up、p_down、bound_hit 标志、p_ch_EV/p_dch_EV/p_ch_BESS_WM 等，进行精确比例分配：
+
+  - 上调（RU/SP/NSP）：`EV = B_EV/p_up`，`BESS = P_BESS_max/p_up`（两个方向都算，并用 `up_bound_hit` 标记是否 tight）
+  - 下调（RD）：`EV = (P_EV_max - B_EV)/p_down`，`BESS = P_BESS_max/p_down`
+  - Energy（p_DA/p_RT）：按 `|p_ch_BESS_WM - p_dch_BESS_WM|` vs `|p_ch_EV - p_dch_EV|` 比例分配，两者均为零时归入 BESS
+
+- __额外输出__ `WM_Revenue_Breakdown_Interval_Detail.csv`：每行是一个 interval，记录 B_EV、p_up、p_down、up/dn bound_hit、各产品revenue 及 EV/BESS 归属，方便验证
+
+- __日汇总表__ 新增 `N_up_bound_hit` / `N_dn_bound_hit` 列，显示该天有多少个 15 分钟区间上调/下调约束是紧绑定的（你的预测：下调 dn_bound_hit 应几乎为 0，因为 p_down 太大很难触到）
+
+- __Stacked bar &#x56FE;__&#x5E95;部面板额外标注每天的 `↑N_up ↓N_dn` 计数
 
 ---
 
-## 17. 建议的后续协作方式（省 token）
+## 17. 后续协作方式（省 token）
 
 以后你不需要再贴整个 notebook。你可以直接引用这份缓存摘要，并告诉我：
 
 ### 用法示例 1
-“按 `upscaledev_imp_cache.md` 的缓存，帮我改 RT 优化里的 BESS 约束。”
+"按 `upscaledev_imp_cache.md` 的缓存，帮我改 RT 优化里的 BESS 约束。"
 
 ### 用法示例 2
-“基于缓存摘要，检查 `retail_only` 和 `Enable_WM` 的逻辑是否一致。”
+"基于缓存摘要，检查 `retail_only` 和 `Enable_WM` 的逻辑是否一致。"
 
 ### 用法示例 3
-“按缓存摘要，帮我把 notebook 的 main loop 抽成 `.py` 文件。”
+"按缓存摘要，帮我把 notebook 的 main loop 抽成 `.py` 文件。"
 
 这样我后续只需要：
 - 读这个摘要文件
 - 再读 notebook 的相关局部代码段
 
 就不用每次重新消耗大量 token 读取整份 notebook。
+
+注意：Cline 读取或修改 Notebook 之前，先手动执行 "Clear All Outputs" 并保存。
