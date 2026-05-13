@@ -399,6 +399,71 @@ Cell 13 现在会生成：
 
 也就是说，这个 cell 是一个 **批量运行器**。
 
+## 15. 将 DA 分析改为 RT 分析（静态修改指南）
+
+目标：把 notebook 中目前用于 DA 结果可视化 / 表格导出的所有分析，改为基于 RT 实施层的输出（即 notebook 里的 `Solver_Outputs_RT_Base`，有时命名为 `solver_outputs_RT_base`）。主要变更点如下：
+
+- **替换数据源**：在所有生成图 / 表 / 汇总的地方，将 `Solver_Outputs_DA` 换成 `Solver_Outputs_RT_Base`（或在你的代码风格中统一为小写 `solver_outputs_RT_base`）。
+- **保存路径**：把 `Results/Plots/Solver_DA_Choices/...` 改为 `Results/Plots/Solver_RT_Choices/...`，并把文件名中的 `DA_` 替换成 `RT_`（例如 `DA_WM_profit_breakdown_...` → `RT_WM_profit_breakdown_...`）。
+- **WM 收益与 TOU 表**：当前 `WM_Profit_Table`、`WM_TOU_Table` 等由 `Solver_Outputs_DA` 生成，改为使用 `Solver_Outputs_RT_Base['WM_*']` 对应字段（名称一致的话直接替换变量）。
+- **绘图函数**：`plot_daily_solver_choice_figures(...)` 等会接 `Solver_Outputs_DA` 或 `res` 变量。建议将函数改为接收一个 `res` 参数并在调用处传入 `Solver_Outputs_RT_Base`：
+
+示例：
+
+```python
+# 旧调用（示例）
+plot_daily_solver_choice_figures(date_i, Solver_Outputs_DA, other_args...)
+
+# 新调用
+plot_daily_solver_choice_figures(date_i, Solver_Outputs_RT_Base, other_args...)
+
+# 或者统一名为 res，在函数里引用统一字段
+res = Solver_Outputs_RT_Base
+plot_daily_solver_choice_figures(date_i, res, ...)
+```
+
+- **财务汇总表**：把 `DA_financial_tables/*` 改为 `RT_financial_tables/*`，或在生成文件时同时保留 DA 版本并额外写 RT 版本，便于比较。
+
+注意事项：
+- Notebook 中有许多地方既引用了 `Solver_Outputs_DA`，又在后面比较 DA 与 RT（比如绘图里显示 DA 与 RT 的对比）。若你的目标是“把所有现在的 DA 分析变成 RT 分析”，请确保删除或替换所有文件名/文件夹中的 `DA_` 前缀，以及所有 `Solver_Outputs_DA[...]` 的直接引用。
+- 变量命名：在 notebook 中实际变量名为 `Solver_Outputs_RT_Base`（首字母大写驼峰），但你在请求中写的是 `solver_outputs_RT_base`（小写）。静态修改时请决定一个命名规范并在代码中统一替换。
+
+示例替换片段（在 notebook 的保存/写文件处）：
+
+```python
+# 保存 wm profit 表（原）
+wm_profit_file = da_profit_dir / f"DA_WM_profit_breakdown_{WM_Mode}.csv"
+wm_profit_table_to_save.to_csv(wm_profit_file)
+
+# 保存 wm profit 表（改为 RT）
+rt_profit_dir = Path('Results/Plots/Solver_RT_Choices') / tag / date_str
+rt_profit_dir.mkdir(parents=True, exist_ok=True)
+wm_profit_file_rt = rt_profit_dir / f"RT_WM_profit_breakdown_{WM_Mode}.csv"
+wm_profit_table_to_save.to_csv(wm_profit_file_rt)
+```
+
+最后一步（静态修改完成后）请运行 notebook 的快速动态检查。
+
+## 16. 快速动态测试（非完美预测）
+
+目标：只做一次快速运行，验证当你在 notebook 开头选择**非 perfect** 的预测方式时（比如把 `Fc_SessionkWh`、`Fc_NumbEV`、`Fc_AtArrival` 改为非 Perfect 的选项），能够顺利跑完 RT 实施并生成上面改为 RT 的图表和表格。
+
+建议的最小改动（在 notebook 开头）：
+
+```python
+# 将完美预测替换为非完美预测（示例）
+Fc_SessionkWh = 'PersistenceSessionkWh'  # 或者 'ForecastSessionkWh'
+Fc_NumbEV = 'PersistenceNumbEV'           # 或者 'ForecastNumbEV'
+Fc_AtArrival = 'MLatArrival'             # 使用 ML 到达预测而非 perfect
+```
+
+运行建议：
+- 先在 notebook 中把 `RUN_MAIN_LOOP_DIRECT` 或批量运行器设置为只跑 1 天（`RUN_DAYS_CONFIG = [1]`）并把 `RUN_MODES = ['full']`。
+- 运行主循环 cell（Cell 11 / main loop）。
+- 检查 `Results/Plots/Solver_RT_Choices/...` 是否生成 RT 版本的 CSV 与图片，以及是否没有触发明显异常。
+
+如果你希望我直接在 notebook 中替换并做一次最小化的动态运行测试，我可以继续；否则我会先把静态修改（MD 与必要的代码替换建议）提交为第一步. 
+
 ### Cell 13（最后一个财务分析 cell）
 基于已经生成的结果文件，做：
 
