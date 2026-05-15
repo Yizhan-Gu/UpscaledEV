@@ -1,5 +1,7 @@
 # upscaledev_imp.ipynb 缓存摘要
 
+> **最后更新：2026-05-14** | 基于 notebook 当前实际代码状态
+
 ## 1. Notebook 的核心目标
 
 这个 notebook 是 **UPscaledEV 项目的主实现版优化代码**。它的目标是构建一个包含以下资源的联合优化框架：
@@ -20,15 +22,25 @@
 
 ## 2. 总体结构
 
-Notebook 主要分成 7 个部分：
+Notebook 主要分成 **8 个 code cell**（实际可执行单元）：
 
-1. **项目说明 / README**
-2. **环境与包导入**
-3. **参数设置**
-4. **数据读取与预处理**
-5. **绘图与结果导出函数**（Cell 9）
-6. **主循环（DA + RT/MPC 优化）**（Cell 11）
-7. **批量运行与财务汇总后处理**（Cell 12-14）
+| Cell | 功能 |
+|------|------|
+| Cell 1 | 项目说明 / README (markdown) |
+| Cell 2 | 环境与包导入 |
+| Cell 3 | 参数设置（含 `TARGET_SAVE`、`RUN_MAIN_LOOP_DIRECT` 等开关） |
+| Cell 4-8 | 数据读取与预处理 |
+| Cell 9 | **`plot_daily_solver_choice_figures()`** 绘图与结果导出函数 |
+| Cell 10 | Baseline / event hour 预处理逻辑 |
+| Cell 11 | **主循环（DA + RT/MPC 优化）** |
+| Cell 12 | **批量运行器**（用 `nbformat` 动态执行 Cell 11） |
+| Cell 13 | **财务后处理**（WM profit / TOU / 2x5 表汇总） |
+| Cell 14 | **月度汇总 + 多图输出**（time-series、stacked bar、delta 图等） |
+
+### 关键架构决策
+- **DA vs RT 切换**：通过全局变量 `TARGET_SAVE` 控制（`'DA'` 或 `'RT'`），当前默认值为 `'RT'`
+- **批量运行**：Cell 12 读取 Cell 11 源码，通过 `nbformat` + `exec()` 循环不同 `WM_Mode`
+- **主循环开关**：`RUN_MAIN_LOOP_DIRECT = False`（默认不运行），Cell 12 将其替换为 `True` 后执行
 
 ---
 
@@ -54,24 +66,20 @@ Notebook 主要分成 7 个部分：
 - `2025Data/LMP/2025/DA/*.csv`
 - `2025Data/LMP/2025/FM/*.csv`
 
-用途：
-- DA LMP
-- RT LMP
+用途：DA LMP / RT LMP
 
 ### Ancillary Service 数据
 - `2025Data/AS_DAM/AS_price_2025_clear.csv`
 - `2025Data/AS_RTM/AS_price_2025_clear.csv`
 
-用途：
-- RegUp / RegDown / Spin / NonSpin 的 DA / RT 价格
+用途：RegUp / RegDown / Spin / NonSpin 的 DA / RT 价格
 
 ### 可选 ML 到达预测相关
 - `Driver_Table.csv`
 - `Sessions_Data/Sessions_Data_<user>.csv`
 - 外部 battery lookup 表
 
-用途：
-- 当 `Fc_AtArrival == 'MLatArrival'` 时，对用户到达后的 session / 停留时长进行预测
+用途：当 `Fc_AtArrival == 'MLatArrival'` 时，对用户到达后的 session / 停留时长进行预测
 
 ---
 
@@ -81,6 +89,14 @@ Notebook 主要分成 7 个部分：
 - `dt_m_EV = 15`
 - `dt_h = 0.25`
 - 每天 96 个时间步
+
+### DA/RT 切换开关（新增）
+- `TARGET_SAVE = 'RT'` — **控制所有图/表/文件夹的后缀**，支持 `'DA'` | `'RT'`
+- 影响范围：
+  - 绘图保存路径：`Results/Plots/Solver_{TARGET_SAVE}_Choices/...`
+  - 文件名前缀：`{TARGET_SAVE}_WM_profit_breakdown_...`
+  - 财务表文件夹：`{TARGET_SAVE}_financial_tables/...`
+  - 6-panel 图标题和数据源选择
 
 ### BESS 参数
 - `SOC_BESS_min = 0.05`
@@ -97,27 +113,31 @@ Notebook 主要分成 7 个部分：
 - TOU 电价数组：`c_e_TOU_AL`，长度 96
 
 ### 预测模式开关
-- `Fc_SessionkWh`
-- `Fc_NumbEV`
-- `Fc_AtArrival`
-- `Fc_building`
-- `Fc_PV`
+- `Fc_SessionkWh`：`'PerfectSessionkWh'` | `'PersistenceSessionkWh'` | `'ForecastSessionkWh'`
+- `Fc_NumbEV`：`'PerfectNumbEV'` | `'PersistenceNumbEV'` | `'ForecastNumbEV'`
+- `Fc_AtArrival`：`'PerfectatArrival'` | `'MLatArrival'`
+- `Fc_building`：`'Perfectbuilding'` | `'Persistencebuilding'`
+- `Fc_PV`：`'PerfectPV'` | `'PersistencePV'`
 
-当前 notebook 主要使用：
+当前 notebook 默认使用：
 - `PerfectSessionkWh`
 - `PerfectNumbEV`
 - `PerfectatArrival`
 
 ### 市场模式开关
 - `WM_Mode = 'full' | 'wm_only' | 'retail_only'`
-- `Enable_WM = (WM_Mode in ['full', 'retail_only'])`
-  - **注意：这里逻辑上有点可疑**，因为 `retail_only` 直觉上不应启用 WM；
-    后面 runner cell 里又重新定义：`Enable_WM = (WM_Mode in ['full'])`
+- 注意有两处定义：
+  - Cell 3 顶部：`Enable_WM = (WM_Mode in ['full', 'retail_only'])`（可疑——`retail_only` 不应启用 WM）
+  - Cell 12 批量运行器：`Enable_WM = (WM_Mode in ['full'])`（正确覆盖）
 
 ### Case 设置
 - `Cases = ['Base', 'Case1']`
-  - `Base`: 100% 服务水平
-  - `Case1`: 允许 service level reduction（Eta_min）
+  - `Base`：100% 服务水平
+  - `Case1`：允许 service level reduction（Eta_min）
+
+### 主循环运行开关
+- `RUN_MAIN_LOOP_DIRECT = False` — 防止在 notebook 中误触直接运行
+- `run_days = [1, 2]` — 默认运行天数（Cell 12 中 `RUN_DAYS_CONFIG` 覆盖）
 
 ---
 
@@ -140,31 +160,37 @@ Notebook 主要分成 7 个部分：
 
 ---
 
-## 6. 两个主要辅助函数
+## 6. 主要辅助函数
 
 ### 6.1 `plot_daily_solver_choice_figures(...)`（Cell 9）
 作用：
-- 生成每天的 6-panel 图
-- 导出 daily price table
-- 导出 BESS activity table
-- 输出 DA 结果可视化
+- 生成每天的 6-panel 图（a-f）
+- Panel a：价格信号（LMP、AS、TOU）
+- Panel b：容量产品 bid
+- Panel c：Capacity products — AS bid bar chart（当前无 p_up/p_down 边界线）
+- Panel d：BESS 功率拆分（WM vs NWM）
+- Panel e：SOC 曲线
+- Panel f：系统总功率关系（EV/Baseline/BESS/GI），含 demand charge threshold dashes
 
-图里主要展示：
-- 各类价格信号（LMP、AS、TOU）
-- 容量产品和能量义务
-- BESS 的 WM / NWM 充放电拆分
-- SOC 曲线
-- EV / Baseline / BESS / GI 的整体功率关系
+所有 6 个 panel 均**无 grid lines**。
 
-Panel f (ax6) 显示整体系统功率，demand charge threshold 用 dashes 表示。
-所有 6 个 panel 均无 grid lines。
+函数签名：
+```python
+def plot_daily_solver_choice_figures(
+    TheDate_Day0, dt_h, Solver_Outputs,
+    c_e_TOU_AL, Bid_Pr_DA, Bid_Pr_RT,
+    AS_Pr_RU_DA, AS_Pr_RU_RT, AS_Pr_RD_DA, AS_Pr_RD_RT,
+    AS_Pr_SP_DA, AS_Pr_SP_RT, AS_Pr_NSP_DA, AS_Pr_NSP_RT,
+    alpha_RU, alpha_RD, alpha_SP, alpha_NSP,
+    run_tag, M_Th_NCD, M_Th_PD,
+    P_BESS_max, P_EV_max,
+)
+```
 
 ### 6.2 `save_old_stairplot_beautified(...)`
-作用：
-- 生成传统 stair plot
-- 比较 V0G / V1G / DA / RT implementation / baseline 等曲线
+作用：生成传统 stair plot，比较 V0G / V1G / DA / RT implementation / baseline 等曲线。
 
-当前 notebook 中这部分调用被注释掉了，没有实际输出。
+当前 notebook 中**调用被注释掉了**（Cell 11 末尾 `''' ... '''` 块），没有实际输出。
 
 ---
 
@@ -181,7 +207,6 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 - AS capacity（RU / RD / SP / NSP）
 
 目标函数包含：
-
 - Demand Charge（NCD + PD）
 - TOU 电能成本
 - EV service revenue
@@ -207,7 +232,6 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 
 ### 第三层：落地写回 dispatch / baseline 更新支撑
 每天运行完之后会输出：
-
 - implementation dispatch
 - daily summary
 - 供后续天数 baseline 使用的数据
@@ -220,7 +244,6 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 
 ### 车辆层面
 对于每天出现的每辆车，构造：
-
 - ArrivalTime
 - SessionkWh
 - Eta_min
@@ -245,19 +268,15 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 ## 9. BESS 建模在做什么
 
 定义了：
-
 - 总 BESS 功率 `p_BESS`
 - 充电功率 `p_ch_BESS`
 - 放电功率 `p_dch_BESS`
 - WM 渠道 / 非 WM 渠道拆分：
-  - `p_ch_BESS_WM`
-  - `p_dch_BESS_WM`
-  - `p_ch_BESS_NWM`
-  - `p_dch_BESS_NWM`
+  - `p_ch_BESS_WM` / `p_dch_BESS_WM`
+  - `p_ch_BESS_NWM` / `p_dch_BESS_NWM`
 - SOC 动态 `soc_BESS`
 
 它的作用有两个：
-
 1. **零售侧削峰填谷**
 2. **为批发市场容量和能量义务提供灵活性**
 
@@ -270,7 +289,6 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 ## 10. Wholesale Market 建模在做什么
 
 定义的市场变量包括：
-
 - 能量：`p_DA`, `p_RT`
 - 辅助服务容量：
   - `c_RU_DA`, `c_RU_RT`
@@ -284,20 +302,14 @@ Notebook 的核心其实是 **两层优化 + 一个实施层**：
 - `alpha_SP = 0.2`
 - `alpha_NSP = 0.2`
 
-意思是：
-- 不是所有卖出的容量都转化为全额能量调用
-- 用 alpha 表示预期能量义务
+意思是：不是所有卖出的容量都转化为全额能量调用，用 alpha 表示预期能量义务。
 
 约束里主要管三件事：
-
-1. **容量上限**：
-   - `p_up = P_BESS_max + B_EV`（上调能力）
-   - `p_down = P_BESS_max - B_EV + P_EV_max`（下调能力）
+1. **容量上限**：`p_up = P_BESS_max + B_EV`（上调能力），`p_down = P_BESS_max - B_EV + P_EV_max`（下调能力）
 2. **方向一致性**：避免同一时段同时做互相冲突的动作
 3. **SOC 可行性**：确保 BESS 有足够电量/空间履约
 
 收益中同时计入：
-
 - DA / RT 能量收益
 - AS capacity 收益
 - activation 对应的能量项
@@ -363,155 +375,118 @@ Notebook 里 baseline 不是一个固定曲线，而是会根据历史非事件�
 - `Results/Dispatch/0_*.csv`
 - `Results/Dispatch/1_*.csv`
 
-### 图与价格表
-- `Results/Plots/Solver_DA_Choices/...`
-- `Results/Plots/Daily_Price_Tables/...`
-- `Results/Plots/Imp_Stair/...`
+### 图与价格表（路径由 `TARGET_SAVE` 控制）
+- `Results/Plots/Solver_{TARGET_SAVE}_Choices/.../`
+  - 每日 6-panel 图
+  - `{TARGET_SAVE}_WM_profit_breakdown_{mode}.csv`
+  - `{TARGET_SAVE}_WM_TOU_breakdown_{mode}.csv`
 
 ### 财务汇总（Cell 13）
-Cell 13 现在会生成：
-- 每日产品拆分 CSV：`DA_WM_profit_breakdown_summary_YYYYMMDD.csv`
-- 每日 TOU 拆分 CSV：`DA_WM_TOU_breakdown_summary_YYYYMMDD.csv`
-- 每日 2x5 财务表：`DA_financial_tables/DA_financial_table_YYYYMMDD.csv`
-- **每日 WM revenue 拆分汇总表**：`DA_financial_tables/WM_Revenue_Breakdown_Daily.csv`
-  - 列：Date, WM_Revenue_Total, Energy_Revenue, Capacity_Revenue, EV_WM_Revenue, BESS_WM_Revenue
-  - Energy + Capacity = WM_Revenue_Total（验证列 Check_EC）
-  - EV + BESS = WM_Revenue_Total（验证列 Check_EB，基于比例分配）
-- **Stacked bar 图**：`DA_financial_tables/WM_Revenue_Breakdown_Stacked_Bar.png`
-  - 2x1 图：上图=Energy vs Capacity，下图=EV vs BESS
-  - 每行是一天
+Cell 13 会生成：
+- 每日产品拆分 CSV：`{TARGET_SAVE}_WM_profit_breakdown_summary_YYYYMMDD.csv`
+- 每日 TOU 拆分 CSV：`{TARGET_SAVE}_WM_TOU_breakdown_summary_YYYYMMDD.csv`
+- 每日 2x5 财务表：`{TARGET_SAVE}_financial_tables/{TARGET_SAVE}_financial_table_YYYYMMDD.csv`
+  - 列：`Case / US$`, `Total Revenue`, `WM Revenue`, `TOU Cost`, `PD Cost`, `NCD Cost`, `EV Revenue`
+  - ⚠️ 注意：Demand Cost 拆分为独立的 `PD Cost` 和 `NCD Cost` 两列，**没有**合并的 `Demand Cost (PD+NCD)` 列
+
+### 月度汇总 + 多图（Cell 14）
+保存至 `Results/Plots/Cost/2025_{Fc tags}/`：
+- `monthly_financial_summary.csv`
+- `daily_financial_detail.csv`
+- `daily_financial_metrics_all.png` — 时间序列折线图（5 个指标 × 2 cases）
+- `daily_financial_metrics_hbar.png` — 水平条形图对比
+- `daily_value_stack_comparison.png` — 2x1 stacked bar（Retail only / Both）
+- `daily_wm_delta.png` — Δ(Both − Retail only) 增量图
+- `monthly_summary_grouped_bar.png` — 月度汇总分组柱状图
 
 ---
 
-## 14. notebook 末尾额外两个 code cell 的作用
+## 14. 各 Cell 详细说明
 
-### Cell 12（倒数第二个）
-不是重新写主循环，而是：
-
+### Cell 12（批量运行器）
+**不是重新写主循环**，而是：
 - 用 `nbformat` 直接读取 notebook 自己
-- 抽取 main loop cell 的 source
+- 抽取 main loop cell (Cell 11) 的 source
 - 把 `RUN_MAIN_LOOP_DIRECT=False` 替换成 `True`
+- 把 `run_days = [1, 2]` 替换为 `run_days = list(RUN_DAYS_CONFIG)`
 - 批量运行多个 `WM_Mode`
 
 当前配置：
-- `RUN_DAYS_CONFIG = [1, 2]`
+- `TARGET_SAVE = 'RT'`
+- `RUN_DAYS_CONFIG = list(range(1, 32))`
 - `RUN_MODES = ['retail_only', 'full']`
 
-也就是说，这个 cell 是一个 **批量运行器**。
+关键细节：`Enable_WM = (WM_Mode in ['full'])` —— 在批量运行器中正确定义，覆盖了 Cell 3 中的可疑定义。
 
-## 15. 将 DA 分析改为 RT 分析（静态修改指南）
-
-目标：把 notebook 中目前用于 DA 结果可视化 / 表格导出的所有分析，改为基于 RT 实施层的输出（即 notebook 里的 `Solver_Outputs_RT_Base`，有时命名为 `solver_outputs_RT_base`）。主要变更点如下：
-
-- **替换数据源**：在所有生成图 / 表 / 汇总的地方，将 `Solver_Outputs_DA` 换成 `Solver_Outputs_RT_Base`（或在你的代码风格中统一为小写 `solver_outputs_RT_base`）。
-- **保存路径**：把 `Results/Plots/Solver_DA_Choices/...` 改为 `Results/Plots/Solver_RT_Choices/...`，并把文件名中的 `DA_` 替换成 `RT_`（例如 `DA_WM_profit_breakdown_...` → `RT_WM_profit_breakdown_...`）。
-- **WM 收益与 TOU 表**：当前 `WM_Profit_Table`、`WM_TOU_Table` 等由 `Solver_Outputs_DA` 生成，改为使用 `Solver_Outputs_RT_Base['WM_*']` 对应字段（名称一致的话直接替换变量）。
-- **绘图函数**：`plot_daily_solver_choice_figures(...)` 等会接 `Solver_Outputs_DA` 或 `res` 变量。建议将函数改为接收一个 `res` 参数并在调用处传入 `Solver_Outputs_RT_Base`：
-
-示例：
-
-```python
-# 旧调用（示例）
-plot_daily_solver_choice_figures(date_i, Solver_Outputs_DA, other_args...)
-
-# 新调用
-plot_daily_solver_choice_figures(date_i, Solver_Outputs_RT_Base, other_args...)
-
-# 或者统一名为 res，在函数里引用统一字段
-res = Solver_Outputs_RT_Base
-plot_daily_solver_choice_figures(date_i, res, ...)
-```
-
-- **财务汇总表**：把 `DA_financial_tables/*` 改为 `RT_financial_tables/*`，或在生成文件时同时保留 DA 版本并额外写 RT 版本，便于比较。
-
-注意事项：
-- Notebook 中有许多地方既引用了 `Solver_Outputs_DA`，又在后面比较 DA 与 RT（比如绘图里显示 DA 与 RT 的对比）。若你的目标是“把所有现在的 DA 分析变成 RT 分析”，请确保删除或替换所有文件名/文件夹中的 `DA_` 前缀，以及所有 `Solver_Outputs_DA[...]` 的直接引用。
-- 变量命名：在 notebook 中实际变量名为 `Solver_Outputs_RT_Base`（首字母大写驼峰），但你在请求中写的是 `solver_outputs_RT_base`（小写）。静态修改时请决定一个命名规范并在代码中统一替换。
-
-示例替换片段（在 notebook 的保存/写文件处）：
-
-```python
-# 保存 wm profit 表（原）
-wm_profit_file = da_profit_dir / f"DA_WM_profit_breakdown_{WM_Mode}.csv"
-wm_profit_table_to_save.to_csv(wm_profit_file)
-
-# 保存 wm profit 表（改为 RT）
-rt_profit_dir = Path('Results/Plots/Solver_RT_Choices') / tag / date_str
-rt_profit_dir.mkdir(parents=True, exist_ok=True)
-wm_profit_file_rt = rt_profit_dir / f"RT_WM_profit_breakdown_{WM_Mode}.csv"
-wm_profit_table_to_save.to_csv(wm_profit_file_rt)
-```
-
-最后一步（静态修改完成后）请运行 notebook 的快速动态检查。
-
-## 16. 快速动态测试（非完美预测）
-
-目标：只做一次快速运行，验证当你在 notebook 开头选择**非 perfect** 的预测方式时（比如把 `Fc_SessionkWh`、`Fc_NumbEV`、`Fc_AtArrival` 改为非 Perfect 的选项），能够顺利跑完 RT 实施并生成上面改为 RT 的图表和表格。
-
-建议的最小改动（在 notebook 开头）：
-
-```python
-# 将完美预测替换为非完美预测（示例）
-Fc_SessionkWh = 'PersistenceSessionkWh'  # 或者 'ForecastSessionkWh'
-Fc_NumbEV = 'PersistenceNumbEV'           # 或者 'ForecastNumbEV'
-Fc_AtArrival = 'MLatArrival'             # 使用 ML 到达预测而非 perfect
-```
-
-运行建议：
-- 先在 notebook 中把 `RUN_MAIN_LOOP_DIRECT` 或批量运行器设置为只跑 1 天（`RUN_DAYS_CONFIG = [1]`）并把 `RUN_MODES = ['full']`。
-- 运行主循环 cell（Cell 11 / main loop）。
-- 检查 `Results/Plots/Solver_RT_Choices/...` 是否生成 RT 版本的 CSV 与图片，以及是否没有触发明显异常。
-
-如果你希望我直接在 notebook 中替换并做一次最小化的动态运行测试，我可以继续；否则我会先把静态修改（MD 与必要的代码替换建议）提交为第一步. 
-
-### Cell 13（最后一个财务分析 cell）
+### Cell 13（财务后处理）
 基于已经生成的结果文件，做：
-
 - 每日 WM profit summary
 - 每日 WM TOU summary
 - 2x5 财务表（TOU only / Both）
-- **WM revenue 拆分分析**（Energy/Capacity + EV/BESS）
-- **Stacked bar plot**
+- **不做** WM Revenue 的 EV vs BESS 拆分分析（该功能在当前版本中不存在）
 
-这个 cell **不重新优化**，只是读取已有 CSV 做后处理。
-
-### Cell 14
-月度汇总表 + 每日各指标趋势图，保存至 `Results/Plots/Cost/`
-
----
-
-## 15. 这个 notebook 的一句话总结
-
-> 它是一个把 EV 聚合充电、BESS 调度、零售电费优化、需求响应 baseline 逻辑、以及 CAISO 批发市场参与整合到一起的 **日级 DA + 15分钟级 RT/MPC 联合优化实现 notebook**。
+### Cell 14（月度汇总 + 多图）
+- 月度汇总表 + 每日各指标趋势图
+- 5 组图：时间序列、水平条形、stacked bar、delta 图、分组柱状图
+- 保存至 `Results/Plots/Cost/`
 
 ---
 
-## 16. 已完成的代码修改记录
+## 15. TARGET_SAVE 机制（DA/RT 切换）
 
-本次任务对 `upscaledev_imp.ipynb` 做了以下四处修改：
+当前 notebook 已实现 `TARGET_SAVE` 全局变量来统一控制 DA vs RT 输出：
 
-__1. Cell 11 主循环（Main Loop）— 新增 `DA_WM_cap_bids_{WM_Mode}.csv` 输出__ 每天DA优化后，额外保存一个 interval 级别的 CSV 文件，包含：`B_EV_kW`（真实 baseline kW，不再用日均近似）、`P_EV_max_kW`、`p_up`、`p_down`、`sum_up_bids`、`sum_dn_bids`、`up_bound_hit`（0/1，该 interval 上调约束是否紧绑定）、`dn_bound_hit`（下调约束是否紧绑定）、`p_ch_EV`、`p_dch_EV`、`p_ch_BESS_WM`、`p_dch_BESS_WM`。
+```python
+TARGET_SAVE = 'RT'  # 当前默认值，可选 'DA' | 'RT'
+```
 
-__2. Cell 9 图c（Capacity Products 面板）— 加 p_up 和 p_down 边界线__ 在 stacked bar 之后，从 `Solver_Outputs_DA` 中读取真实 `Baseline(kW)` 和 `P_EV_max`，计算并绘制：
+**影响范围**：
+1. **Cell 9 绘图函数**：`plot_daily_solver_choice_figures()` 内部使用 `TARGET_SAVE` 决定保存路径和标题
+2. **Cell 11 主循环**：每日结束时的保存逻辑根据 `TARGET_SAVE` 选择数据源
+   ```python
+   if TARGET_SAVE == 'DA':
+       Solver_Outputs_target = Solver_Outputs_DA
+       P_EV_max_for_plot = 6.6 * Car_table_RT[0][2].shape[1]
+   else:
+       Solver_Outputs_target = Solver_Outputs_RT_Base
+       P_EV_max_for_plot = 6.6 * Car_table_RT[0][0].shape[1]
+   ```
+3. **Cell 12 批量运行器**：顶部 `TARGET_SAVE = 'RT'` 定义
+4. **Cell 13/Cell 14 后处理**：所有文件路径使用 `{TARGET_SAVE}_` 前缀
 
-- 橙色实线 `p_up bound`（= P_BESS_max + B_EV，上调约束上界）
-- 蓝色实线 `-p_down bound`（= -(P_BESS_max - B_EV + P_EV_max)，下调约束上界取负） 直观显示哪些时刻 bid 已碰到约束边界。
+### 注意事项
+- `TARGET_SAVE` 在 Cell 9 函数内部通过 `global TARGET_SAVE` 引用
+- Cell 12 单独定义了 `TARGET_SAVE`，批量运行时所有模式共用同一个值
+- Cell 13 和 Cell 14 通过 `global TARGET_SAVE` 引用 notebook 全局变量
+- 变量命名：notebook 中使用 `Solver_Outputs_RT_Base`（首字母大写驼峰）和 `Solver_Outputs_DA`
 
-__3. Cell 14 末尾 WM Revenue Breakdown — 改为 interval 级精确分析__
+---
 
-- __Energy vs Capacity__：不变，`p_DA_profit + p_RT_profit` = Energy，`c_*_profit` 之和 = Capacity
+## 16. 当前已知问题 / Bugs
 
-- __EV vs BESS__：改为逐 interval 从 `DA_WM_cap_bids` 文件读取真实 B_EV、p_up、p_down、bound_hit 标志、p_ch_EV/p_dch_EV/p_ch_BESS_WM 等，进行精确比例分配：
+### Bug 1：Cell 14 中 `Demand Cost (PD+NCD)` 列不存在
+- **位置**：Cell 14 约第 3576 行
+- **代码**：`demand_cost = float(row.get('Demand Cost (PD+NCD)', 0.0))`
+- **问题**：Cell 13 的 2x5 表保存的是独立的 `PD Cost` 和 `NCD Cost` 两列，**没有**合并的 `Demand Cost (PD+NCD)` 列
+- **后果**：`demand_cost` 始终为 0.0，影响月度汇总中的 demand cost 计算
+- **修复**：改为 `demand_cost = pd_cost_day + ncd_cost_day` 或从已有两列求和
 
-  - 上调（RU/SP/NSP）：`EV = B_EV/p_up`，`BESS = P_BESS_max/p_up`（两个方向都算，并用 `up_bound_hit` 标记是否 tight）
-  - 下调（RD）：`EV = (P_EV_max - B_EV)/p_down`，`BESS = P_BESS_max/p_down`
-  - Energy（p_DA/p_RT）：按 `|p_ch_BESS_WM - p_dch_BESS_WM|` vs `|p_ch_EV - p_dch_EV|` 比例分配，两者均为零时归入 BESS
+### Bug 2：Cell 3 中 `Enable_WM` 定义可疑
+- **位置**：Cell 3 参数设置区域
+- **代码**：`Enable_WM = (WM_Mode in ['full', 'retail_only'])`
+- **问题**：`retail_only` 直觉上不应启用 WM
+- **现状**：Cell 12 批量运行器用 `Enable_WM = (WM_Mode in ['full'])` 正确覆盖
+- **影响**：只在手动运行 Cell 11（不通过 Cell 12）时可能错误
 
-- __额外输出__ `WM_Revenue_Breakdown_Interval_Detail.csv`：每行是一个 interval，记录 B_EV、p_up、p_down、up/dn bound_hit、各产品revenue 及 EV/BESS 归属，方便验证
+### Bug 3：`monthly_summary_grouped_bar` 标签使用 'Net'
+- **位置**：Cell 14 约第 3919 行
+- **代码**：`('Total Revenue', '#222222', 'Net')`
+- **问题**：x 轴标签显示为 'Net'，可能与 'Total Revenue' 语义不一致
+- **建议**：改为 `'Total'`
 
-- __日汇总表__ 新增 `N_up_bound_hit` / `N_dn_bound_hit` 列，显示该天有多少个 15 分钟区间上调/下调约束是紧绑定的（你的预测：下调 dn_bound_hit 应几乎为 0，因为 p_down 太大很难触到）
-
-- __Stacked bar &#x56FE;__&#x5E95;部面板额外标注每天的 `↑N_up ↓N_dn` 计数
+### Bug 4：Cell 9 Panel c 标题
+- **当前**：panel c 显示 Capacity products 相关信息
+- **可能的改进点**：标题可能需要改为 'Bids'（待确认具体需求）
 
 ---
 
@@ -528,6 +503,9 @@ __3. Cell 14 末尾 WM Revenue Breakdown — 改为 interval 级精确分析__
 ### 用法示例 3
 "按缓存摘要，帮我把 notebook 的 main loop 抽成 `.py` 文件。"
 
+### 用法示例 4
+"按缓存 Bug 1，修复 Cell 14 的 Demand Cost (PD+NCD) 列为两列求和。"
+
 这样我后续只需要：
 - 读这个摘要文件
 - 再读 notebook 的相关局部代码段
@@ -535,3 +513,17 @@ __3. Cell 14 末尾 WM Revenue Breakdown — 改为 interval 级精确分析__
 就不用每次重新消耗大量 token 读取整份 notebook。
 
 注意：Cline 读取或修改 Notebook 之前，先手动执行 "Clear All Outputs" 并保存。
+
+---
+
+## 18. 与旧版缓存的主要差异（2026-05-14 更新）
+
+旧版缓存（Section 16）记录了 4 个"已完成修改"：
+1. Cell 11 新增 `DA_WM_cap_bids_{WM_Mode}.csv` 输出
+2. Cell 9 Panel c 添加 p_up/p_down 边界线
+3. Cell 14 WM Revenue Breakdown 改为 interval 级精确分析
+4. Cell 14 额外输出 `WM_Revenue_Breakdown_Interval_Detail.csv`
+
+**这些修改在当前 notebook 中均不存在**。当前版本可能是从不同基准版本衍生而来，或这些修改已被回退。如需恢复，请参考旧版缓存的 Section 16 重新实施。
+
+当前 notebook 的核心新特性是 **`TARGET_SAVE` 机制**（支持 DA/RT 统一切换），这是旧版缓存中没有记录的功能。

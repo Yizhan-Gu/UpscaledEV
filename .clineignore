@@ -1,7 +1,5 @@
 # 1. 依然屏蔽最大的毒瘤：数据、输出和编译文件
-Results/
 2025Data/
-*.csv
 *.mat
 *.png
 *.jpg
@@ -19,7 +17,3 @@ __pycache__/
 !*.py
 !*.md
 !*.txt
-
-# 4. 屏蔽掉 VS Code 和 Jupyter 的临时备份文件
-.ipynb_checkpoints/
-.vscode/
