@@ -1,0 +1,336 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+%The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage{mdframed}
+\usepackage{framed}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=blue,
+    linkcolor=red,    
+    urlcolor=red,
+}
+\usepackage{multicol}
+\usepackage{multirow, bigdelim}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage[backend=biber,style=ieee]{biblatex} % or \usepackage[numbers]{natbib}
+\addbibresource{references.bib} % for biblatex
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\usepackage{nomencl}
+\usepackage{ifthen}
+  \renewcommand{\nomgroup}[1]{%
+  \item[\bfseries
+  \ifthenelse{\equal{#1}{B}}{Notations}{%
+  \ifthenelse{\equal{#1}{A}}{Abbreviations}{}}%
+  ]}
+\renewcommand{\nomname}{\bfseries Nomenclature}
+\usepackage{cleveref}
+
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{process} = [rectangle, rounded corners, minimum width=4cm, minimum height=1cm, text centered, draw=black]
+\tikzstyle{decision} = [diamond, minimum width=4cm, minimum height=1cm, text centered, draw=black]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+
+
+\begin{document}
+\title{Optimal Allocation with Multi Wholesale Market Value Stacking of Distributed Energy Resources \\
+(2025 UpSCAleDEV TotalEnergies) \\}
+\author{\IEEEauthorblockN{Yizhan Gu, Avik Ghosh, Jan Kleissl} \\
+\IEEEauthorblockA{\textit{Center for Energy Research} \\
+\textit{University of California, San Diego}\\
+\textit{9500 Gilman Dr, La Jolla, CA 92093, USA}\\
+\textit{Email: {yig031}@ucsd.edu}
+}}
+
+
+
+\maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Abstract}
+
+
+
+
+\section{Problem Formulation}
+
+\subsection{Value-stacking Blocks}
+For all time steps $t \in \mathcal{T} = \{1, \dots, T\}$ and vehicles $i \in \mathcal{V} = \{1, \dots, N_{\text{EV}}\}$ (unless otherwise specified):
+
+
+{\allowdisplaybreaks
+\noindent \textbf{Objective Function:}
+\begin{align}
+    &\text{Day-Ahead (DA):} \quad \min \sum_{k=1}^{T} \left( \text{cost}_k - \text{revenue}_k \right) \nonumber \\
+    &\text{Real-Time (RT):} \quad \min_{t \in [1, T]} \sum_{k=t}^{T} \left( \text{cost}_k - \text{revenue}_k + \text{penalty}_k^{\text{WM}} \right) \nonumber
+\end{align}
+
+
+
+\noindent \textbf{Individual and Aggregated EV Dynamics:} \\
+\begin{align}
+    & \text{1. Boundary Conditions for Each Vehicle:} \nonumber \\
+    & e_{a_i,i} = e_{ai} \label{eq:ev_init} \\
+    & e_{d_i,i} = e_{di} \label{eq:ev_end} \\
+    & e_{0,i} = 0 \label{eq:ev_zero} \\
+    & \text{2. Energy State Evolution:} \nonumber \\
+    & e_{t,i} = e_{t-1,i} + p_{t,i}^{\text{EV}} \cdot \Delta t / \eta_i^{\text{EV}} \label{eq:ev_dynamics} \\
+    & 0 \le e_{t,i} \le e_{di} \label{eq:ev_safety} \\
+    & \text{3. Instantaneous Power Constraints:} \nonumber \\
+    & 0 \le p_{t,i}^{\text{EV}} \le \hat{P}^{\text{EV}} \cdot b_{t,i}^{\text{EV}} \label{eq:ev_p_limit} \\
+    & b_{t,i}^{\text{EV}} = \begin{cases} 1, & \text{if } a_i \le t \le d_i \\ 0, & \text{otherwise} \end{cases} \label{eq:gamma_def} \\
+    & \text{4. Aggregated Variables for Market Coupling:} \nonumber \\
+    & p_{t}^{\text{EV}} = \sum_{i \in \mathcal{V}} p_{t,i}^{\text{EV}} \label{eq:p_ev_total} \\
+    & P_{t, \text{max}}^{\text{EV}} = N_t^{\text{EV}} \cdot \hat{P}^{\text{EV}} \label{eq:P_max_total}
+\end{align}
+
+
+\noindent \textbf{BESS Constraints:}
+
+% new version without +- terms
+\begin{align}
+    & \text{soc}_{t}^{\text{BESS}} = \text{soc}_{t-1}^{\text{BESS}} + \frac{\Delta t}{C^{\text{BESS}}} \left( p_{t}^{\text{ch,BESS}} \sqrt{\gamma} - \frac{p_{t}^{\text{dch,BESS}}}{\sqrt{\gamma}} \right) \\
+    & \Delta t \sum_{t=1}^{T} \left( p_{t}^{\text{ch,BESS}} + p_{t}^{\text{dch,BESS}} \right) \le 2 C^{\text{BESS}} \cdot (\text{SOC}_{\text{max}}^{\text{BESS}} - \text{SOC}_{\text{min}}^{\text{BESS}}) \\
+    & \text{SOC}_{\text{min}}^{\text{BESS}} \le \text{soc}_{t}^{\text{BESS}} \le \text{SOC}_{\text{max}}^{\text{BESS}} \\
+    & \text{soc}_{0}^{\text{BESS}} = \text{soc}_{96}^{\text{BESS}} \\
+    & p_t^{\text{BESS}} = p_{t}^{\text{ch,BESS}} - p_{t}^{\text{dch,BESS}} \\
+    & p_{t}^{\text{ch,BESS}} = p_{t}^{\text{ch,BESS,WM}} + p_{t}^{\text{ch,BESS,NWM}} \\
+    & p_{t}^{\text{dch,BESS}} = p_{t}^{\text{dch,BESS,WM}} + p_{t}^{\text{dch,BESS,NWM}} \\
+    & -P^{\text{BESS}}_{\text{max}} \leq p^{\text{BESS}}_t \leq P^{\text{BESS}}_{\text{max}} 
+\end{align}
+
+
+
+\noindent \textbf{Microgrid Power Balance:}
+\begin{align}
+     &p_{t}^{\text{GI}} = p_{t}^{\text{building}} + p_{t}^{\text{BESS}} + p_{t}^{\text{EV}} + p_{t}^{\text{PV}} \label{eq:MG_power_balance} \\
+     &p_{t}^{\text{BESS}} = 
+        \begin{cases} 
+            > 0, & \text{charging} \\
+            < 0, & \text{discharging}
+        \end{cases} \\
+     &p_{t}^{\text{PV}} \le 0,\quad 
+     p_{t}^{\text{building}} \ge 0,\quad 
+     p_{t}^{\text{EV}} \ge 0
+\end{align}
+
+
+
+\noindent \textbf{Wholesale Market:}
+% Updated formulation: lowercase vars, uppercase superscripts, optimized width
+\begin{align}
+    & \textbf{--- Variable Definition ---} \nonumber \\
+    & c_{t}^{\{\cdot, \cdot\}}, p_{t}^{\{\cdot, \cdot\}} \ge 0, p_{t}^{\{\cdot\}} is free \\
+    & b_{t}^{{\{\cdot, \cdot\}}} \in \{0, 1\} \\
+    & \alpha_t^{\text{RU}} = \alpha_t^{\text{RD}} = 0.7 \\
+    & \alpha_t^{\text{SP}} = \alpha_t^{\text{NSP}} = 0.2 \\
+    \nonumber \\
+    \iffalse
+    & \textbf{--- BESS only Capacity Limits ---} \nonumber \\
+    & \hat{p}_{t}^{\text{up}} = \hat{p}_{t}^{\text{down}} = P_{\text{max}}^{\text{BESS}} \\
+    & (p_{t}^{\text{DA}} + p_{t}^{\text{RT}}) + (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) + (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) \nonumber \\
+    & \quad + (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \le \hat{p}_{t}^{\text{up}} \\
+    & -(p_{t}^{\text{DA}} + p_{t}^{\text{RT}}) + (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}}) \le \hat{p}_{t}^{\text{down}} \\
+    \nonumber \\
+    \fi
+    & \textbf{--- BESS + EV Capacity Limits ---} \nonumber \\
+    & \max(p_{t}^{\text{DA}}, 0) + \max(p_{t}^{\text{RT}}, 0) + (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \nonumber \\
+    & + (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) + (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \le \hat{p}_{t}^{\text{up}} \\
+    & \max(-p_{t}^{\text{DA}}, 0) + \max(-p_{t}^{\text{RT}}, 0) + (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}}) \le \hat{p}_{t}^{\text{down}} \\
+    & -\hat{p}_{t}^{\text{down}} \le p_{t}^{\text{DA}} \le \hat{p}_{t}^{\text{up}} \\
+    & -\hat{p}_{t}^{\text{down}} \le p_{t}^{\text{RT}} \le \hat{p}_{t}^{\text{up}} \\
+    & \hat{p}_{t}^{\text{up}} = P_{\text{max}}^{\text{BESS}} + B_{t}^{\text{EV}} \\
+    & \hat{p}_{t}^{\text{down}} = P_{\text{max}}^{\text{BESS}} + P_{t, \text{max}}^{\text{EV}} - B_{t}^{\text{EV}} \\
+    \nonumber \\
+    & \textbf{--- Add-ons when AS Direction Aligned ---} \nonumber \\
+    & (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) + (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) \nonumber \\
+    & \quad + (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \le \hat{p}_{t}^{\text{up}} \cdot b_{t}^{\text{dch,net}} \\
+    & c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}} \le \hat{p}_{t}^{\text{down}} \cdot b_{t}^{\text{ch,net}} \\
+    \nonumber \\
+    & \textbf{--- Net Power Flow ---} \nonumber \\
+    & b_{t}^{\text{ch,BESS}} + b_{t}^{\text{dch,BESS}} \le 1 \\
+    & b_{t}^{\text{ch,EV}} + b_{t}^{\text{dch,EV}} \le 1 \\
+    & b_{t}^{\text{ch,net}} + b_{t}^{\text{dch,net}} \le 1 \\
+    p_{t}^{\text{dch,BESS}} &\le P_{\text{max}}^{\text{BESS}} \cdot b_{t}^{\text{dch,BESS}} \\
+    p_{t}^{\text{ch,BESS}} &\le P_{\text{max}}^{\text{BESS}} \cdot b_{t}^{\text{ch,BESS}} \\
+    & M^{\text{EV}} = 2 \cdot P_{t, \text{max}}^{\text{EV}} \\
+    & p_{t}^{\text{EV}} - B_{t}^{\text{EV}} = p_{t}^{\text{ch,EV}} - p_{t}^{\text{dch,EV}} \\
+    & p_{t}^{\text{ch,EV}} \le M^{\text{EV}} \cdot b_{t}^{\text{ch,EV}} \\
+    & p_{t}^{\text{dch,EV}} \le M^{\text{EV}} \cdot b_{t}^{\text{dch,EV}} \\
+    \begin{split} 
+        p_{t}^{\text{dch,net}} &\le (p_{t}^{\text{DA}} + p_{t}^{\text{RT}}) + \alpha_{t}^{\text{RU}} (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \\ 
+        & + \alpha_{t}^{\text{SP}} (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) + \alpha_{t}^{\text{NSP}} (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \\
+        & - \alpha_{t}^{\text{RD}} (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}}) + \hat{p}_{t}^{\text{up}} \cdot b_{t}^{\text{ch,net}}
+    \end{split} \\
+    \begin{split} 
+        p_{t}^{\text{dch,net}} &\ge (p_{t}^{\text{DA}} + p_{t}^{\text{RT}}) + \alpha_{t}^{\text{RU}} (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \\ 
+        & + \alpha_{t}^{\text{SP}} (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) + \alpha_{t}^{\text{NSP}} (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \\
+        & - \alpha_{t}^{\text{RD}} (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}}) 
+    \end{split} \\
+    % p_{t}^{\text{dch,EV}} = & (B_{t}^{\text{EV}} - p_{t}^{\text{EV}}) \cdot b_{t}^{\text{dch,EV}} \\
+    \begin{split} 
+        p_{t}^{\text{ch,net}} &\le -\{(p_{t}^{\text{DA}} + p_{t}^{\text{RT}}) + \alpha_{t}^{\text{RU}} (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \\ 
+        & + \alpha_{t}^{\text{SP}} (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) + \alpha_{t}^{\text{NSP}} (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \\
+        & - \alpha_{t}^{\text{RD}} (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}})\} + \hat{p}_{t}^{\text{down}} \cdot b_{t}^{\text{dch,net}}
+    \end{split} \\
+    \begin{split} 
+        p_{t}^{\text{ch,net}} &\ge -\{(p_{t}^{\text{DA}} + p_{t}^{\text{RT}}) + \alpha_{t}^{\text{RU}} (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \\ 
+        & + \alpha_{t}^{\text{SP}} (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) + \alpha_{t}^{\text{NSP}} (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \\
+        & - \alpha_{t}^{\text{RD}} (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}})\} 
+    \end{split} \\
+    % p_{t}^{\text{ch,EV}} = & -(B_{t}^{\text{EV}} - p_{t}^{\text{EV}}) \cdot b_{t}^{\text{ch,EV}} \\
+    p_{t}^{\text{ch,net}} - p_{t}^{\text{dch,net}} &= (p_{t}^{\text{ch,BESS,WM}} - p_{t}^{\text{dch,BESS,WM}}) + (p_{t}^{\text{ch,EV}} - p_{t}^{\text{dch,EV}}) \\
+    p_{t}^{\text{ch,net}} &\le \hat{p}_{t}^{\text{down}} \cdot b_{t}^{\text{ch,net}} \\
+    p_{t}^{\text{dch,net}} &\le \hat{p}_{t}^{\text{up}} \cdot b_{t}^{\text{dch,net}} \\
+    \nonumber \\
+    & \textbf{--- Duration Requirement ---} \nonumber \\
+    & \text{soc}_{t}^{\text{BESS}} - \text{SOC}_{\min}^{\text{BESS}} \ge \frac{T_{\text{DU}}}{C^{\text{BESS}} \cdot \sqrt{\gamma}} \left( c_{t}^{\text{RU,tot}} + c_{t}^{\text{SP,tot}} + c_{t}^{\text{NSP,tot}} \right) \\
+    & \frac{T_{\text{DU}} \cdot \sqrt{\gamma}}{C^{\text{BESS}}} \left( c_{t}^{\text{RD,tot}} \right) \le \text{SOC}_{\max}^{\text{BESS}} - \text{soc}_{t}^{\text{BESS}} \\
+    & \text{where: } c_{t}^{\text{prod,tot}} = c_{t}^{\text{prod,DA}} + c_{t}^{\text{prod,RT}}, \quad T_{\text{DU}} = 0.5 \text{ h} = 2 \Delta t \nonumber
+\end{align}
+
+
+
+
+
+
+\noindent \textbf{Cost and Revenue Formulation:}
+\begin{align}
+    \text{Cost}_t = & \quad C^{\text{NCD}} \cdot \max \left( p_{t}^{\text{GI}} - \overline{p^{\text{GI}}}, \ 0 \right) \\
+    & + C^{\text{PD}} \cdot \max \left( z_{t}^{\text{PD}} \cdot p_{t}^{\text{GI}} - \overline{p^{\text{GI}}_{\text{PD}}}, \ 0 \right) \\
+    & + \Delta t \cdot C_t^{\text{TOU}} \cdot p_{t}^{\text{GI}} \\
+    \text{Revenue}_t = & \quad C^{\text{EV}} p_{t}^{\text{EV}} \nonumber \\
+    % + C_{t}^{\text{DR}} \cdot \Delta t \cdot Z_{\text{event},t}^{\text{DR}} \cdot p_{t}^{\text{DR,RT}} \nonumber \\  
+    & + \Delta t  C_{t}^{\text{LMP,RT}} \Big[ \alpha_{t}^{\text{RU}} (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \nonumber \\
+    & - \alpha_{t}^{\text{RD}} (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}}) 
+    + \alpha_{t}^{\text{SP}} (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) \nonumber \\
+    & + \alpha_{t}^{\text{NSP}} (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \Big] \nonumber \\
+    & + \Delta t \Big(C_{t}^{\text{LMP,DA}}  p_{t}^{\text{DA}} + C_{t}^{\text{LMP,RT}} p_{t}^{\text{RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{RU,DA}} c_{t}^{\text{RU,DA}} + C_{t}^{\text{RU,RT}} c_{t}^{\text{RU,RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{RD,DA}} c_{t}^{\text{RD,DA}} + C_{t}^{\text{RD,RT}} c_{t}^{\text{RD,RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{SP,DA}} c_{t}^{\text{SP,DA}} + C_{t}^{\text{SP,RT}} c_{t}^{\text{SP,RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{NSP,DA}} c_{t}^{\text{NSP,DA}} + C_{t}^{\text{NSP,RT}} c_{t}^{\text{NSP,RT}} \Big)
+\end{align}
+
+or in another form:
+
+\begin{align}
+    \text{Revenue}_t = & \quad C^{\text{EV}} p_{t}^{\text{EV}} + \Delta t \left( C_{t}^{\text{LMP,DA}} p_{t}^{\text{DA}} + C_{t}^{\text{LMP,RT}} p_{t}^{\text{RT}} \right) \nonumber \\
+    & + \Delta t \sum_{k \in \mathcal{K}} \sum_{s \in \mathcal{S}} \left( c_{t}^{k,s} \cdot TTP_{t}^{k,s} \right) \label{eq:revenue} \\[10pt]
+    \text{where} \quad & \mathcal{K} = \{ \text{RU, RD, SP, NSP} \}, \quad \mathcal{S} = \{ \text{DA, RT} \} \nonumber \\
+    & TTP_{t}^{k,s} = \sigma^k \cdot (C_{t}^{\text{LMP,RT}} \alpha_{t}^{k}) + C_{t}^{k,s} \nonumber \\
+    & \sigma^k = 
+    \begin{cases} 
+    1, & \text{if } k \in \{ \text{RU, SP, NSP} \} \\
+    -1, & \text{if } k = \text{RD}.
+    \end{cases} \nonumber
+\end{align}
+
+Besides, the total WM revenue can also be separated into 2 series: EV vs BESS, and energy vs capacity:
+\noindent \textbf{Decomposition by Function (Energy vs. Capacity):}
+\begin{align}
+    \text{Revenue}_{t}^{\text{Energy}} = & \quad \Delta t \left( C_{t}^{\text{LMP,DA}} p_{t}^{\text{DA}} + C_{t}^{\text{LMP,RT}} p_{t}^{\text{RT}} \right) \nonumber \\
+    & + \Delta t \cdot C_{t}^{\text{LMP,RT}} \Big[ \alpha_{t}^{\text{RU}} (c_{t}^{\text{RU,DA}} + c_{t}^{\text{RU,RT}}) \nonumber \\
+    & - \alpha_{t}^{\text{RD}} (c_{t}^{\text{RD,DA}} + c_{t}^{\text{RD,RT}}) 
+    + \alpha_{t}^{\text{SP}} (c_{t}^{\text{SP,DA}} + c_{t}^{\text{SP,RT}}) \nonumber \\
+    & + \alpha_{t}^{\text{NSP}} (c_{t}^{\text{NSP,DA}} + c_{t}^{\text{NSP,RT}}) \Big] \\
+    \text{Revenue}_{t}^{\text{Capacity}} = & \quad \Delta t \Big( C_{t}^{\text{RU,DA}} c_{t}^{\text{RU,DA}} + C_{t}^{\text{RU,RT}} c_{t}^{\text{RU,RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{RD,DA}} c_{t}^{\text{RD,DA}} + C_{t}^{\text{RD,RT}} c_{t}^{\text{RD,RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{SP,DA}} c_{t}^{\text{SP,DA}} + C_{t}^{\text{SP,RT}} c_{t}^{\text{SP,RT}} \Big) \nonumber \\
+    & + \Delta t \Big( C_{t}^{\text{NSP,DA}} c_{t}^{\text{NSP,DA}} + C_{t}^{\text{NSP,RT}} c_{t}^{\text{NSP,RT}} \Big)
+\end{align}
+
+and
+\noindent \textbf{Decomposition by Asset (BESS vs. EV):}
+\begin{align}
+    \text{Revenue}_{t}^{\text{Cap,Up}} &= \Delta t \Big( C_{t}^{\text{RU,DA}} c_{t}^{\text{RU,DA}} + C_{t}^{\text{RU,RT}} c_{t}^{\text{RU,RT}} \nonumber \\
+    & \quad + C_{t}^{\text{SP,DA}} c_{t}^{\text{SP,DA}} + C_{t}^{\text{SP,RT}} c_{t}^{\text{SP,RT}} \nonumber \\
+    & \quad + C_{t}^{\text{NSP,DA}} c_{t}^{\text{NSP,DA}} + C_{t}^{\text{NSP,RT}} c_{t}^{\text{NSP,RT}} \Big) \\
+    \text{Revenue}_{t}^{\text{Cap,Down}} &= \Delta t \Big( C_{t}^{\text{RD,DA}} c_{t}^{\text{RD,DA}} + C_{t}^{\text{RD,RT}} c_{t}^{\text{RD,RT}} \Big) \\
+    \omega_{t}^{\text{Cap,Up,BESS}} &= \frac{P_{\text{max}}^{\text{BESS}}}{P_{\text{max}}^{\text{BESS}} + B_{t}^{\text{EV}}} \\
+    \omega_{t}^{\text{Cap,Dn,BESS}} &= \frac{P_{\text{max}}^{\text{BESS}}}{P_{\text{max}}^{\text{BESS}} + P_{t, \text{max}}^{\text{EV}} - B_{t}^{\text{EV}}} \\
+    \omega_{t}^{\text{Energy,BESS}} &= \min\left(\max\left(\frac{p_{t}^{\text{dch,BESS}} - p_{t}^{\text{ch,BESS}}}{p_{t}^{\text{dch,BESS}} - p_{t}^{\text{ch,BESS}} + p_{t}^{\text{dch,EV}} - p_{t}^{\text{ch,EV}}}, \, 0\right), \, 1\right) \\
+    \text{Revenue}_{t}^{\text{BESS}} &= \omega_{t}^{\text{Energy,BESS}} \text{Revenue}_{t}^{\text{Energy}} \nonumber \\
+    & \quad + \omega_{t}^{\text{Cap,Up,BESS}} \text{Revenue}_{t}^{\text{Cap,Up}} \nonumber \\
+    & \quad + \omega_{t}^{\text{Cap,Dn,BESS}} \text{Revenue}_{t}^{\text{Cap,Down}} \\
+    \text{Revenue}_{t}^{\text{EV}} &= (1 - \omega_{t}^{\text{Energy,BESS}}) \text{Revenue}_{t}^{\text{Energy}} \nonumber \\
+    & \quad + (1 - \omega_{t}^{\text{Cap,Up,BESS}}) \text{Revenue}_{t}^{\text{Cap,Up}} \nonumber \\
+    & \quad + (1 - \omega_{t}^{\text{Cap,Dn,BESS}}) \text{Revenue}_{t}^{\text{Cap,Down}}
+\end{align}
+
+
+} % end of \allowdisplaybreaks
+
+
+\section{Methodology}
+
+
+\section*{Acknowledgment}
+This research is funded by TotalEnergies as part of a collaborative project with the University of California, San Diego.
+
+
+
+\printbibliography
+
+
+
+% nomenclature page
+\makenomenclature
+\setlength{\nomitemsep}{-\parskip}
+\renewcommand*\nompreamble{\begin{multicols}{2}}
+\setlength{\parindent}{1em}
+\renewcommand*\nompostamble{\end{multicols}}
+
+\clearpage
+\begin{table*}[ht]   
+\begin{framed}
+\footnotesize
+
+\nomenclature[A]{EV}{Electric Vehicle}
+\nomenclature[A]{MPC}{Model Predictive Control}
+\nomenclature[A]{BESS}{Battery Energy Storage System}
+\nomenclature[A]{LMP}{Locational Marginal Price}
+\nomenclature[A]{PV}{Photovoltaic}
+\nomenclature[A]{CAISO}{California Independent System Operator}
+\nomenclature[A]{UCSD}{University of California San Diego}
+\nomenclature[A]{DR}{Demand Response}
+\nomenclature[A]{DER}{Distributed Energy Resource}
+\nomenclature[A]{DRAM}{Demand Response Auction Mechanism}
+\nomenclature[A]{ELRP}{Emergency Load Reduction Program}
+\nomenclature[A]{AT}{Arrival Time of EV}
+\nomenclature[A]{DT}{Departure Time of EV}
+\nomenclature[A]{ED}{Energy Demand of EV}
+\nomenclature[A]{AS}{Ancillary Service}
+\nomenclature[A]{AGC}{Automatic Generation Control}
+\nomenclature[A]{SDG\&E}{San Diego Gas \& Electric}
+\nomenclature[A]{DA}{Day-ahead}
+\nomenclature[A]{RT}{Real-time}
+\nomenclature[A]{SOC}{State of charge}
+\nomenclature[A]{SLR}{Service level reduction}
+
+
+\printnomenclature
+\end{framed}
+\end{table*}
+
+
+
+\end{document}
