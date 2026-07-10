@@ -1,0 +1,801 @@
+
+\documentclass[final,5p,times]{elsarticle}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{url}
+% \usepackage{hyperref} % disabled for cleaner frontmatter/bookmark compilation
+\IfFileExists{stfloats.sty}{\usepackage{stfloats}}{}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\journal{Sustainable Energy, Grids and Networks}
+\graphicspath{{figures/}{./}}
+\biboptions{sort&compress}
+
+\newcommand{\DeltaT}{\Delta t}
+\newcommand{\EV}{\mathrm{EV}}
+\newcommand{\BESS}{\mathrm{BESS}}
+\newcommand{\DA}{\mathrm{DA}}
+\newcommand{\RT}{\mathrm{RT}}
+\newcommand{\GI}{\mathrm{GI}}
+\newcommand{\PV}{\mathrm{PV}}
+\newcommand{\load}{\mathrm{load}}
+\newcommand{\TOU}{\mathrm{TOU}}
+\newcommand{\PD}{\mathrm{PD}}
+\newcommand{\NCD}{\mathrm{NCD}}
+\newcommand{\SOC}{\mathrm{SOC}}
+\newcommand{\soc}{\mathrm{soc}}
+\newcommand{\RU}{\mathrm{RU}}
+\newcommand{\RD}{\mathrm{RD}}
+\newcommand{\SP}{\mathrm{SP}}
+\newcommand{\NSP}{\mathrm{NSP}}
+\newcommand{\WM}{\mathrm{WM}}
+\newcommand{\LMP}{\mathrm{LMP}}
+\newcommand{\NWM}{\mathrm{NWM}}
+\newcommand{\ch}{\mathrm{ch}}
+\newcommand{\dch}{\mathrm{dch}}
+\newcommand{\up}{\mathrm{up}}
+\newcommand{\down}{\mathrm{down}}
+\newcommand{\tot}{\mathrm{tot}}
+\newcommand{\base}{\mathrm{base}}
+\newcommand{\forecast}{\mathrm{forecast}}
+\newcommand{\real}{\mathrm{real}}
+\newcommand{\executed}{\mathrm{executed}}
+\newcommand{\req}{\mathrm{req}}
+\newcommand{\net}{\mathrm{net}}
+\newcommand{\energy}{\mathrm{energy}}
+\newcommand{\capacity}{\mathrm{capacity}}
+\newcommand{\avail}{\mathrm{avail}}
+\newcommand{\impl}{\mathrm{impl}}
+\newcommand{\deploy}{\mathrm{deploy}}
+\newcommand{\pen}{\mathrm{pen}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\pos}[1]{\left[#1\right]_+}
+\providecommand{\sep}{; }
+
+% Safe figure command: the manuscript still compiles while figures are being regenerated.
+\newcommand{\MaybeFigure}[2]{%
+\IfFileExists{#1}{\includegraphics[#2]{#1}}{%
+\fbox{\parbox[c][0.19\textheight][c]{0.86\linewidth}{\centering\small Missing figure file.\\ Replace with the paper-quality figure generated from the plotting notebook.}}}}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Execution-Aware Retail--Wholesale Value Stacking for Campus EV Charging and Battery Storage}
+
+\author[ucsd]{Yizhan Gu}
+\ead{yizhangu@ucsd.edu}
+\author[totalenergies]{Wente Zeng}
+\ead{wente.zeng@totalenergies.com}
+\author[totalenergies]{Hadi Eshraghi}
+\ead{hadi.eshraghi@external.totalenergies.com}
+\author[ucsd]{Jan Kleissl\corref{cor1}}
+\ead{jkleissl@ucsd.edu}
+\cortext[cor1]{Corresponding author.}
+
+\affiliation[ucsd]{organization={Center for Energy Research, University of California San Diego},
+            city={La Jolla},
+            postcode={92093},
+            state={CA},
+            country={USA}}
+
+\affiliation[totalenergies]{organization={TotalEnergies},
+            city={Houston},
+            state={TX},
+            country={USA}}
+
+\begin{highlights}
+\item A campus BTM DER portfolio is modeled for wholesale-market participation.
+\item EV charging and BESS dispatch are co-optimized with PV/load extensions.
+\item Unidirectional EV flexibility is coordinated with bidirectional BESS dispatch.
+\item A two-stage DA/RT workflow links forecasts, market bids, and execution.
+\item Forecast--controller ensembles evaluate practical operating scenarios.
+\end{highlights}
+
+\begin{abstract}
+Campus electric-vehicle (EV) charging sites are becoming large behind-the-meter (BTM) distributed-energy-resource (DER) portfolios when they are operated together with battery energy storage systems (BESS), PV, and building load. Their economic value, however, cannot be inferred from gross wholesale-market revenue alone. A BTM operator also pays retail time-of-use and demand charges, collects EV user payments, and must complete charging service without vehicle-to-grid export. This paper evaluates a campus retail--wholesale value-stacking application in which unidirectional workplace EV flexibility and bidirectional BESS dispatch are coordinated for retail bill management and wholesale-market participation. The contribution is not a new MPC algorithm or a new forecasting method; rather, it is an execution-aware application study that tests whether DA/RT energy positions and ancillary-service capacity awards can improve net value after retail tariff exposure and EV service constraints are accounted for. The formulation includes the general BTM balance with PV and building-load terms; the reported July 2025 UCSD simulations focus on the EV--BESS stage while retaining PV/load data streams as extensions of the campus DER platform. The study compares retail-only and retail+wholesale operation under perfect and persistence EV-information settings and shrinking- and rolling-horizon execution structures. Prices and tariffs are treated as known exogenous inputs so that the comparison isolates EV-information and operating-scenario effects. Results are interpreted from executed 15-minute dispatch rather than overwritten planning trajectories. The study provides evidence for campus operators considering DER aggregation: value stacking is possible, but its value is determined by the interaction of wholesale products, retail demand charges, BESS feasibility, and completed EV service.
+\end{abstract}
+
+\begin{keyword}
+Electric vehicle charging \sep Battery energy storage \sep Model predictive control \sep Value stacking \sep Ancillary services \sep Demand charges \sep Behind-the-meter resources
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Large EV charging sites are becoming controllable loads at a scale that is relevant for distribution and wholesale-market operation. This trend is reinforced by policy and market changes that seek to lower barriers for distributed energy resources (DERs) to participate in organized wholesale markets through aggregation. In California, distributed resource aggregations can participate in ISO markets for energy and ancillary services subject to metering, telemetry, scheduling-coordinator, and certification requirements \cite{ferc2222}. These developments create a practical question for campuses, commercial sites, and fleet depots: can an existing EV charging portfolio be operated as part of a market-facing DER aggregation without compromising the primary charging service?
+
+The answer is not obvious for workplace charging. Unlike stationary batteries, unidirectional EV chargers cannot export energy from vehicle batteries. Their flexibility is the ability to move charging in time while meeting each driver's departure energy requirement. This flexibility is also intermittent because it exists only when vehicles are plugged in. A BESS can shift energy and hold reserve capability more directly, but behind-the-meter BESS operation also changes the retail meter import that determines time-of-use (TOU) and demand charges. A wholesale dispatch that earns ancillary-service or energy revenue can therefore reduce net value if it creates a new retail demand peak or increases charging during expensive retail periods.
+
+This paper studies that retail--wholesale coupling for a campus EV charging site with a co-located BESS. The novelty is primarily an application and accounting contribution, not a new control-theory contribution. We ask whether a campus workplace charging portfolio can create net value when wholesale energy and ancillary-service participation is layered on top of retail bill management and EV charging revenue. The analysis is execution-aware: only the first 15-minute decision from each optimization is implemented, states are updated, and financial accounting is performed on executed quantities. This distinction matters because a planning trajectory can look profitable even if its future actions are later overwritten by MPC updates.
+
+The study is intentionally scoped. The present results use a July 2025 UCSD workplace charging case with daytime charging sessions and essentially no overnight EV carryover. Wholesale prices and retail tariff schedules are treated as known inputs; the EV-information comparison is between perfect EV session information and a persistence EV forecast. Shrinking-horizon and rolling-horizon MPC are included as execution structures, but the paper does not claim that rolling MPC is a methodological innovation or that it should dominate in this setting. Instead, the controller comparison helps interpret whether the available EV flexibility is mainly intraday or cross-day.
+
+The paper makes four specific contributions:
+\begin{enumerate}[leftmargin=*]
+    \item It develops a campus BTM DER-portfolio formulation for wholesale-market participation, with EV charging, BESS dispatch, retail tariffs, EV user payments, DA/RT energy, and AS capacity represented in one executed net-value framework.
+    \item It coordinates unidirectional EV load flexibility with bidirectional BESS dispatch. EVs provide schedulable demand relative to a baseline, whereas the BESS provides power and SOC headroom for energy shifting and reserve capability.
+    \item It implements a two-stage DA/RT bidding and execution workflow for a BTM campus portfolio, where DA market quantities are passed to a 15-minute RT controller and deviations are penalized rather than treated as infeasible hard equalities.
+    \item It compares forecast--controller ensembles---perfect versus persistence EV information and shrinking versus rolling horizons---to quantify practical operating scenarios, information value, and retail--wholesale risk rather than to claim a new forecasting or MPC method.
+\end{enumerate}
+
+The remainder of the paper reviews related EV and DER market-participation literature, defines the campus system and assumptions, presents the EV-information and execution frameworks, gives the optimization formulation, and evaluates the July 2025 case study through monthly value stacks, daily variability, and representative-day operation.
+
+\section{Related Work}
+\label{sec:related_work}
+
+\subsection{DER aggregation and wholesale-market access}
+Wholesale-market participation by distributed energy resources (DERs) is increasingly framed as an aggregation problem. FERC Order No.~2222 requires organized wholesale markets to reduce barriers for DER aggregations, and explicitly includes resources such as battery storage, rooftop solar, controllable demand, and EV charging equipment in the DER category \cite{ferc2222}. This policy context motivates campus and commercial sites to ask whether behind-the-meter assets can be aggregated into market-facing flexibility while still satisfying local service obligations.
+
+Recent DER aggregation studies develop market and network mechanisms for representing flexible behind-the-meter resources in wholesale markets. Competitive DERA models derive bid and offer curves for aggregators that combine customer-side generation and consumption \cite{chen2023competitiveDER}. Grid-aware aggregation methods characterize feasible cost curves or operating envelopes so that distribution constraints are not ignored \cite{cui2022gridaware,chen2022dsoDERA}. Generic flexibility-aggregation methods also show how heterogeneous DERs can be represented at the aggregate level for market decisions \cite{muller2017aggregation}. These studies establish that DER aggregations can be formulated as market-facing resources, but they generally do not evaluate a measured campus workplace charging portfolio behind a retail meter with EV user payments, retail demand charges, BESS feasibility, DA/RT energy positions, AS capacity awards, and executed financial accounting in the same case study.
+
+\subsection{EV smart charging and aggregate flexibility}
+The smart-charging literature shows that EV charging can be shifted to reduce grid impacts, lower operating cost, or increase system flexibility \cite{clement2010impact,sortomme2011optimal,gan2013optimal,richardson2013electric,mwasilu2014electric}. In this literature, EV flexibility is created by the difference between plug-in time and required charging time; it is limited by arrival time, departure time, requested energy, and charger power. Aggregate-flexibility studies further show that many individual EV constraints can be approximated or aggregated for market and control decisions \cite{alTaha2022aggregateFlex,nazari2022updated}.
+
+The present study uses this idea in a narrower but practically important setting: workplace EV charging without V2G. The EV fleet is not modeled as physical storage and does not export energy. Instead, upward flexibility is load reduction relative to a charging baseline, while downward flexibility is additional charging up to connected-charger limits. This distinction is central to the paper because the BESS provides bidirectional energy shifting, whereas unidirectional EVs provide schedulable demand flexibility.
+
+\subsection{EV aggregators in energy, demand-response, and ancillary-service markets}
+Several papers study EV aggregators as market participants. Ancillary-service studies often rely on EV battery discharge or V2G capability and examine whether EV fleets can provide frequency regulation or reserve products while respecting user preferences \cite{clairand2020ancillary,sortomme2012v2gAncillary}. Charging-station market papers analyze strategic bidding, retail pricing, or competition when EV charging stations buy energy from wholesale markets and sell charging service to EV users \cite{mousavi2022evcsWholesale,bayani2021strategic}. These works are useful background, but they differ from the present campus problem because they are commonly EV-only, V2G-oriented, strategic-bidding focused, or not evaluated through a behind-the-meter retail tariff.
+
+Two recent UCSD/TotalEnergies studies are the closest predecessors and must be distinguished carefully. Chen et al.~\cite{chen2024costoptimal} developed a cost-optimal workplace EV aggregator model for demand-response market participation under forecast uncertainty, including demand charge management, TOU energy costs, DA demand-response revenue, EV charging revenue, and 15-minute online feedback control. Chen et al.~\cite{chen2026realtime} extended the EV aggregator formulation by modeling aggregated EV charging as a time-varying battery and using a DA optimizer plus a two-stage RT optimizer to address forecast uncertainty. The present paper builds on this EV-flexibility line but changes the application scope: it adds a co-located BESS, includes DA/RT wholesale energy and AS capacity products, evaluates retail-only versus retail+wholesale operation, and computes value from executed behind-the-meter dispatch rather than from EV-only demand-response scheduling.
+
+\subsection{Behind-the-meter BESS value stacking}
+BESS operation has been studied for microgrid scheduling, building demand response, PV self-consumption, and demand-charge management \cite{parisio2014model,wang2018predictive,raoufat2017bess}. Behind the meter, value stacking is difficult because one dispatch action can affect several economic accounts at once. Charging the battery can create future discharge capability or downward reserve capability, but it can also increase retail import and demand-charge exposure. Discharging can reduce a retail peak, but it can also reduce state-of-charge headroom for upward reserve or future energy arbitrage.
+
+This coupling becomes sharper when EV charging is added. EVs and the BESS share the same retail meter, and their flexibility must be allocated among EV service, retail bill management, wholesale energy positions, and AS capacity. Therefore, the relevant performance metric is not BESS revenue, EV charging revenue, or wholesale revenue alone, but net value after retail charges and EV service are accounted for.
+
+\subsection{Research gap and novelty of this paper}
+The existing literature supports the individual ingredients of this work: DER aggregation, EV smart charging, EV aggregator market participation, BESS value stacking, and MPC execution. The gap is their execution-aware combination for a campus behind-the-meter portfolio in which unidirectional workplace EV charging and bidirectional BESS dispatch are co-optimized under both retail and wholesale value streams.
+
+The novelty of this paper is therefore applied and accounting-focused rather than algorithmic. It evaluates whether a real campus EV--BESS site can create net value when DA/RT energy and AS capacity participation are layered on top of EV charging service and retail bill management. The results are organized to provide evidence for that claim: gross wholesale revenue is compared against changes in TOU charges, demand charges, EV user payments, BESS feasibility, and completed EV service, all using executed MPC dispatch rather than overwritten planning trajectories.
+
+\section{Methods: Campus System, Market Setting, and Assumptions}
+\label{sec:system_description}
+
+\subsection{Behind-the-meter campus portfolio}
+The modeled site is a campus workplace EV charging system with a co-located BESS behind a retail meter. The operator collects EV user payments, pays retail energy and demand charges, and schedules the BESS and EV charging power. The retail meter observes the net grid import after EV charging and BESS dispatch. In the broader project architecture, building-load and PV data are available, but they are not active decision inputs in the current reported simulations. The current case should therefore be interpreted as an EV--BESS stage of a larger campus DER platform.
+
+The physical resources have distinct roles. EVs are unidirectional controllable demand: they can shift charging in time, but they cannot discharge to the grid. The BESS is a bidirectional storage asset with power and state-of-charge constraints. Both resources affect the same retail meter and both can contribute to the market-facing flexibility envelope. The optimization must therefore decide how much of the available flexibility should be used for EV service, retail bill reduction, wholesale energy positions, and ancillary-service capacity.
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{system_architecture.png}{width=0.88\textwidth}
+\caption{Behind-the-meter EV--BESS value-stacking architecture. The active July 2025 simulations coordinate workplace EV charging and BESS dispatch through an MPC controller that uses EV information, tariff parameters, wholesale energy prices, ancillary-service prices, BESS state, and DA/RT references. PV and building-load streams are shown as available extensions but are not included in the reported EV--BESS optimization results.}
+\label{fig:system_architecture}
+\end{figure*}
+
+\subsection{Market and tariff setting}
+The retail layer includes TOU energy charges, a peak-demand charge, and a non-coincident demand charge. The wholesale layer includes day-ahead (DA) and real-time (RT) energy positions and ancillary-service (AS) capacity products. The model uses the market products as an operational abstraction rather than a complete ISO settlement engine. DA quantities are scheduled before operation, RT decisions update dispatch at 15-minute resolution, and AS awards are constrained by EV and BESS deliverability.
+
+This abstraction is sufficient for the main research question: whether adding wholesale participation improves net value for the campus behind-the-meter portfolio. It is not intended to replace a market-registration or settlement study. Certification requirements, telemetry requirements, minimum bid sizes, and scheduling-coordinator arrangements are outside the current optimization and are treated as deployment requirements rather than simulated decision variables.
+
+\subsection{Data sources and preprocessing}
+EV session records are converted into 15-minute interval objects. Each session is assigned an arrival interval, departure interval, requested or delivered energy, and charging power limit. Sessions that cannot be represented consistently at 15-minute resolution are filtered or flagged. The implementation uses a maximum charger power of 6.6 kW per active EV session in the aggregate capability calculation. EV user-payment revenue is computed from delivered charging energy and the user charging price.
+
+The EV baseline $B_t^{\EV}$ defines the reference charging trajectory for flexibility accounting. Because EVs do not export energy, their market-facing upward flexibility is modeled as load reduction relative to this baseline, and their downward flexibility is modeled as additional charging above the baseline while vehicles are connected. Baseline construction is therefore a modeling assumption that directly affects the measured amount of EV flexibility.
+
+Wholesale data include DA and RT locational marginal prices and AS prices for regulation up, regulation down, spinning reserve, and non-spinning reserve. Retail data include TOU energy prices and demand-charge rates. All price and tariff inputs are aligned to the same 15-minute simulation index used for EV and BESS control.
+
+\subsection{Modeling assumptions and scope}
+\label{sec:assumptions}
+All assumptions used in the current study are collected here so that the scope is explicit.
+\begin{enumerate}[leftmargin=*]
+    \item EV charging is unidirectional. EV batteries are not discharged to the site or grid, and V2G is not modeled.
+    \item The BESS is the only bidirectional energy-storage device. BESS degradation is not modeled explicitly; a small implementation penalty discourages unnecessary cycling or ramping.
+    \item EV service is mandatory. Each modeled session must receive its required energy by departure subject to charger and availability constraints.
+    \item Wholesale prices, AS prices, and retail tariff schedules are known exogenous inputs in the present simulations. The paper does not evaluate electricity-price forecasting.
+    \item The EV-information comparison is limited to perfect EV information and persistence EV forecasting. Once a vehicle arrives, its realized session information is revealed to the controller.
+    \item DA quantities are treated as references in RT and deviations are penalized. They are not enforced as hard equalities because strict DA tracking can make long rolling simulations infeasible after EV and BESS states are updated.
+    \item AS awards are constrained by power headroom and BESS duration requirements. Expected deployment factors are used for energy accounting; actual regulation mileage and full settlement rules are not simulated.
+    \item Building load and PV are shown in the system architecture as future data streams but are not active optimized inputs in the current EV--BESS results.
+    \item The case study covers July 2025 UCSD workplace charging at 15-minute resolution. The tested month contains essentially no overnight EV sessions, so conclusions about rolling-horizon value are limited to daytime workplace charging.
+\end{enumerate}
+
+\subsection{Workflow overview}
+Figure~\ref{fig:workflow} summarizes the data-to-decision workflow. EV sessions, baseline construction, tariff inputs, market prices, BESS state, and DA/RT references are assembled into the optimization problem. At each RT step, the controller solves over the active horizon, implements only the current 15-minute decision, updates EV and BESS states, and records executed financial quantities. The workflow is designed to ensure that monthly value is computed from actions that were actually executed rather than from overwritten future MPC plans.
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{market_mpc_workflow.png}{width=0.90\textwidth}
+\caption{Forecasting and MPC workflow. EV information, tariff inputs, wholesale prices, BESS state, and DA/RT references are converted into an optimization problem. The RT controller updates every 15 minutes, executes the first decision, and records executed quantities for financial accounting.}
+\label{fig:workflow}
+\end{figure*}
+
+\section{EV Information Scenarios}
+The controller requires information about current and future EV sessions because plug-in availability and energy requirements determine the feasible charging envelope. The present study does not compare electricity-price forecasts. Retail tariff schedules, DA/RT energy prices, and AS prices are read from processed data and treated as known inputs. The forecast comparison is therefore an EV-information comparison: how much value is lost when future EV session information is estimated rather than known.
+
+\subsection{Forecast objects}
+At each control time $t$, the EV forecast object describes a set of currently connected and future EV sessions over the prediction horizon $\calH_t$. For an EV $i$, the relevant information includes its arrival interval $a_i$, departure interval $d_i$, requested energy $E_i^{\req}$, maximum charging power $\bar p_i^{\EV}$, and availability indicator $b_{t,i}^{\EV}$. Once an EV has arrived, the controller observes its realized session information and uses that information in subsequent optimizations. For EVs that have not yet arrived, the controller either uses perfect information for benchmarking or persistence-based estimates for an implementable forecast.
+
+This distinction is important. In this study, ``perfect'' does not mean perfect electricity-price prediction; the price series are not forecasted. Instead, perfect forecasting means that future EV session information is made available to the optimizer as an information benchmark. Persistence forecasting means that future EV charging demand is estimated from recent historical charging behavior and then translated into future session or aggregate charging requirements.
+
+\subsection{Perfect EV-information benchmark}
+The perfect forecast case uses the realized EV session set for the study period when constructing the EV constraints. It answers the question: how well could the same optimization and execution framework perform if future EV arrivals, departures, and energy requests were known? This case is not claimed to be implementable in practice. It is an information benchmark that separates the effect of forecast uncertainty from the effect of the controller structure. A large gap between perfect and persistence cases indicates that improved EV forecasting may have economic value. A small gap indicates that the controller is less sensitive to the forecast errors present in the tested month.
+
+Because perfect EV information is available over the horizon, shrinking MPC can plan a full daily or remaining-day schedule with fewer forecast revisions. Rolling MPC can also use perfect information, but its advantage is not expected to appear in this daytime workplace case simply because most EV sessions begin and end within the same day and overnight carryover is rare. The perfect benchmark is therefore used to interpret both forecast value and controller value.
+
+\subsection{Persistence EV forecast}
+Persistence forecasting is the main implementable baseline. The idea is that recent or representative historical charging behavior is used to estimate future workplace charging demand. In the current EV forecasting pipeline, two quantities are central: the number of EVs expected to be present and the amount of session energy expected to be requested. These estimates are converted into EV availability and service requirements over the prediction horizon. As time advances, newly arrived EVs reveal their realized information, and the forecast object is updated.
+
+The persistence forecast is intentionally simple. Its role is not to be the final forecasting method for all future deployment cases, but to provide a transparent benchmark that can be reproduced and compared against perfect information. For a campus workplace charging site, persistence can perform reasonably because weekday charging patterns are often recurring. However, it can still misrepresent unusual days, holiday effects, or changes in arrival intensity. Those forecast errors affect the EV flexibility envelope and, through the BTM balance, can also affect BESS dispatch, retail charges, and wholesale-market participation.
+
+\subsection{Forecast construction as an optimization input}
+For both perfect and persistence cases, the output of the forecast module is not only a scalar load profile. It is a structured set of EV constraints. The forecast determines which EVs are assumed to be available, how much energy must be delivered before departure, and what aggregate charging capability exists at each 15-minute interval. The controller then combines that EV forecast with BESS state, retail tariff parameters, known market prices, and previous market commitments. In this way, the forecast module determines feasible flexibility, while the optimization module decides how to allocate that flexibility among EV service, retail-cost reduction, and wholesale-market products.
+\section{MPC Control Frameworks, Bidding Timeline, and Execution Logic}
+The same EV/BESS value-stacking model is solved under two execution frameworks: shrinking-horizon MPC and rolling-horizon MPC. Both frameworks use the same device constraints, tariff accounting, wholesale products, and financial evaluation. They differ in how the horizon is updated and how future decisions are recomputed.
+
+\subsection{Why shrinking and rolling MPC are both studied}
+Shrinking-horizon MPC is a natural baseline for the July workplace charging case. At the beginning of a daily operating problem, the controller optimizes over the remaining intervals in the day. As the day progresses, the remaining horizon shrinks. This is well matched to daytime workplace charging because most sessions arrive and depart during the same day, and the current data set contains essentially no overnight sessions. For this reason, shrinking MPC is not expected to be weaker than rolling MPC in the present scenario. In several cases it can be stronger because it avoids repeatedly expanding the planning window into periods that contain little additional useful EV flexibility.
+
+Rolling-horizon MPC solves a moving-window problem. After each 15-minute execution step, the controller advances the horizon and rebuilds the forecast object. Rolling MPC is therefore more general. It is expected to become more valuable when overnight charging sessions, residential charging, fleet depots, or multi-day uncertainty are included. Those settings create cross-day coupling and make repeated forecast updates more valuable. The present paper therefore does not present rolling MPC as a guaranteed improvement for the July workplace case. Instead, it compares shrinking and rolling as two execution structures under a common model, and it interprets the results in the context of the available EV flexibility.
+
+\subsection{Market bidding and MPC timeline}
+The physical controller must also respect the market-information timeline. Fig.~\ref{fig:bidding_timeline} summarizes the intended sequence. Historical EV/PV/building data are collected before the operating day. In the current reported model, the EV stream is active while PV and building-load streams are retained for later integration. A day-ahead forecast is created on Day--1 and used to solve the DA optimization. The resulting DA wholesale bid is submitted before the DA market deadline. After the DA market clears, awarded DA quantities become commitments or references for the RT controller. During Day 0, the RT controller updates every 15 minutes using realized EV arrivals, updated BESS SOC, known price streams, and the remaining DA commitments. It then solves an RT problem and executes only the current 15-minute dispatch.
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{market_bidding_mpc_timeline.png}{width=0.94\textwidth}
+\caption{Market bidding and MPC execution timeline. The DA stage uses Day--1 information to create a forecast, solve the DA optimization, and submit DA energy/AS bids. After DA market clearing, awarded DA quantities are passed to the RT controller. On Day 0, EV data and forecasts are updated every 15 minutes, the RT MPC solves the current dispatch problem, and only the first 15-minute decision is executed.}
+\label{fig:bidding_timeline}
+\end{figure*}
+
+The DA/RT distinction matters because the RT problem should not freely ignore DA quantities that have already been submitted or awarded. The current simulation implementation therefore uses a penalty-based RT reference-tracking formulation rather than a hard equality formulation. A hard formulation can become infeasible in rolling simulations if future DA commitments are inconsistent with newly observed EV availability, BESS SOC, or remaining flexibility. The penalty formulation keeps the RT problem feasible while discouraging unnecessary deviations from the DA reference. This is especially important for month-long simulations where a single infeasible RT step would stop the scenario.
+
+\subsection{Day-ahead and real-time roles}
+The DA optimization determines the schedule and submitted wholesale position for the next operating day. It uses the selected EV forecast, known tariff parameters, known DA price series, and AS price series. The RT optimization is executed at 15-minute resolution. It observes realized states, updates the EV forecast, tracks relevant DA values with a penalty, and computes the immediate EV/BESS dispatch and RT market quantities. Financial results are computed from executed decisions rather than from future decisions that may later be overwritten.
+
+\subsection{Example: execution at 9:00 AM and 9:15 AM}
+Consider Day 0 at 9:00 AM. At this time, the controller knows the EVs that have already arrived and observes their realized session information. It also knows the current BESS SOC and accumulated retail demand-charge states. The EV forecast module fills in future EV sessions over the remaining horizon using either perfect EV information or persistence estimates. The price inputs are read from the processed market and tariff data, not forecasted by the EV module. The MPC then solves the MILP with EV service constraints, BESS SOC constraints, BTM meter balance, retail-cost terms, wholesale revenue terms, AS capability constraints, and DA reference-tracking penalties.
+
+Only the 9:00--9:15 AM EV and BESS decisions are implemented. The rest of the optimized trajectory is a plan, not an executed schedule. At 9:15 AM, delivered EV energy and BESS SOC are updated, any newly arrived EVs reveal their session information, and the forecast object is rebuilt. Shrinking MPC solves over the remaining part of the day, whereas rolling MPC shifts its moving horizon forward. The cycle repeats until the operating horizon ends.
+
+\begin{table*}[!t]
+\centering
+\caption{Execution logic for the 9:00 AM to 9:15 AM update. The same physical model is used by both MPC frameworks; only the horizon update and forecast replacement rule differ.}
+\label{tab:execution_example}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.16\textwidth}X X@{}}
+\toprule
+Step & Shrinking-horizon MPC & Rolling-horizon MPC \\
+\midrule
+At 9:00 AM & Build a forecast and optimize over the remaining intervals of Day 0. & Build a forecast and optimize over the rolling window that begins at 9:00 AM.\\
+EV information & Arrived EVs use realized session information; future EVs use perfect or persistence EV information. & Same EV information rule, but the forecast window shifts forward at the next step.\\
+Market information & DA commitments and known price streams enter the RT problem; deviations are penalized. & Same DA/RT tracking logic.\\
+Execution & Implement only the 9:00--9:15 AM decisions. & Implement only the 9:00--9:15 AM decisions.\\
+At 9:15 AM & Remove the executed interval and optimize the remaining day. & Shift the window to start at 9:15 AM and rebuild the forecast object.\\
+Expected role & Strong baseline for daytime workplace charging without overnight carryover. & More adaptable for future overnight, multi-day, or higher-uncertainty EV settings.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Scenario definitions}
+The experimental design is a two-by-two controller and EV-information comparison, crossed with retail-only and wholesale-enabled operation. The controller dimension compares shrinking-horizon MPC with rolling-horizon MPC; the EV-information dimension compares perfect EV information with a persistence EV forecast; and the operating-mode dimension compares retail-only scheduling with retail+wholesale value stacking. Retail-only cases disable wholesale energy and AS participation. Retail+wholesale cases allow DA/RT energy and AS products subject to the same EV/BESS physical constraints and the same retail meter accounting. Because all cases use the same EV service requirement and financial accounting, differences in net value can be attributed to controller execution, EV information, and wholesale participation rather than to inconsistent service delivery.
+\section{Optimization Formulation}
+This section presents the core mathematical model in the main text. Detailed linearization, binary direction variables, AS duration constraints, and revenue-decomposition equations are provided in Appendix~A. The notation is introduced with the model components rather than placed in a separate nomenclature section, so that each symbol is defined close to where it is used.
+
+The model is solved repeatedly under either shrinking-horizon or rolling-horizon MPC. Let $\calH_t$ denote the active prediction horizon at control time $t$. For shrinking MPC, $\calH_t$ contains the remaining intervals in the operating day. For rolling MPC, $\calH_t$ is a moving look-ahead window that shifts forward after each execution step. Both controllers use the same physical constraints, retail-meter accounting, wholesale-market variables, and EV-service requirements; they differ in how the horizon is updated and how future EV information is replaced as time advances. The controller therefore solves the value-stacking model below at each decision time, executes only the current interval, updates the realized state, and then repeats the process with the appropriate shrinking or rolling horizon.
+
+\begin{table*}[!t]
+\centering
+\caption{Core notation used in the formulation. Additional product-specific variables are defined where they appear in Appendix~A.}
+\label{tab:notation_core}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.16\textwidth}p{0.78\textwidth}@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$t\in\calT$, $i\in\calI$ & 15-minute interval and EV/session index.\\
+$\DeltaT$ & Interval length in hours.\\
+$p_{t,i}^{\EV}$, $p_t^{\EV}$ & Charging power of EV $i$ and aggregate EV fleet charging power.\\
+$e_{t,i}$, $E_i^{\req}$ & Delivered energy state and required departure energy of EV $i$.\\
+$b_{t,i}^{\EV}$, $p_t^{\EV,\avail}$ & EV plug-in availability indicator and aggregate available charging capability.\\
+$p_t^{\ch,\BESS}$, $p_t^{\dch,\BESS}$, $\soc_t^{\BESS}$ & BESS charge power, discharge power, and state of charge.\\
+$p_t^{\GI}$ & Behind-the-meter grid import measured at the retail meter.\\
+$C_t^{\TOU}$, $C^{\PD}$, $C^{\NCD}$ & Retail energy, peak-demand, and non-coincident demand-charge rates.\\
+$C_t^{\LMP,\DA}$, $C_t^{\LMP,\RT}$ & Known DA and RT wholesale energy price inputs.\\
+$c_t^{k,s}$ & AS capacity award for product $k$ and direction/status $s$.\\
+$R^{\EV}$, $R^{\WM}$ & EV user-payment revenue and wholesale-market revenue.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Objective function}
+At each optimization call, the controller minimizes net cost, equivalently maximizing net value. The compact objective is
+\begin{align}
+\min \quad
+J = C^{\TOU}+C^{\PD}+C^{\NCD}-R^{\EV}-R^{\WM}+\rho^{\WM}+\rho^{\BESS},
+\label{eq:objective_main}
+\end{align}
+where $C^{\TOU}$ is the retail energy charge, $C^{\PD}$ is the peak-demand charge, $C^{\NCD}$ is the non-coincident demand charge, $R^{\EV}$ is EV user-payment revenue, $R^{\WM}$ is wholesale revenue, $\rho^{\WM}$ is a DA/RT schedule-tracking penalty used in RT, and $\rho^{\BESS}$ is a small implementation penalty used to discourage unnecessary BESS cycling or ramping. This objective makes the main economic point of the paper visible: wholesale revenue appears with a negative sign in a cost-minimization objective, but it is not free. The same dispatch also changes retail import and therefore retail cost.
+
+\subsection{Expanded objective components}
+For reproducibility, the compact objective in Eq.~\eqref{eq:objective_main} can be expanded into interval and billing-period components. The interval EV revenue is
+\begin{align}
+r_t^{\EV}=C^{\EV}p_t^{\EV}\DeltaT.
+\label{eq:interval_ev_rev}
+\end{align}
+The interval TOU energy cost is
+\begin{align}
+c_t^{\TOU}=C_t^{\TOU}p_t^{\GI}\DeltaT.
+\label{eq:interval_tou}
+\end{align}
+The wholesale energy and AS revenue can be written as
+\begin{align}
+r_t^{\WM}=&\DeltaT\left(C_t^{\mathrm{LMP},\DA}p_t^{\DA}+C_t^{\mathrm{LMP},\RT}p_t^{\RT}\right)\nonumber\\
+&+\DeltaT\sum_{k\in\calK}\sum_{s\in\calS}C_t^{k,s}c_t^{k,s}+r_t^{\mathrm{deploy}}.
+\label{eq:interval_wm_rev}
+\end{align}
+Demand charges are not simple interval sums. In the implemented monthly accounting, a new demand-charge cost is incurred when the current grid import exceeds the previous billing-period maximum. An equivalent epigraph representation uses variables $z^{\PD}$ and $z^{\NCD}$:
+\begin{align}
+z^{\PD}&\ge p_t^{\GI},\quad t\in\calT_{\PD},\label{eq:pd_epigraph}\\
+z^{\NCD}&\ge p_t^{\GI},\quad t\in\calT,\label{eq:ncd_epigraph}\\
+C^{\PD}&=C^{\PD,rate}z^{\PD},\qquad C^{\NCD}=C^{\NCD,rate}z^{\NCD}.\label{eq:dem_epigraph_cost}
+\end{align}
+This representation is useful because it keeps the demand-charge model linear while preserving the economic meaning of the monthly maximum. It also explains why daily financial plots should be interpreted with care: a large demand-charge impact can be triggered by a single interval.
+
+\subsection{EV charging model}
+Each EV session has an arrival time $a_i$, departure time $d_i$, requested energy $e_i^{\req}$, and availability indicator $b_{t,i}^{\EV}$. The charging power is constrained by availability and charger rating:
+\begin{align}
+0 \le p_{t,i}^{\EV} \le \hat P^{\EV} b_{t,i}^{\EV}.
+\label{eq:ev_power_bound_main}
+\end{align}
+The delivered energy state evolves as
+\begin{align}
+e_{t,i}=e_{t-1,i}+p_{t,i}^{\EV}\DeltaT/\eta_i^{\EV},
+\label{eq:ev_energy_main}
+\end{align}
+and the service requirement is
+\begin{align}
+e_{d_i,i}\ge e_i^{\req}.
+\label{eq:ev_service_main}
+\end{align}
+The aggregate EV charging power is
+\begin{align}
+p_t^{\EV}=\sum_{i\in\calV} p_{t,i}^{\EV}.
+\label{eq:ev_aggregate_main}
+\end{align}
+
+Equation~\eqref{eq:ev_aggregate_main} is more than notation. It turns many individual charging decisions into the fleet-level demand seen by the meter and the wholesale module. Because V2G is not modeled, $p_{t,i}^{\EV}$ and $p_t^{\EV}$ are nonnegative. The EV fleet still has economic flexibility because the optimizer can decide when to deliver the required energy. If the fleet would normally charge according to a baseline $B_t^{\EV}$, then reducing $p_t^{\EV}$ below that baseline releases upward flexibility; increasing $p_t^{\EV}$ above that baseline absorbs additional power and can provide downward flexibility. The flexibility is real only if the final energy requirement \eqref{eq:ev_service_main} remains satisfied.
+
+The dynamic aggregate charging capability is
+\begin{align}
+P_{t,\max}^{\EV}=\hat P^{\EV}\sum_{i\in\calV}b_{t,i}^{\EV}.
+\label{eq:ev_capability_main}
+\end{align}
+This value changes throughout the day because vehicles arrive and depart. It determines how much EV demand can be increased at time $t$. It also appears in the AS and net-power envelopes in Appendix~\ref{app:complete_milp}. A high $P_{t,\max}^{\EV}$ does not automatically mean high flexibility: if the connected vehicles are already nearly fully charged, downward flexibility may be limited by remaining energy need; if they are close to departure, upward flexibility may be limited by service completion.
+
+\subsection{BESS model}
+The BESS has charging power $p_t^{\ch,\BESS}$, discharging power $p_t^{\dch,\BESS}$, and SOC $\soc_t^{\BESS}$. The SOC dynamics are
+\begin{align}
+\soc_t^{\BESS}=\soc_{t-1}^{\BESS}+\frac{\DeltaT}{C^{\BESS}}
+\left(p_t^{\ch,\BESS}\sqrt{\gamma}-\frac{p_t^{\dch,\BESS}}{\sqrt{\gamma}}\right),
+\label{eq:bess_soc_main}
+\end{align}
+with bounds
+\begin{align}
+\soc_{\min}^{\BESS}\le \soc_t^{\BESS}\le \soc_{\max}^{\BESS}.
+\label{eq:bess_soc_bound_main}
+\end{align}
+The daily terminal equality is
+\begin{align}
+\soc_{T_d}^{\BESS}=\soc_{0,d}^{\BESS},
+\label{eq:bess_terminal_main}
+\end{align}
+where $T_d$ denotes the end of the daily accounting horizon. This prevents the controller from artificially improving a daily objective by emptying or filling the BESS at the end of the simulated day.
+
+The BESS is the physical resource that can actually move energy across time. It can charge when wholesale or retail conditions favor absorption, discharge when peak reduction or energy revenue is valuable, and hold SOC to provide upward or downward AS capability. It therefore complements the EV fleet. EV flexibility is constrained by user service and plug-in availability; BESS flexibility is constrained by SOC, power, and throughput.
+
+\subsection{Behind-the-meter power balance}
+The retail meter import is modeled as
+\begin{align}
+p_t^{\GI}=p_t^{\load}+p_t^{\EV}+p_t^{\ch,\BESS}-p_t^{\dch,\BESS}-p_t^{\PV}.
+\label{eq:btm_balance_main}
+\end{align}
+In the reported EV-BESS results, $p_t^{\load}$ and $p_t^{\PV}$ are held out of the active optimization and are treated as future integration streams. Equation~\eqref{eq:btm_balance_main} is still included because it is the general behind-the-meter balance and because it clarifies how PV and building load will enter the extended model.
+
+This balance is the bridge between wholesale actions and retail costs. If the BESS charges to support regulation down or energy arbitrage, $p_t^{\GI}$ can increase. If that happens during an expensive TOU period or during the monthly peak, retail costs can rise. Likewise, if EV charging is shifted to avoid a demand charge, the site may lose wholesale opportunities. This is why the model optimizes net value rather than maximizing $R^{\WM}$ alone.
+
+\subsection{Retail tariff terms}
+The TOU energy charge is
+\begin{align}
+C^{\TOU}=\sum_{t\in\calT} C_t^{\TOU}p_t^{\GI}\DeltaT.
+\label{eq:tou_main}
+\end{align}
+The demand-charge terms are modeled through maximum grid-import quantities:
+\begin{align}
+C^{\PD}=C^{\PD,rate}\max_{t\in\calT_{\PD}} p_t^{\GI},\qquad
+C^{\NCD}=C^{\NCD,rate}\max_{t\in\calT}p_t^{\GI}.
+\label{eq:demand_charge_main}
+\end{align}
+In the simulation workflow, these max functions are represented with auxiliary epigraph variables. The peak-demand window $\calT_{\PD}$ depends on the retail tariff. The non-coincident demand charge applies to the maximum import over the broader billing period. These max terms are why a single interval can have a large monthly financial impact.
+
+\subsection{Wholesale revenue and AS products}
+Wholesale revenue includes DA and RT energy revenue and AS capacity revenue:
+\begin{align}
+R^{\WM}=&\sum_{t\in\calT}\DeltaT\left(C_t^{\mathrm{LMP},\DA}p_t^{\DA}+C_t^{\mathrm{LMP},\RT}p_t^{\RT}\right)\nonumber\\
+&+\sum_{t\in\calT}\DeltaT\sum_{k\in\calK}\sum_{s\in\calS} C_t^{k,s}c_t^{k,s} + R^{\mathrm{deploy}},
+\label{eq:wm_revenue_main}
+\end{align}
+where $R^{\mathrm{deploy}}$ accounts for expected deployment energy using product-specific deployment factors. In the simulation workflow, regulation products are assigned larger deployment factors than spinning and non-spinning reserve. Upward products and downward products have opposite signs in the deployment-energy accounting.
+
+The capacity variables $c_t^{k,s}$ are not unconstrained bids. They are bounded by EV and BESS power headroom, BESS SOC duration requirements, EV baseline deviations, and directionality constraints. For example, the combined upward capability includes BESS discharge headroom plus the ability to reduce EV charging relative to baseline. The combined downward capability includes BESS charge headroom plus the ability to increase EV charging up to $P_{t,\max}^{\EV}$. The complete envelopes are listed in Appendix~\ref{app:complete_milp}.
+
+\subsection{Why EV flexibility and BESS dispatch must be co-optimized}
+A tempting simplification is to first optimize EV charging for user service and then optimize the BESS for market value. That decomposition is not valid for this paper's value-stacking problem because EV charging and BESS dispatch share the same meter, the same retail demand-charge state, and the same wholesale feasibility envelope. If EV charging is delayed to reduce meter import during a peak-demand interval, the BESS may have more opportunity to charge or may need to discharge less. If the BESS charges to support a downward product, the EV fleet may need to reduce charging to avoid exceeding a demand-charge threshold. These interactions appear directly in the meter balance \eqref{eq:btm_balance_main} and the capability constraints in Appendix~\ref{app:complete_milp}.
+
+The formulation also avoids double counting EV flexibility. EVs can only be used if the resulting charging schedule still delivers the required energy by departure. In other words, EV flexibility is a scheduling margin, not a new energy source. The model can reduce charging now only if it can charge later before departure. The aggregate baseline and capability variables make this margin visible to the wholesale module, while the individual EV energy constraints protect user service.
+
+\subsection{Implementation constraints and RT reference tracking}
+The DA and RT problems share the same physical EV/BESS model, but RT operation has one additional practical requirement: it should remain close to previously submitted DA quantities when those quantities are active. Enforcing all such DA quantities as hard equalities can make a rolling month-long simulation infeasible because the rolling horizon may later observe EV arrivals, BESS SOC, or remaining flexibility that are inconsistent with a previously value. For this reason, the present implementation uses penalty-based reference tracking:
+\begin{equation}
+\Pi_t^{\RT}
+=
+\sum_{\tau\in\calH_t}
+\left(
+\rho_p |p_{\tau}^{\RT}-p_{\tau}^{\DA,\mathrm{ref}}|
++
+\sum_{k,s}\rho_c |c_{\tau}^{k,s}-c_{\tau}^{k,s,\mathrm{ref}}|
+\right).
+\end{equation}
+The penalties discourage unnecessary deviations from DA references while preserving feasibility. This choice is particularly important for rolling MPC, where a strict hard-commitment formulation can become infeasible over long monthly simulations. Shrinking MPC can sometimes tolerate stricter DA commitment constraints because the daily horizon is shorter and does not repeatedly expand into future windows, but using a common penalty-based implementation improves comparability across controllers. The penalty terms should therefore be interpreted as numerical and operational regularization, not as an additional source of revenue.
+\subsection{EV user payments and service economics}
+EV user revenue is modeled as
+\begin{align}
+R^{\EV}=\sum_{t\in\calT} C^{\EV}p_t^{\EV}\DeltaT.
+\label{eq:ev_revenue_main}
+\end{align}
+This term represents user payment for delivered charging energy. It does not mean that the optimizer should overcharge vehicles; session requirements and upper energy bounds prevent that. In the July 2025 accounting, EV user revenue is the same across completed cases when the same EV service is delivered. The differences in net value therefore come from retail costs and wholesale revenue rather than from changing total EV energy served.
+
+\section{Case Study}
+\label{sec:case_study}
+
+\subsection{UCSD workplace charging setting}
+The case study represents a UCSD campus workplace charging data set for July 2025. The simulation interval is 15 minutes. The current July 2025 result set focuses on EV charging and a 250 kW / 332 kWh BESS with SOC bounds of 0.05--0.95 and round-trip efficiency parameter $\gamma=0.9$. The EV charger limit used in the aggregate capability calculation is 6.6 kW per connected EV session. The solver configuration uses CVXPY and Gurobi with a 0.1\% MIP gap, 10 solver threads, and a 0.5 s RT time limit. These values are implementation settings rather than universal recommendations.
+
+\begin{table*}[!t]
+\centering
+\caption{Case-study parameters used in the current simulation implementation. Values correspond to the July 2025 EV--BESS simulation setting.}
+\label{tab:case_parameters}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}p{0.18\textwidth}X@{}}
+\toprule
+Parameter & Value & Notes \\
+\midrule
+Simulation month & July 2025 & Sample month used for the current evaluation.\\
+Time resolution & 15 min & One day has 96 intervals.\\
+BESS power rating & 250 kW & Simulation setting.\\
+BESS energy capacity & 332 kWh & Simulation setting.\\
+BESS SOC bounds & 0.05--0.95 & Daily terminal equality used for daily accounting.\\
+BESS efficiency parameter & $\gamma=0.9$ & Implemented with $\sqrt{\gamma}$ charge/discharge split.\\
+EV charger rating & 6.6 kW/session & Used for aggregate EV capability.\\
+EV charging price & \$0.40/kWh & Used for EV user-payment revenue.\\
+Peak-demand rate & \$3.05/kW & July/summer tariff setting used in the current simulation.\\
+Non-coincident demand rate & \$15.38/kW & July/summer tariff setting used in the current simulation.\\
+Solver & Gurobi via CVXPY & MILP implementation.\\
+MIP gap & $10^{-3}$ & Simulation setting.\\
+RT time limit & 0.5 s & Used for fast repeated RT execution.\\
+PV/building load & Not active in reported results & Data available; integration is future work.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{EV data processing}
+The EV preprocessing converts raw charging-session records into the session-level and interval-level objects required by the optimizer. The session-level data include arrival time, departure time, delivered energy, and driver/session identifiers when available. The interval-level data define which vehicles are connected in each 15-minute period and how much charging power can be assigned. Sessions that cannot be represented consistently at the simulation resolution should be filtered or flagged, because infeasible session data can cause artificial unmet energy or unrealistic flexibility.
+
+The key modeling choice is that the optimizer controls charging power, not session arrival. Once a vehicle is observed, its current availability is known. Future vehicles are forecast. In a perfect forecast, future arrivals and energy requirements are known from the realized data. In a persistence forecast, future arrivals and session energy are inferred from recent patterns. The preprocessing therefore feeds both the realized execution state and the forecast set used by the MPC.
+
+\subsection{EV baseline construction}
+The EV baseline $B_t^{\EV}$ is used to define load deviation and flexibility. In the current simulation workflow, the baseline is generated from a baseline simulation and converted from interval energy to power. This baseline enters the EV net charge/discharge decomposition in Appendix~\ref{app:complete_milp}. It is especially important for AS products, because load reduction or load increase is measured relative to an expected charging trajectory.
+
+The baseline is not merely cosmetic. A baseline determines how much upward or downward flexibility the EV fleet is allowed to claim. If baseline charging assumes all connected EVs charge immediately at maximum power, the fleet may appear to provide large upward flexibility by reducing charging. If the baseline is conservative, downward flexibility may be smaller. Because of this sensitivity, the current results are interpreted as baseline-dependent. The implemented baseline is used consistently across scenarios so that comparisons are internally consistent, but the baseline should be tested in future sensitivity analysis.
+
+\subsection{Market-price processing}
+The DA/RT LMP and AS price pipelines align market data to the same 15-minute simulation intervals used by EV and BESS control. DA and RT energy prices enter the energy-revenue term. AS prices enter the capacity-revenue term for regulation up, regulation down, spinning reserve, and non-spinning reserve. The implementation also uses product deployment factors to account for expected energy movement associated with awards. The price-processing pipeline creates the arrays used in the optimizer and the daily diagnostics used to interpret representative-day behavior.
+
+\begin{table*}[!t]
+\centering
+\caption{Data-processing modules used to create the EV, price, market, dispatch, and accounting inputs.}
+\label{tab:data_pipeline}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}p{0.22\textwidth}p{0.22\textwidth}X@{}}
+\toprule
+Pipeline component & Main inputs & Main outputs & Manuscript relevance \\
+\midrule
+EV post-processing & Raw charging-session data, timestamps, session energy, charger information & Clean session table, 15-min availability, arrival/departure indices, delivered/requested energy & Defines $a_i$, $d_i$, $e_i^{\req}$, $b_{t,i}^{\EV}$, and the fleet capability envelope.\\
+EV baseline generation & Processed sessions and baseline simulation settings & $B_t^{\EV}$ and interval baseline energy/power & Determines upward/downward EV flexibility relative to the baseline.\\
+Persistence EV forecast & Recent historical session energy and EV counts & Forecast session-energy and EV-count profiles & Main implementable EV forecast method.\\
+Perfect EV forecast & Realized future session information & Information-benchmark EV forecast & Upper-bound/reference forecast case.\\
+LMP processing & CAISO DA/RT market files & Interval-aligned $C_t^{\mathrm{LMP},\DA}$ and $C_t^{\mathrm{LMP},\RT}$ & Drives DA/RT energy revenue.\\
+AS processing & CAISO regulation and reserve price files & Interval-aligned $C_t^{k,s}$ arrays & Drives AS capacity revenue.\\
+MPC implementation & Forecasts, prices, BESS state, EV state, tariff parameters & DA/RT decisions, dispatch logs, per-day solver outputs & Source of monthly and daily result tables.\\
+Financial post-processing & Dispatch logs and price/tariff data & Monthly summary, daily detail, product-level WM tables & Source of results section and appendix accounting tables.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Result traceability}
+Each quantitative result is linked to an executed dispatch or accounting file. Monthly value stacks are computed from financial post-processing; daily figures are computed from executed daily records; representative-day traces are taken from per-day solver outputs; and EV-service statements are checked against processed session and execution logs. This traceability is important because the paper compares controller and EV-information choices. A difference between cases should reflect the tested market mode, forecast setting, or horizon rule rather than a change in input data.
+
+\section{Financial Accounting and Evaluation Metrics}
+\label{sec:metrics}
+
+The financial evaluation is performed on executed decisions. The primary metric is monthly net value:
+\begin{align}
+V^{\mathrm{month}}=R^{\EV}+R^{\WM}-C^{\TOU}-C^{\PD}-C^{\NCD}.
+\label{eq:month_value_metric}
+\end{align}
+This metric is reported for retail-only and wholesale-enabled modes. Retail-only mode sets wholesale participation to zero and evaluates the EV-BESS controller under retail tariff and EV user-payment terms. Wholesale-enabled mode allows DA/RT energy and AS capacity decisions. Comparing these modes reveals whether wholesale participation improves net value after retail impacts.
+
+Daily metrics are also computed, but they must be interpreted carefully because demand charges are monthly or billing-period quantities. A daily table can assign incremental demand-charge impacts to the day on which a new peak occurs, but the economic meaning is different from an energy charge that accrues independently each interval. For this reason, the paper reports both monthly summaries and daily traces. Monthly summaries provide the final objective comparison; daily traces diagnose when high-impact events occur.
+
+Wholesale revenue is decomposed by product and by asset where possible. The product decomposition separates DA energy, RT energy, regulation up, regulation down, spinning reserve, and non-spinning reserve. The asset decomposition separates BESS and EV contributions using implementation variables and ex-post attribution. This attribution should be interpreted as accounting, not as a separate physical market settlement.
+
+\section{Results}
+\label{sec:results}
+
+The results are organized to test the paper's application claim: a campus EV--BESS portfolio should be evaluated by net retail--wholesale value, not by gross wholesale revenue alone. Three questions guide the presentation. First, does wholesale participation improve monthly net value after retail charges and EV user payments are included? Second, which components create or erode value on individual days? Third, does the controller structure matter in a workplace data set whose flexibility is mostly intraday?
+
+\subsection{Scenario set and executed accounting}
+The scenario matrix crosses two market modes, two EV-information settings, and two execution structures. Retail-only operation disables wholesale energy and AS products. Retail+wholesale operation enables DA/RT energy positions and AS capacity awards subject to the same EV service, BESS, and retail-meter constraints. Perfect EV information provides an upper benchmark for session information; persistence forecasting represents a simple implementable EV-information baseline. Shrinking and rolling horizons use the same optimization model but update the active horizon differently.
+
+\begin{algorithm}[!t]
+\caption{Execution-aware EV--BESS simulation}
+\label{alg:mpc_execution}
+\begin{algorithmic}[1]
+\STATE Select market mode, EV-information setting, and controller structure.
+\STATE Initialize BESS SOC, EV energy states, retail demand-charge states, and DA/RT references.
+\FOR{each 15-minute interval $t$ in the study month}
+    \STATE Reveal arrived EV sessions and update EV energy, BESS SOC, and demand-charge states.
+    \STATE Build the EV information set over $\calH_t$ using perfect information or persistence forecasting.
+    \STATE Read tariff, DA/RT price, AS price, and active DA-reference inputs over $\calH_t$.
+    \STATE Solve the EV--BESS retail--wholesale MILP over the active horizon.
+    \STATE Execute only the current 15-minute EV charging and BESS decisions.
+    \STATE Record executed retail charges, EV revenue, wholesale revenue, and service metrics.
+\ENDFOR
+\STATE Aggregate monthly, daily, product-level, and representative-day metrics from executed quantities.
+\end{algorithmic}
+\end{algorithm}
+
+The last point is important. MPC repeatedly generates future schedules that are later revised. Only the executed first step of each solve is used for financial accounting. This prevents the study from reporting value that existed only in a planning trajectory.
+
+\IfFileExists{tables/monthly_financial_results.tex}{\input{tables/monthly_financial_results.tex}}{
+\begin{table*}[!t]
+\centering
+\caption{Scenario matrix for the monthly net-value comparison. The same executed-accounting columns are reported for every case.}
+\label{tab:monthly_results}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\toprule
+Controller & EV information & Market mode & Executed accounting columns \\
+\midrule
+Shrinking & Perfect & Retail only / retail+wholesale & Net value, EV revenue, wholesale revenue, TOU cost, peak-demand charge, NCD charge, delivered EV energy.\\
+Shrinking & Persistence & Retail only / retail+wholesale & Same columns under the persistence EV-information baseline.\\
+Rolling & Perfect & Retail only / retail+wholesale & Same columns under the rolling execution structure.\\
+Rolling & Persistence & Retail only / retail+wholesale & Same columns under rolling execution and persistence EV information.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+}
+
+\subsection{Monthly value-stack evidence}
+The monthly comparison directly evaluates the retail--wholesale value-stacking claim. A wholesale-enabled case can earn energy and AS revenue, but that revenue is valuable only if it exceeds the induced changes in TOU energy cost, peak-demand charge, and non-coincident demand charge. The monthly value-stack figures therefore report all components together rather than presenting wholesale revenue alone.
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_monthly_value_stack_decomposition.png}{width=0.88\textwidth}
+\caption{Monthly value-stack decomposition. Positive components represent EV user revenue and wholesale-market revenue; negative components represent TOU, peak-demand, and non-coincident demand charges. The figure supports the main evaluation criterion: net value after retail--wholesale coupling.}
+\label{fig:value_stack}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_monthly_financial_summary_perfect.png}{width=0.86\textwidth}
+\caption{Monthly financial summary for the perfect-EV-information case, comparing retail-only operation with retail+wholesale value stacking. The grouped bars separate wholesale-market revenue, EV user payments, TOU cost, peak-demand charge, non-coincident demand charge, and total net value.}
+\label{fig:monthly_financial_perfect}
+\end{figure*}
+
+The key interpretation is that wholesale participation should be judged by the change in total net value, not by the existence of positive wholesale revenue. If the wholesale-enabled controller increases AS or energy revenue while also increasing retail import during demand-charge-relevant intervals, the net benefit can be smaller than the gross wholesale number suggests. This is the central applied result of the paper.
+
+\subsection{Daily mechanisms behind monthly value}
+Monthly totals can hide the operating days that create or erode value. Demand charges are especially discontinuous because one 15-minute interval can set or reset a monthly maximum. The daily figures are therefore used to identify whether net-value differences arise from systematic daily behavior or from a small number of high-impact days.
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_daily_total_revenue_comparison.png}{width=0.88\textwidth}
+\caption{Daily net-value comparison across controller--forecast scenarios. The plot distinguishes persistent performance differences from isolated high-impact operating days.}
+\label{fig:daily_revenue}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_daily_component_comparison_perfect.png}{width=0.98\textwidth}
+\caption{Daily component comparison for the perfect-EV-information case. The panels separate wholesale revenue, TOU cost, peak-demand charge, non-coincident demand charge, and EV user-payment revenue for retail-only and retail+wholesale operation.}
+\label{fig:daily_component_perfect}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_daily_value_stack_perfect.png}{width=0.92\textwidth}
+\caption{Daily value-stack decomposition for the perfect-EV-information case. Stacked bars show daily cost and revenue components, while the net-value trace shows whether wholesale revenue survives retail-meter accounting.}
+\label{fig:daily_value_stack_perfect}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_daily_wm_breakdown_perfect.png}{width=0.94\textwidth}
+\caption{Daily wholesale-market revenue breakdown for the perfect-EV-information retail+wholesale case. The upper panel separates energy and capacity revenue; the lower panel attributes wholesale-market revenue between BESS and EV flexibility.}
+\label{fig:daily_wm_breakdown_perfect}
+\end{figure*}
+
+These daily views provide evidence for the mechanism rather than only the outcome. EV flexibility and BESS dispatch can create wholesale revenue on some days, but retail exposure can offset it on days when grid import approaches or exceeds a demand-charge threshold. This explains why the same gross market revenue can have different net value depending on when it occurs.
+
+\subsection{Representative-day operation}
+A representative operating day is used to connect the financial outcome to physical decisions. The six-panel plot links EV charging, BESS power and SOC, grid import, wholesale energy quantities, AS awards, and value components. The purpose is not to show that the controller is complex; it is to show how a wholesale decision propagates through the behind-the-meter balance.
+
+\begin{figure*}[!t]
+\centering
+\MaybeFigure{fig_representative_day_6panel.png}{width=0.92\textwidth}
+\caption{Representative-day operation trace from the RT solver-output folder. The panels link EV charging, BESS operation, grid import, wholesale energy quantities, AS awards, and financial impacts for one high-information operating day.}
+\label{fig:representative_day}
+\end{figure*}
+
+The operational interpretation follows the same causal chain as the formulation. A high AS price can make it attractive to reserve BESS headroom or modulate EV charging relative to baseline. That action changes the meter import, which can change TOU and demand-charge exposure. The representative-day plot therefore supports the paper's main claim: market-facing EV--BESS scheduling must be evaluated through the retail meter and EV service constraints.
+
+\subsection{Controller and EV-information interpretation}
+The controller comparison should not be read as a general ranking of shrinking and rolling MPC. In this July workplace data set, most EV sessions begin and end within the same day. Shrinking MPC is therefore well matched to the daily service structure. Rolling MPC is retained because it is a more general execution structure and is expected to be more useful when overnight sessions, fleet depots, residential charging, or multi-day uncertainty are included. In the current case, better gross wholesale performance from a rolling controller does not automatically imply higher net value because the retail-meter consequences can be larger.
+
+The EV-information comparison has a different interpretation. Perfect information is an upper benchmark for the value of knowing future sessions. Persistence is an implementable baseline that uses recent charging patterns. A large gap between perfect and persistence cases would indicate value in improved EV forecasting. A small gap would suggest that the dominant limitation is not EV-information quality but the structure of available flexibility, BESS capacity, or retail tariff exposure.
+
+\section{Discussion}
+\label{sec:discussion}
+
+The results support three practical messages for campus DER aggregation. First, gross wholesale revenue is an incomplete metric. A behind-the-meter site must settle with both the wholesale market and the retail tariff, and the retail demand-charge component can dominate individual operating intervals. Second, unidirectional EV charging can contribute to flexibility, but it should not be described as storage. EV flexibility is a scheduling margin constrained by connection time and service requirements. Third, controller design should match the physical flexibility of the data set. For daytime workplace charging without overnight carryover, a daily shrinking horizon is a strong baseline rather than a weak comparator.
+
+These points also define the paper's novelty relative to prior EV market-participation studies. The value of the work is not that MPC is used, nor that a persistence forecast is proposed. The value is that EV charging, BESS operation, retail tariffs, DA/RT wholesale energy, AS capacity, and executed accounting are placed in one campus-scale application study. This framing makes the result useful to SEGAN readers interested in whether DER aggregation concepts translate into net value for real behind-the-meter charging sites.
+
+\section{Limitations and Future Work}
+\label{sec:limitations}
+
+The current study is limited to a July 2025 sample month and an EV--BESS implementation stage. Additional months and seasons should be simulated before making annual value claims. Building load and PV are not active in the reported optimization, although they are part of the broader data architecture. The AS settlement model uses expected deployment factors and does not simulate realized regulation mileage, telemetry qualification, or all ISO settlement details. The EV baseline is a key assumption and should be validated against alternative baseline definitions. Finally, the tested workplace charging month contains essentially no overnight sessions; future studies should evaluate overnight workplace charging, residential charging, fleet depots, and other settings where rolling-horizon MPC may have a clearer operational advantage.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper evaluates campus EV charging and BESS as a behind-the-meter DER aggregation application under retail--wholesale coupling. The formulation combines EV user payments, retail TOU and demand charges, DA/RT wholesale energy positions, AS capacity products, EV service constraints, and BESS feasibility in a single executed-accounting framework. The July 2025 UCSD workplace case shows why wholesale participation cannot be evaluated from gross market revenue alone: the same actions that create wholesale revenue can also change retail import and demand-charge exposure. The study also clarifies that rolling MPC is not expected to dominate in a daytime workplace data set with little overnight flexibility; its main advantage is adaptability to future cross-day scenarios. The main conclusion is therefore operational rather than algorithmic: campus EV--BESS value stacking is possible, but the evidence for its value must be based on net retail--wholesale accounting and completed EV service.
+
+\section*{Acknowledgements and AI-assisted preparation disclosure}
+The authors acknowledge the UCSD and TotalEnergies collaboration that supported the development of the campus EV--BESS simulation workflow. During manuscript preparation, the authors used AI-assisted writing tools to help revise language, organize text, and improve clarity. The authors reviewed, edited, and verified the manuscript content and take full responsibility for the final text.
+
+\appendix
+\section{Complete MILP Formulation}
+\label{app:complete_milp}
+
+This appendix records the implementation-level constraints. They are separated from the main text to keep the main formulation readable while preserving reproducibility.
+
+\subsection{EV availability and energy state}
+\begin{align}
+b_{t,i}^{\EV} &= \begin{cases}1, & a_i\le t\le d_i,\\0, & \text{otherwise},\end{cases}\label{eq:app_ev_avail}\\
+e_{a_i,i} &= e_{a_i},\qquad e_{0,i}=0,\label{eq:app_ev_init}\\
+e_{t,i} &= e_{t-1,i}+p_{t,i}^{\EV}\DeltaT/\eta_i^{\EV},\label{eq:app_ev_dyn}\\
+0&\le e_{t,i}\le e_i^{\req},\qquad
+0\le p_{t,i}^{\EV}\le \hat P^{\EV}b_{t,i}^{\EV},\label{eq:app_ev_bounds}\\
+e_{d_i,i}&\ge e_i^{\req}.\label{eq:app_ev_req}
+\end{align}
+For rolling MPC, service closure constraints are applied so that energy required for currently relevant same-day sessions cannot be pushed beyond the valid service window. The precise mask depends on whether the horizon is a same-day shrinking horizon or a rolling cross-day horizon.
+
+\subsection{BESS SOC, split, and terminal equality}
+\begin{align}
+p_t^{\ch,\BESS}&=p_t^{\ch,\BESS,\WM}+p_t^{\ch,\BESS,\NWM},\label{eq:app_bess_chsplit}\\
+p_t^{\dch,\BESS}&=p_t^{\dch,\BESS,\WM}+p_t^{\dch,\BESS,\NWM},\label{eq:app_bess_dchsplit}\\
+p_t^{\BESS}&=p_t^{\ch,\BESS}-p_t^{\dch,\BESS},\label{eq:app_bess_power}\\
+\soc_t^{\BESS}&=\soc_{t-1}^{\BESS}+\frac{\DeltaT}{C^{\BESS}}
+\left(p_t^{\ch,\BESS}\sqrt{\gamma}-\frac{p_t^{\dch,\BESS}}{\sqrt{\gamma}}\right),\label{eq:app_bess_soc}\\
+\soc_{\min}^{\BESS}&\le \soc_t^{\BESS}\le \soc_{\max}^{\BESS},\label{eq:app_bess_bounds}\\
+\soc_{T_d}^{\BESS}&=\soc_{0,d}^{\BESS}.\label{eq:app_bess_terminal}
+\end{align}
+The wholesale/non-wholesale split is used for accounting and attribution. The physical SOC equation uses the total charge and discharge powers.
+
+\subsection{Direction binaries}
+\begin{align}
+0&\le p_t^{\ch,\BESS}\le P_{\max}^{\BESS}u_t^{\ch,\BESS},\label{eq:app_bess_chbin}\\
+0&\le p_t^{\dch,\BESS}\le P_{\max}^{\BESS}u_t^{\dch,\BESS},\label{eq:app_bess_dchbin}\\
+u_t^{\ch,\BESS}+u_t^{\dch,\BESS}&\le 1.\label{eq:app_bess_dirbin}
+\end{align}
+Analogous direction binaries are used for EV net load-increase/load-reduction variables and for net wholesale charge/discharge accounting. These binaries prevent the model from claiming simultaneous upward and downward capability from the same physical margin.
+
+\subsection{EV net-deviation and big-M formulation}
+The EV fleet is decomposed relative to the baseline:
+\begin{align}
+p_t^{\EV}-B_t^{\EV}&=p_t^{\ch,\EV}-p_t^{\dch,\EV},\label{eq:app_ev_deviation}\\
+0&\le p_t^{\ch,\EV}\le M^{\EV}u_t^{\ch,\EV},\label{eq:app_ev_ch}\\
+0&\le p_t^{\dch,\EV}\le M^{\EV}u_t^{\dch,\EV},\label{eq:app_ev_dch}\\
+u_t^{\ch,\EV}+u_t^{\dch,\EV}&\le 1,\label{eq:app_ev_dir}\\
+M^{\EV}&=2P_{t,\max}^{\EV}.\label{eq:app_ev_bigM}
+\end{align}
+Here $p_t^{\dch,\EV}$ is a load-reduction variable, not physical EV discharge. It measures how much charging is reduced relative to the baseline.
+
+\subsection{Wholesale capacity envelopes}
+The total upward and downward deliverable capabilities are
+\begin{align}
+\hat p_t^{\up}&=P_{\max}^{\BESS}+B_t^{\EV},\label{eq:app_upcap}\\
+\hat p_t^{\down}&=P_{\max}^{\BESS}+P_{t,\max}^{\EV}-B_t^{\EV}.\label{eq:app_downcap}
+\end{align}
+The DA/RT energy positions and AS awards must satisfy
+\begin{align}
+&(p_t^{\DA})^+ +(p_t^{\RT})^+
++c_t^{\RU,\DA}+c_t^{\RU,\RT}
++c_t^{\SP,\DA}+c_t^{\SP,\RT}\nonumber\\
+&\qquad +c_t^{\NSP,\DA}+c_t^{\NSP,\RT}
+\le \hat p_t^{\up},\label{eq:app_upenv}\\
+&(p_t^{\DA})^- +(p_t^{\RT})^-
++c_t^{\RD,\DA}+c_t^{\RD,\RT}
+\le \hat p_t^{\down}.\label{eq:app_downenv}
+\end{align}
+Positive and negative components are represented with auxiliary variables in the implementation rather than nonlinear max functions.
+
+\subsection{Net power flow and AS deployment accounting}
+Expected deployment creates additional net charge/discharge requirements:
+\begin{align}
+q_t^{\deploy}=&\alpha_t^{\RU}(c_t^{\RU,\DA}+c_t^{\RU,\RT})-
+\alpha_t^{\RD}(c_t^{\RD,\DA}+c_t^{\RD,\RT})\nonumber\\
+&+\alpha_t^{\SP}(c_t^{\SP,\DA}+c_t^{\SP,\RT})+
+\alpha_t^{\NSP}(c_t^{\NSP,\DA}+c_t^{\NSP,\RT}).\label{eq:app_deploy}
+\end{align}
+The net wholesale movement combines DA/RT energy and expected AS deployment. Direction binaries and auxiliary variables convert this signed movement into nonnegative charge and discharge components. This is the implementation-level reason why AS awards can affect both wholesale revenue and BESS/EV feasibility.
+
+\subsection{AS duration constraints}
+Capacity awards must be deliverable for the required duration $T_{\mathrm{DU}}$:
+\begin{align}
+\soc_t^{\BESS}-\soc_{\min}^{\BESS}
+&\ge \frac{T_{\mathrm{DU}}}{C^{\BESS}\sqrt{\gamma}}
+\left(c_t^{\RU,\tot}+c_t^{\SP,\tot}+c_t^{\NSP,\tot}\right),\label{eq:app_duration_up}\\
+\soc_{\max}^{\BESS}-\soc_t^{\BESS}
+&\ge \frac{T_{\mathrm{DU}}\sqrt{\gamma}}{C^{\BESS}}c_t^{\RD,\tot},\label{eq:app_duration_down}\\
+c_t^{k,\tot}&=c_t^{k,\DA}+c_t^{k,\RT}.\label{eq:app_capacity_total}
+\end{align}
+The present implementation uses $T_{\mathrm{DU}}=0.5$ h. EV energy-duration limits can be added analogously when product-level EV duration accounting is activated.
+
+\subsection{RT reference tracking and penalties}
+In RT, DA reference values are not ignored. The implemented model penalizes deviations from DA reference schedules:
+\begin{align}
+\rho_t^{\WM}=&M_t^{\WM}\left(|p_t^{\DA}-\bar p_t^{\DA}|+
+\sum_{k\in\calK}|c_t^{k,\DA}-\bar c_t^{k,\DA}|\right),\label{eq:app_rt_penalty}\\
+M_t^{\WM}=&M_0|C_t^{\mathrm{LMP},\RT}|.\label{eq:app_rt_weight}
+\end{align}
+This soft-tracking representation matches the current simulation implementation better than a hard-fix statement. It keeps RT flexible while discouraging unrealistic DA/RT inconsistency.
+
+\subsection{Revenue decomposition}
+Wholesale revenue is decomposed as
+\begin{align}
+R^{\WM,\energy}&=\sum_t\DeltaT\left(C_t^{\mathrm{LMP},\DA}p_t^{\DA}+C_t^{\mathrm{LMP},\RT}p_t^{\RT}\right)+R^{\mathrm{deploy}},\label{eq:app_energy_rev}\\
+R^{\WM,\capacity}&=\sum_t\DeltaT\sum_{k\in\calK}\sum_{s\in\calS}C_t^{k,s}c_t^{k,s},\label{eq:app_capacity_rev}\\
+R^{\WM}&=R^{\WM,\energy}+R^{\WM,\capacity}.\label{eq:app_total_rev}
+\end{align}
+Asset-level EV/BESS attribution is an ex-post accounting calculation based on EV and BESS wholesale variables. It should not be interpreted as a separate physical constraint.
+
+
+
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references_v2.4}
+
+\end{document}
