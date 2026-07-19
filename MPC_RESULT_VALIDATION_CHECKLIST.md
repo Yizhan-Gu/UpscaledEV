@@ -1,0 +1,423 @@
+# Base MPC result validation checklist
+
+This checklist is the acceptance gate for the two base notebooks:
+
+- `upscaledev_imp.ipynb` (Shrinking MPC)
+- `upscaledev_imp_rollingMPC.ipynb` (Rolling 24-hour MPC)
+
+The PV/building sensitivity notebooks must not be used to validate the base model.
+Results that fail any project acceptance rule below must be treated as diagnostic
+results, not as correct paper results.
+
+## 1. Required comparison matrix
+
+Run the same dates, initial states, tariff data, market data, solver tolerances,
+and EV service assumptions for all eight combinations:
+
+| Controller | Forecast | Mode |
+|---|---|---|
+| Shrinking | Perfect | full |
+| Shrinking | Perfect | retail_only |
+| Shrinking | Persistence | full |
+| Shrinking | Persistence | retail_only |
+| Rolling | Perfect | full |
+| Rolling | Perfect | retail_only |
+| Rolling | Persistence | full |
+| Rolling | Persistence | retail_only |
+
+Before comparing financial values, require identical date coverage and one row
+per date and mode. Monetary comparisons use a USD 0.01 tolerance after CSV
+rounding. Power and energy checks use the tighter numerical tolerances stated
+below.
+
+## 2. Project acceptance rules
+
+### A. EV service revenue equality (hard requirement)
+
+With 100% EV service and the same realized sessions, EV service revenue must be
+equal across both controllers, both forecasts, and both market modes, for every
+day:
+
+\[
+R^{EV}_{d}=\sum_{t\in d} c^{EV}_t p^{EV}_t\Delta t.
+\]
+
+For any two comparable scenarios \(a,b\):
+
+\[
+\left|R^{EV}_{d,a}-R^{EV}_{d,b}\right|\leq \$0.01.
+\]
+
+The corresponding executed EV energy must also equal the realized session
+energy within \(10^{-4}\) kWh.
+
+### B. Perfect-versus-Persistence interpretation
+
+A full-horizon perfect-information oracle, solved once over the complete
+comparison period with the true realized data, must weakly outperform any
+feasible Persistence trajectory:
+
+\[
+R^{total}_{Perfect,\ oracle}
+\geq
+R^{total}_{Persistence}.
+\]
+
+The implemented controllers are receding-horizon MPC policies rather than a
+full-period oracle. Their intermediate SOC, DA commitments, and accumulated
+monthly demand thresholds can diverge even when they start and finish with the
+same SOC. The finite-horizon objective also omits the exact cost-to-go beyond
+the active horizon. Therefore neither of the following is a mathematical hard
+requirement for the implemented MPC:
+
+\[
+R^{total}_{d,Perfect}\geq R^{total}_{d,Persistence}
+\quad\text{for every individual day},
+\]
+
+or
+
+\[
+R^{total}_{Perfect,MPC}\geq R^{total}_{Persistence,MPC}
+\quad\text{for every finite experiment}.
+\]
+
+In particular, daily incremental demand-charge accounting can assign the same
+eventual monthly peak cost to different days on different controller paths.
+Daily Perfect-versus-Persistence ordering is therefore diagnostic only and
+must not be used as a rejection rule.
+
+For reported MPC results:
+
+1. compare cumulative and complete-period revenue rather than requiring every
+   individual day to have the same ordering;
+2. decompose any reversal into WM, TOU, PD, NCD, EV revenue, SOC, and threshold
+   trajectories;
+3. confirm identical initial and terminal SOC and all structural checks in
+   Section 3;
+4. label Perfect underperformance as a controller-horizon/value-function issue
+   requiring explanation, not automatically as a constraint bug;
+5. if a hard theoretical Perfect benchmark is needed, run a separate
+   full-horizon perfect-information oracle with the same physical and settlement
+   constraints.
+
+The preferred empirical result remains that Perfect MPC outperforms
+Persistence over the complete reported period, but this is a study expectation,
+not a general MPC theorem.
+
+### C. Rolling should outperform Shrinking (project acceptance requirement)
+
+For the same forecast, mode, dates, and initial state, the expected ordering is:
+
+\[
+R^{total}_{Rolling}\geq R^{total}_{Shrinking}-\$0.01.
+\]
+
+This is an empirical project requirement rather than a general MPC theorem.
+Because the two controllers use different horizons, it is only a fair comparison
+when terminal SOC, demand-charge horizon, future-data coverage, and solver quality
+are aligned.
+
+### D. Perfect retail-only equality (hard project requirement)
+
+For every day in `retail_only` mode:
+
+\[
+\left|R^{total}_{d,Rolling,Perfect}
+-R^{total}_{d,Shrinking,Perfect}\right|\leq \$0.01.
+\]
+
+This equality is not automatic for controllers with different horizons. To use
+it as a hard acceptance rule, the retail-only implementations must deliberately
+align their effective optimization horizon, terminal SOC treatment, and demand-
+charge accounting. Otherwise different total retail values can be mathematically
+valid even when both optimizers are internally correct.
+
+## 3. Structural and accounting checks
+
+All of these checks must pass before applying the ordering rules above.
+
+1. Solver status is usable at every DA and RT step; no missing decision values.
+   A Gurobi/CVXPY `user_limit` or status code 9 means the configured RT
+   `TimeLimit` was reached. Such a run is diagnostic only unless the reported
+   incumbent gap already satisfies the study tolerance and the event is reviewed.
+2. No NaN or infinite numeric values in implementation or financial CSV files.
+3. Executed meter balance:
+
+   \[
+   p^{GI}_t=p^{EV,executed}_t+p^{BESS}_t,
+   \qquad \max_t|\epsilon_t|\leq10^{-3}\ \mathrm{kW}.
+   \]
+
+4. BESS SOC recursion, bounds, throughput limit, and day-to-day continuity pass.
+5. Executed EV energy equals realized required EV energy within \(10^{-4}\) kWh.
+6. In `retail_only`, all DA/RT energy and AS variables are zero and
+   \(R^{WM}=0\).
+7. Under settlement, DA energy is an immutable parameter and reported RT energy
+   is the deviation from that DA commitment:
+
+   \[
+   p^{RT,dev}_t=p^{RT,actual}_t-p^{DA,commit}_t,
+   \]
+
+   \[
+   R^{energy}_t=\Delta t\left(
+   \lambda^{DA}_t p^{DA,commit}_t+
+   \lambda^{RT}_t p^{RT,dev}_t\right).
+   \]
+
+8. Financial identity, allowing USD 0.01 rounding:
+
+   \[
+   R^{total}=R^{WM}+C^{TOU}+C^{PD}+C^{NCD}+R^{EV}.
+   \]
+
+9. Compare realized demand peaks, not only objective predictions:
+
+   \[
+   P^{NCD}_{month}=\max_{t\in month}p^{GI,executed}_t.
+   \]
+
+10. Rolling Perfect must have complete next-day EV data for every simulated day.
+
+## 4. Git reference points
+
+- `50202cc` (2026-07-10): fixed the Rolling Perfect cross-midnight EV forecast
+  by using the next calendar day's EV availability. It did not impose equality
+  between Shrinking and Rolling retail-only total revenue.
+- `fd0c8c3` (2026-07-12): first settlement implementation. The current Rolling
+  settlement constraints are materially the same as this commit.
+
+## 5. Current diagnostic status
+
+### Seven-day `p_actual` WM-capability regression: 2025-06-01 through 2025-06-07
+
+The DA/offline WM capability constraints were aligned with the RT settlement
+model by defining
+
+\[
+p_t^{actual}=p_t^{DA}+p_t^{RT}
+\]
+
+and using the net actual position in the physical capability limits:
+
+\[
+[p_t^{actual}]^+
++c_{RU,t}^{actual}+c_{SP,t}^{actual}+c_{NSP,t}^{actual}
+\leq P_t^{up},
+\]
+
+\[
+[-p_t^{actual}]^++c_{RD,t}^{actual}\leq P_t^{down}.
+\]
+
+The previous DA formulation used
+\([p_t^{DA}]^++[p_t^{RT}]^+\), which over-counted physical capability whenever
+DA and RT energy positions had opposite signs.
+
+Seven-day aggregate results after the correction:
+
+| Controller | Forecast | Mode | Total revenue (USD) | WM revenue (USD) |
+|---|---|---:|---:|---:|
+| Shrinking | Perfect | full | 59.49 | 2487.30 |
+| Shrinking | Perfect | retail_only | -2430.19 | 0.00 |
+| Shrinking | Persistence | full | 231.75 | 2671.43 |
+| Shrinking | Persistence | retail_only | -2501.59 | 0.00 |
+| Rolling | Perfect | full | 219.32 | 2498.66 |
+| Rolling | Perfect | retail_only | -2430.19 | 0.00 |
+| Rolling | Persistence | full | -992.83 | 2691.29 |
+| Rolling | Persistence | retail_only | -2505.68 | 0.00 |
+
+Validation:
+
+- all 5376 RT solves reported `optimal`;
+- no emergency watchdog or Gurobi TimeLimit event occurred;
+- Perfect retail-only equality between controllers passed for every day and
+  every financial component, with maximum difference USD 0.00;
+- daily EV-revenue equality passed, with maximum spread USD 0.00;
+- retail-only WM revenue was exactly zero;
+- implementation and financial files contained no NaN or infinite values;
+- the maximum financial-identity residual after two-decimal CSV rounding was
+  USD 0.01.
+
+The `p_actual` correction increased full-mode total revenue relative to the
+previous seven-day run:
+
+| Controller | Forecast | Total change (USD) | WM change (USD) |
+|---|---|---:|---:|
+| Shrinking | Perfect | +354.44 | +351.93 |
+| Shrinking | Persistence | +443.51 | +450.09 |
+| Rolling | Perfect | +353.14 | +352.48 |
+| Rolling | Persistence | +510.17 | +498.74 |
+
+The correction is therefore material and directionally consistent with removing
+an unnecessarily restrictive WM constraint. It does not by itself impose
+Perfect-MPC dominance. Shrinking Persistence gained more from the corrected WM
+feasible set, leaving the seven-day Shrinking full-mode comparison at:
+
+\[
+R^{total}_{Perfect}-R^{total}_{Persistence}=-\$172.26.
+\]
+
+This reversal is diagnostic under Section 2B, not an automatic structural
+failure. The corresponding WM difference is \(-\$184.13\), dominated by the RT
+energy-settlement component. A full-horizon oracle or an MPC terminal
+value/cost-to-go model is required for a theoretical Perfect-information
+dominance test.
+
+### Post-fix one-day acceptance test: 2025-06-01
+
+| Controller | Forecast | Mode | Total revenue (USD) | EV revenue (USD) |
+|---|---|---:|---:|---:|
+| Shrinking | Perfect | full | 111.36 | 8.67 |
+| Shrinking | Perfect | retail_only | -14.19 | 8.67 |
+| Shrinking | Persistence | full | -206.15 | 8.67 |
+| Shrinking | Persistence | retail_only | -348.26 | 8.67 |
+| Rolling | Perfect | full | 111.37 | 8.67 |
+| Rolling | Perfect | retail_only | -14.19 | 8.67 |
+| Rolling | Persistence | full | 109.67 | 8.67 |
+| Rolling | Persistence | retail_only | -44.06 | 8.67 |
+
+Status:
+
+- EV service revenue equality: **PASS**.
+- Perfect >= Persistence for both controllers and both modes: **PASS**.
+- Rolling >= Shrinking for both forecasts and both modes: **PASS**.
+- Perfect retail-only equality: **PASS**, difference USD 0.00.
+- Financial identities and finite implementation/financial values: **PASS**.
+- All eight runs completed without missing decision values or terminal-SOC,
+  continuity, or EV-service exceptions: **PASS**.
+
+Difference audit (USD):
+
+| Comparison | full | retail_only |
+|---|---:|---:|
+| Shrinking: Perfect - Persistence | 317.51 | 334.07 |
+| Rolling: Perfect - Persistence | 1.70 | 29.87 |
+| Perfect: Rolling - Shrinking | 0.01 | 0.00 |
+| Persistence: Rolling - Shrinking | 315.82 | 304.20 |
+
+The maximum daily EV-revenue spread is USD 0.00, the maximum rounded
+financial-identity residual is USD 0.01, and the maximum executed-versus-realized
+EV-energy error is \(3.6\times10^{-15}\) kWh. No numeric NaN or infinity was
+found in the eight implementation or financial result files. The test used
+`GUROBI_MIPGAP = 1e-2`, initial SOC 0.5, and final-run-day SOC 0.5.
+
+### Existing June 2025 financial output
+
+| Controller | Forecast | Mode | Total revenue (USD) | EV revenue (USD) |
+|---|---|---:|---:|---:|
+| Shrinking | Perfect | full | 10524.12 | 23393.92 |
+| Shrinking | Perfect | retail_only | 6240.92 | 23393.92 |
+| Shrinking | Persistence | full | 10881.99 | 23393.92 |
+| Shrinking | Persistence | retail_only | 5342.25 | 23393.92 |
+| Rolling | Perfect | full | 10060.50 | 23393.92 |
+| Rolling | Perfect | retail_only | 6803.31 | 23393.92 |
+| Rolling | Persistence | full | 9027.67 | 23393.92 |
+| Rolling | Persistence | retail_only | 5573.27 | 23393.92 |
+
+Status:
+
+- EV service revenue equality: **PASS**; the maximum per-day spread across all
+  controllers, forecasts, and modes is USD 0.00.
+- Shrinking Perfect >= Persistence in full mode: **diagnostic reversal**.
+- Rolling Perfect >= Persistence: **preferred ordering observed** for the June
+  aggregate.
+- Rolling >= Shrinking for Perfect full mode: **FAIL**.
+- Perfect retail-only equality: **FAIL**; only 5 of 30 days match within USD
+  0.01 and the maximum daily difference is USD 757.82.
+
+The daily directional checks also fail frequently: Shrinking Perfect beats
+Persistence on 15/30 full-mode days and 19/30 retail-only days; Rolling Perfect
+beats Persistence on 18/30 full-mode days and 25/30 retail-only days. Rolling
+beats Shrinking on only 14/30 Perfect full-mode days and 22/30 Perfect
+retail-only days.
+
+The existing June output remains unsuitable as the current paper result because
+it predates later settlement, retail-only consistency, solver-status, and WM
+capability corrections. Its daily Perfect-versus-Persistence reversals are
+diagnostic under Section 2B rather than independent hard rejection conditions.
+
+### Retail-only consistency fix verification
+
+The July 10 commit `50202cc` was reproduced on 2025-06-01 before changing the
+current code. It did **not** satisfy Perfect retail-only equality:
+
+- Shrinking: USD -14.19
+- Rolling: USD -1000.07
+
+The historical mismatch therefore predates the settlement implementation.
+
+The current Rolling notebook now treats `retail_only` as a controller-consistency
+benchmark: its active RT horizon is the remainder of the current day, matching
+Shrinking MPC. The `full` mode retains the rolling 24-hour horizon on interior
+days. On the final requested run day it truncates at midnight, so the optimizer
+cannot use EV/load/price information outside the reported experiment while also
+being forced to the experiment-ending SOC.
+
+Post-fix Perfect retail-only verification:
+
+| Date | Shrinking total (USD) | Rolling total (USD) | Difference (USD) |
+|---|---:|---:|---:|
+| 2025-06-01 | 107.72 | 107.72 | 0.00 |
+| 2025-06-02 | -3144.48 | -3144.48 | 0.00 |
+
+For both days, WM revenue, TOU cost, PD cost, NCD cost, and EV revenue match to
+USD 0.01. On the one-day terminal-SOC test, the maximum difference in the
+96-point implemented grid-meter energy trajectory was approximately
+\(5\times10^{-13}\) kWh.
+
+The Shrinking financial-analysis cell was also corrected to respect `RUN_MODES`.
+It now writes every requested retail-only day without requiring stale/full-mode
+files to be present.
+
+### Implemented signed-RT ancillary-service settlement rule
+
+For every product \(x\in\{RU,RD,SP,NSP\}\), the code uses the paper notation
+directly: \(c_t^{x,RT}\) is the signed increase or decrease transacted in the RT
+market, and the capacity actually bid/delivered after RT settlement is
+
+\[
+c_t^{x,actual}=c_t^{x,DA}+c_t^{x,RT}.
+\]
+
+The RT variable is not declared nonnegative. Physical feasibility requires
+
+\[
+c_t^{x,DA}+c_t^{x,RT}\ge 0.
+\]
+
+The DA offer itself is bounded by DA-stage physical capability to prevent
+unbounded DA/RT price-difference arbitrage:
+
+\[
+c_t^{RU,DA}+c_t^{SP,DA}+c_t^{NSP,DA}\le P_t^{up},
+\qquad
+c_t^{RD,DA}\le P_t^{down}.
+\]
+
+All RT capability, direction, activation-energy, and BESS SOC-reserve constraints
+use \(c^{actual}=c^{DA}+c^{RT}\). Capacity settlement uses
+
+\[
+R_t^{AS,cap}=\Delta t\sum_x
+\left(\pi_t^{x,DA}c_t^{x,DA}+\pi_t^{x,RT}c_t^{x,RT}\right).
+\]
+
+Thus \(c_t^{x,RT}<0\) is a buy-back/downward adjustment of the DA award, not a
+negative physical AS product. In the 2025-06-01 tests, both controllers produced
+negative RT adjustments (minimum approximately -545.02 kW), while the minimum
+actual AS capacity was -1.5e-12 kW, numerical zero. `retail_only` continues to
+set all DA/RT energy and AS variables to zero.
+
+## 6. Required test report format
+
+Every future test report must record:
+
+1. source notebook hashes or Git commit;
+2. dates, modes, forecasts, solver settings, and initial/terminal SOC policy;
+3. the eight-scenario financial comparison table;
+4. per-day EV revenue equality and Perfect retail-only equality errors;
+5. Perfect-minus-Persistence and Rolling-minus-Shrinking differences;
+6. maximum meter-balance error, EV-energy error, and SOC-continuity error;
+7. explicit PASS/FAIL against every rule in Sections 2 and 3.
