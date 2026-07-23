@@ -43,11 +43,11 @@ GRID = pd.date_range("2025-06-01", "2025-07-01", freq="15min", inclusive="left")
 N = len(GRID)
 
 NOTEBOOKS = {
-    "shrinking": "upscaledev_imp.ipynb",
+    "shrinking": "upscaledev_imp_shrinkingMPC.ipynb",
     "rolling": "upscaledev_imp_rollingMPC.ipynb",
 }
 RESULT_DIRS = {
-    "shrinking": "Results",
+    "shrinking": "Results_Shrinking",
     "rolling": "Results_Rolling",
 }
 FORECAST_PREFIX = {
@@ -79,12 +79,13 @@ def _prepare_scratch(controller: str, tag: str) -> Path:
     (scratch / "2025Data").symlink_to(REPO / "2025Data", target_is_directory=True)
     (scratch / "forecast_ED_PD.py").symlink_to(REPO / "forecast_ED_PD.py")
     shutil.copy2(REPO / NOTEBOOKS[controller], scratch / NOTEBOOKS[controller])
-    # Both notebooks read baseline inputs from Results/Dispatch.  Rolling writes
-    # its implementation results to Results_Rolling.
-    (scratch / "Results" / "Dispatch").mkdir(parents=True)
-    (scratch / "Results" / "Plots").mkdir(parents=True)
-    for baseline in (REPO / "Results" / "Dispatch").glob("*baseline.csv"):
-        shutil.copy2(baseline, scratch / "Results" / "Dispatch" / baseline.name)
+    # Both notebooks read the shared Shrinking baseline inputs from
+    # Results_Shrinking/Dispatch. Rolling writes implementation results to
+    # Results_Rolling.
+    (scratch / "Results_Shrinking" / "Dispatch").mkdir(parents=True)
+    (scratch / "Results_Shrinking" / "Plots").mkdir(parents=True)
+    for baseline in (REPO / "Results_Shrinking" / "Dispatch").glob("*baseline.csv"):
+        shutil.copy2(baseline, scratch / "Results_Shrinking" / "Dispatch" / baseline.name)
     (scratch / "Results_Rolling" / "Dispatch").mkdir(parents=True)
     (scratch / "Results_Rolling" / "Plots").mkdir(parents=True)
     return scratch
@@ -306,7 +307,7 @@ def _load_shrinking_perfect_benchmark_baseline() -> np.ndarray:
     notebook and is then updated by the executed Shrinking + Perfect June dispatch.
     It is the common exogenous baseline requested for the full-horizon benchmark.
     """
-    impl = REPO / "Results" / "Dispatch" / f"{FORECAST_PREFIX['perfect']}_full_implementation.csv"
+    impl = REPO / "Results_Shrinking" / "Dispatch" / f"{FORECAST_PREFIX['perfect']}_full_implementation.csv"
     df = pd.read_csv(impl, low_memory=False)
     ts = pd.to_datetime(df["Interval start"], errors="raise")
     s = pd.Series(pd.to_numeric(df["baseline_Base [kWh]"], errors="coerce").to_numpy() / DT_H, index=ts)
@@ -324,7 +325,7 @@ def _load_common_offline_baseline() -> np.ndarray:
     use the most recent 10 eligible weekdays or 4 eligible weekend/holiday days,
     search at most 45 days backward, and calculate each hour independently.
     """
-    path = REPO / "Results/Dispatch/2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv"
+    path = REPO / "Results_Shrinking/Dispatch/2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv"
     history = pd.read_csv(path, low_memory=False)
     history["Interval start"] = pd.to_datetime(history["Interval start"], errors="raise")
     history["Base [kWh]"] = pd.to_numeric(history["Base [kWh]"], errors="coerce")
@@ -692,9 +693,21 @@ def run_monthly_oracle(controller: str) -> None:
 
 
 def _matched_main_source(main: str) -> str:
-    """Inject controlled thresholds and an optional immutable DA reference in memory."""
+    """Inject controlled thresholds, RT baseline, and immutable DA reference."""
     main = main.replace("_init_ncd = 0.0", "_init_ncd = float(MATCHED_INITIAL_NCD_KW)")
     main = main.replace("_init_pd = 0.0", "_init_pd = float(MATCHED_INITIAL_PD_KW)")
+    baseline_needle = """        #Assign real values for RT (2 cases) amd DA
+"""
+    baseline_replacement = """        if MATCHED_RT_BASELINE_REFERENCE is not None:
+            Baseline_Opt_fc = [
+                np.asarray(_matched_baseline, dtype=float).copy()
+                for _matched_baseline in MATCHED_RT_BASELINE_REFERENCE
+            ]
+        #Assign real values for RT (2 cases) amd DA
+"""
+    if baseline_needle not in main:
+        raise RuntimeError("Could not locate RT baseline assignment for matched-state injection")
+    main = main.replace(baseline_needle, baseline_replacement, 1)
     needle = """        p_RT_value_DA = p_RT.value
 """
     replacement = """        p_RT_value_DA = p_RT.value
@@ -710,13 +723,18 @@ def _matched_main_source(main: str) -> str:
     return main.replace(needle, replacement, 1)
 
 
-def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
+def run_matched_state(
+    controller: str,
+    dates: list[int] | None = None,
+    mip_gap: float | None = None,
+) -> None:
     """Run controlled one-day Perfect/Persistence RT comparisons.
 
     Each date starts from SOC=0.5, NCD threshold=100 kW and PD threshold=80 kW.
-    The Perfect run's DA energy and AS awards are copied verbatim into the
-    Persistence run.  Thus the only scenario switch that reaches RT is the EV
-    forecast information set.
+    Both forecasts use the same Perfect-history file and the same RT baseline
+    vector captured from the Perfect run. The Perfect run's DA energy and AS
+    awards are copied verbatim into the Persistence run. Thus the only scenario
+    switch that reaches RT is the EV forecast information set.
     """
     dates = dates or [3, 15, 27]
     out = OUT_ROOT / controller / "matched_state"
@@ -725,6 +743,7 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
     summary_rows = []
     for day in dates:
         da_reference = None
+        rt_baseline_reference = None
         for forecast in ("perfect", "persistence"):
             scratch = _prepare_scratch(controller, f"matched_{day:02d}_{forecast}")
             old_cwd = Path.cwd()
@@ -732,6 +751,16 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                 os.chdir(scratch)
                 env, _nb, main, _daily, _summary = _load_notebook_runtime(controller, scratch)
                 main = _matched_main_source(main)
+                common_baseline_path = (
+                    scratch
+                    / "Results_Shrinking"
+                    / "Dispatch"
+                    / f"{FORECAST_PREFIX['perfect']}_baseline.csv"
+                )
+                common_baseline = pd.read_csv(common_baseline_path, low_memory=False)
+                common_baseline["Interval start"] = pd.to_datetime(
+                    common_baseline["Interval start"], errors="raise"
+                )
                 env.update(
                     TARGET_SAVE="RT",
                     RUN_MONTHS_CONFIG=[6],
@@ -746,7 +775,11 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                     MATCHED_INITIAL_NCD_KW=100.0,
                     MATCHED_INITIAL_PD_KW=80.0,
                     MATCHED_DA_REFERENCE=da_reference,
+                    MATCHED_RT_BASELINE_REFERENCE=rt_baseline_reference,
+                    Dispatch_2025_baseline=common_baseline.copy(deep=True),
                 )
+                if mip_gap is not None:
+                    env["GUROBI_MIPGAP"] = float(mip_gap)
                 if forecast == "perfect":
                     env.update(
                         Fc_SessionkWh="PerfectSessionkWh",
@@ -766,6 +799,10 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                         f"{env['RT_SOLVER_LIMIT_EVENTS'][:3]}"
                     )
                 if forecast == "perfect":
+                    rt_baseline_reference = [
+                        np.asarray(_baseline, float).copy()
+                        for _baseline in env["Baseline_Opt_fc"]
+                    ]
                     da_reference = {
                         "p_DA": np.asarray(env["p_DA_value_DA"], float).copy(),
                         "c_RU_DA": np.asarray(env["c_RU_DA_value_DA"], float).copy(),
@@ -779,6 +816,7 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                 p_bess = np.asarray(sol["p_BESS"], float)
                 p_da = np.asarray(sol["p_DA"], float)
                 p_rt = np.asarray(sol["p_RT"], float)
+                p_ev_max = np.asarray(sol["P_EV_max"], float)
                 wm = np.asarray(sol["Revenue_WM"], float)
                 tou = np.asarray(sol["Cost_TOU"], float)
                 ev_rev = np.asarray(sol["Revenue_EV"], float)
@@ -792,6 +830,12 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                     "Initial SOC": 0.5,
                     "Initial NCD threshold kW": 100.0,
                     "Initial PD threshold kW": 80.0,
+                    "Common baseline": "Perfect RT baseline vector",
+                    "RT baseline max error kW": float(max(
+                        np.max(np.abs(np.asarray(_actual, float) - np.asarray(_reference, float)))
+                        for _actual, _reference in zip(env["Baseline_Opt_fc"], rt_baseline_reference)
+                    )),
+                    "Configured MIPGap": float(env["GUROBI_MIPGAP"]),
                     "Total Revenue": total,
                     "WM Revenue": float(wm.sum()),
                     "TOU Cost": -float(tou.sum()),
@@ -799,9 +843,15 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                     "NCD Cost": -ncd_cost,
                     "EV Revenue": float(ev_rev.sum()),
                     "EV Energy kWh": float(DT_H * p_ev.sum()),
+                    "P_EV_max peak kW": float(np.max(p_ev_max)),
+                    "P_EV_max mean kW": float(np.mean(p_ev_max)),
                     "End SOC": float(np.asarray(sol["soc_BESS"], float)[-1]),
                     "DA reference max error kW": float(np.max(np.abs(p_da - da_reference["p_DA"]))),
                     "meter balance max error kW": float(np.max(np.abs(p_gi - p_ev - p_bess))),
+                    "RT solver status counts": json.dumps(
+                        env["RT_SOLVER_STATUS_COUNTS"], sort_keys=True
+                    ),
+                    "RT TimeLimit events": len(env["RT_SOLVER_LIMIT_EVENTS"]),
                 })
                 for t, stamp in enumerate(pd.date_range(f"2025-06-{day:02d}", periods=96, freq="15min")):
                     detail_rows.append({
@@ -815,11 +865,16 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
                         "p_DA_kW": p_da[t],
                         "p_RT_deviation_kW": p_rt[t],
                         "p_actual_kW": p_da[t] + p_rt[t],
+                        "P_EV_max_kW": p_ev_max[t],
                         "SOC": np.asarray(sol["soc_BESS"], float)[t],
                         "c_RU_DA_kW": np.asarray(sol["c_RU_DA"], float)[t],
                         "c_RU_RT_kW": np.asarray(sol["c_RU_RT"], float)[t],
                         "c_RD_DA_kW": np.asarray(sol["c_RD_DA"], float)[t],
                         "c_RD_RT_kW": np.asarray(sol["c_RD_RT"], float)[t],
+                        "c_SP_DA_kW": np.asarray(sol["c_SP_DA"], float)[t],
+                        "c_SP_RT_kW": np.asarray(sol["c_SP_RT"], float)[t],
+                        "c_NSP_DA_kW": np.asarray(sol["c_NSP_DA"], float)[t],
+                        "c_NSP_RT_kW": np.asarray(sol["c_NSP_RT"], float)[t],
                     })
             finally:
                 os.chdir(old_cwd)
@@ -829,14 +884,64 @@ def run_matched_state(controller: str, dates: list[int] | None = None) -> None:
     summary.to_csv(out / "matched_state_daily_summary.csv", index=False, float_format="%.8f")
     pd.DataFrame(detail_rows).to_csv(out / "matched_state_dispatch.csv", index=False, float_format="%.8f")
     pivot = summary.pivot(index="Date", columns="Forecast", values="Total Revenue")
+    end_soc = summary.pivot(index="Date", columns="Forecast", values="End SOC")
     comparison = pd.DataFrame({
+        "Controller": controller.title(),
         "Date": pivot.index,
         "Perfect Total Revenue": pivot["Perfect"].to_numpy(),
         "Persistence Total Revenue": pivot["Persistence"].to_numpy(),
         "Perfect minus Persistence": (pivot["Perfect"] - pivot["Persistence"]).to_numpy(),
         "Perfect better": (pivot["Perfect"] >= pivot["Persistence"] - 0.01).to_numpy(),
+        "Perfect End SOC": end_soc["Perfect"].to_numpy(),
+        "Persistence End SOC": end_soc["Persistence"].to_numpy(),
     })
     comparison.to_csv(out / "matched_state_comparison.csv", index=False, float_format="%.8f")
+    _write_combined_matched_state_comparison()
+
+
+def _write_combined_matched_state_comparison() -> None:
+    """Write one controller-comparison table whenever matched outputs exist."""
+    frames = []
+    for controller in NOTEBOOKS:
+        path = OUT_ROOT / controller / "matched_state" / "matched_state_comparison.csv"
+        if path.exists():
+            frames.append(pd.read_csv(path))
+    if not frames:
+        return
+    combined = pd.concat(frames, ignore_index=True).sort_values(["Controller", "Date"])
+    out = OUT_ROOT / "common" / "matched_state"
+    out.mkdir(parents=True, exist_ok=True)
+    combined["Formal Perfect better"] = combined["Perfect better"]
+    audit_path = out / "matched_state_exact_gap_audit.csv"
+    if audit_path.exists():
+        audit = pd.read_csv(audit_path)[[
+            "Controller",
+            "Date",
+            "Perfect Total Revenue",
+            "Persistence Total Revenue",
+            "Perfect minus Persistence",
+        ]].rename(columns={
+            "Perfect Total Revenue": "Exact Perfect Total Revenue",
+            "Persistence Total Revenue": "Exact Persistence Total Revenue",
+            "Perfect minus Persistence": "Exact Perfect minus Persistence",
+        })
+        combined = combined.merge(audit, on=["Controller", "Date"], how="left")
+    else:
+        combined["Exact Perfect Total Revenue"] = np.nan
+        combined["Exact Persistence Total Revenue"] = np.nan
+        combined["Exact Perfect minus Persistence"] = np.nan
+    combined["Exact audit performed"] = combined["Exact Perfect minus Persistence"].notna()
+    combined["Certified Perfect minus Persistence"] = combined[
+        "Exact Perfect minus Persistence"
+    ].fillna(combined["Perfect minus Persistence"])
+    combined["Certified Perfect better"] = (
+        combined["Certified Perfect minus Persistence"] >= -0.01
+    )
+    combined.to_csv(
+        out / "matched_state_june_comparison.csv",
+        index=False,
+        float_format="%.8f",
+    )
 
 
 def build_validation_report() -> None:
@@ -1004,6 +1109,7 @@ def main() -> None:
     p_matched = sub.add_parser("matched")
     p_matched.add_argument("controller", choices=NOTEBOOKS)
     p_matched.add_argument("--dates", nargs="+", type=int, default=[3, 15, 27])
+    p_matched.add_argument("--mip-gap", type=float, default=None)
     sub.add_parser("report")
     args = parser.parse_args()
     OUT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -1012,7 +1118,7 @@ def main() -> None:
     elif args.command == "oracle":
         run_monthly_oracle(args.controller)
     elif args.command == "matched":
-        run_matched_state(args.controller, args.dates)
+        run_matched_state(args.controller, args.dates, args.mip_gap)
     elif args.command == "report":
         build_validation_report()
 

@@ -47,15 +47,47 @@ The full-horizon benchmark uses the corrected executed June baseline path from S
 
 Rolling-versus-Shrinking and Perfect-versus-Persistence ordering remain diagnostic rather than acceptance rules for finite-horizon MPC. In particular, a 24-hour receding Perfect forecast is not the same mathematical object as the full-horizon benchmark.
 
-## Matched-state RT comparison retained from the independent test
+## Corrected complete-June matched-state RT comparison
 
-| Controller | Date | Perfect Total Revenue | Persistence Total Revenue | Perfect minus Persistence |
-| --- | --- | ---: | ---: | ---: |
-| Shrinking | 2025-06-03 | -1482.91 | -3364.96 | 1882.04 |
-| Shrinking | 2025-06-15 | 443.84 | 442.13 | 1.71 |
-| Shrinking | 2025-06-27 | -1269.93 | -1746.56 | 476.63 |
-| Rolling | 2025-06-03 | -1482.93 | -3713.98 | 2231.04 |
-| Rolling | 2025-06-15 | 443.76 | 438.00 | 5.76 |
-| Rolling | 2025-06-27 | -1269.41 | -2484.43 | 1215.03 |
+The earlier 30-day matched-state CSVs were superseded. Although the old runner
+loaded the same Perfect-history baseline file, the notebook still selected the
+current-day RT baseline for Perfect and the previous comparable-day RT baseline
+for Persistence. The old experiment therefore changed two inputs and cannot be
+used as a forecast-only correctness test.
 
-Each matched-state pair fixes the same initial SOC, demand thresholds, and DA energy/AS commitments; only the RT EV forecast changes.
+The validation runner now copies the Perfect RT baseline vector into the
+Persistence run, as well as fixing initial SOC (0.5), NCD threshold (100 kW), PD
+threshold (80 kW), realized EV sessions, and byte-identical DA energy/AS
+commitments.
+
+The corrected complete-June 1%-gap results are:
+
+| Controller | Perfect total revenue | Persistence total revenue | Perfect minus Persistence | Direct-pass days |
+| --- | ---: | ---: | ---: | ---: |
+| Shrinking | -30904.31 | -43654.07 | 12749.77 | 28 / 30 |
+| Rolling | -30901.60 | -61223.50 | 30321.90 | 29 / 30 |
+
+All 11,520 formal RT solves are `optimal`. TimeLimit events, RT-baseline error,
+DA-reference error, and meter-balance error are all zero. Daily EV revenue is
+identical, maximum EV-energy spread is approximately 1.1e-8 kWh, and every
+terminal SOC is 0.5.
+
+The three 1%-gap exceptions were re-solved with `MIPGap=0`:
+
+| Controller | Date | 1% Perfect minus Persistence | Exact Perfect minus Persistence |
+| --- | --- | ---: | ---: |
+| Shrinking | 2025-06-14 | -0.331138 | 0.803790 |
+| Shrinking | 2025-06-29 | -1.133547 | 0.703287 |
+| Rolling | 2025-06-29 | -0.480312 | 1.002149 |
+
+All exception dates therefore pass after exact recheck. Exact Perfect values
+match between Shrinking and Rolling on the audited dates. The USD 2.70
+difference between their formal 1%-gap monthly Perfect sums is attributable to
+different near-optimal incumbents rather than different Perfect formulations.
+
+Saved evidence:
+
+- `Validation_Results/June_2025/shrinking/matched_state/`
+- `Validation_Results/June_2025/rolling/matched_state/`
+- `Validation_Results/June_2025/common/matched_state/matched_state_june_comparison.csv`
+- `Validation_Results/June_2025/common/matched_state/matched_state_exact_gap_audit.csv`

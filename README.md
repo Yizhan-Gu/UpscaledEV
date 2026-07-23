@@ -10,8 +10,8 @@ The main experiment is a 2 x 2 controller/forecast comparison:
 
 | Controller | EV forecast | Output root |
 |---|---|---|
-| Shrinking-horizon MPC | Perfect | `Results/` |
-| Shrinking-horizon MPC | Persistence | `Results/` |
+| Shrinking-horizon MPC | Perfect | `Results_Shrinking/` |
+| Shrinking-horizon MPC | Persistence | `Results_Shrinking/` |
 | Rolling 24-hour MPC | Perfect | `Results_Rolling/` |
 | Rolling 24-hour MPC | Persistence | `Results_Rolling/` |
 
@@ -33,7 +33,7 @@ The repository `.gitignore` excludes:
 - all `*.csv` files;
 - all `*.zip` files;
 - all `*.png` files;
-- the complete `Results/` directory.
+- the complete `Results_Shrinking/` directory.
 
 Therefore, GitHub contains the notebooks and Python code but not the EV data,
 CAISO market data, baseline dispatch files, optimization results, or paper
@@ -61,7 +61,7 @@ UPSCALeDEV_2024/
 │           │   └── YYYYMMDD_LMP.csv
 │           ├── LMP_DA_2025_clean.csv
 │           └── LMP_FM_2025_clean.csv
-├── Results/
+├── Results_Shrinking/
 │   └── Dispatch/
 │       ├── 2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv
 │       └── 2025_PersistenceSessionkWh_PersistenceNumbEV_PerfectatArrival_baseline.csv
@@ -191,7 +191,7 @@ It contains the CAISO downloader dependencies but currently does not contain
 CVXPY. Therefore:
 
 - use the main optimization environment for `upscaledev_baseline.ipynb`,
-  `upscaledev_imp.ipynb`, `upscaledev_imp_rollingMPC.ipynb`, and plotting;
+  `upscaledev_imp_shrinkingMPC.ipynb`, `upscaledev_imp_rollingMPC.ipynb`, and plotting;
 - use the downloader environment for `AS_download.ipynb` when needed;
 - do not assume that selecting the notebook's historical
   `TotalEnergies2024` display name selects the correct interpreter;
@@ -222,7 +222,7 @@ copying data:
 mkdir -p 2025Data/EV_data
 mkdir -p 2025Data/AS_DAM 2025Data/AS_RTM
 mkdir -p 2025Data/LMP/2025/DA 2025Data/LMP/2025/RT 2025Data/LMP/2025/FM
-mkdir -p Results/Dispatch Results/Plots
+mkdir -p Results_Shrinking/Dispatch Results_Shrinking/Plots
 mkdir -p Results_Rolling/Dispatch Results_Rolling/Plots
 mkdir -p Paper_Figures/financial_comparison
 ```
@@ -268,8 +268,8 @@ This is the recommended reproduction route.
 test -f 2025Data/EV_data/UCSD_AllSites_Merge_PostProcessedSession_QC.csv
 test -f 2025Data/AS_DAM/AS_price_2025_clear.csv
 test -f 2025Data/AS_RTM/AS_price_2025_clear.csv
-test -f Results/Dispatch/2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv
-test -f Results/Dispatch/2025_PersistenceSessionkWh_PersistenceNumbEV_PerfectatArrival_baseline.csv
+test -f Results_Shrinking/Dispatch/2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv
+test -f Results_Shrinking/Dispatch/2025_PersistenceSessionkWh_PersistenceNumbEV_PerfectatArrival_baseline.csv
 test -f 2025Data/LMP/2025/LMP_DA_2025_clean.csv
 ```
 
@@ -377,8 +377,8 @@ through May/June historical operation before the main run. Verify
 Do not start the MPC notebooks until both files exist:
 
 ```text
-Results/Dispatch/2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv
-Results/Dispatch/2025_PersistenceSessionkWh_PersistenceNumbEV_PerfectatArrival_baseline.csv
+Results_Shrinking/Dispatch/2025_PerfectSessionkWh_PerfectNumbEV_PerfectatArrival_baseline.csv
+Results_Shrinking/Dispatch/2025_PersistenceSessionkWh_PersistenceNumbEV_PerfectatArrival_baseline.csv
 ```
 
 ## 10. Run the shrinking-horizon MPC
@@ -386,7 +386,7 @@ Results/Dispatch/2025_PersistenceSessionkWh_PersistenceNumbEV_PerfectatArrival_b
 Open:
 
 ```text
-upscaledev_imp.ipynb
+upscaledev_imp_shrinkingMPC.ipynb
 ```
 
 Use the final user-control cell near the bottom:
@@ -410,11 +410,11 @@ executed-dispatch baseline learning across the two months.
 Primary outputs:
 
 ```text
-Results/Dispatch/*_implementation.csv
-Results/Dispatch/*_daily_summary.csv
-Results/Plots/Solver_RT_Choices/<scenario>/<date>/
-Results/Plots/Cost/<forecast>/daily_financial_detail.csv
-Results/Plots/Cost/<forecast>/monthly_financial_summary.csv
+Results_Shrinking/Dispatch/*_implementation.csv
+Results_Shrinking/Dispatch/*_daily_summary.csv
+Results_Shrinking/Plots/Solver_RT_Choices/<scenario>/<date>/
+Results_Shrinking/Plots/Cost/<forecast>/daily_financial_detail.csv
+Results_Shrinking/Plots/Cost/<forecast>/monthly_financial_summary.csv
 ```
 
 ## 11. Run the rolling 24-hour MPC
@@ -488,7 +488,7 @@ After both main notebooks finish, run:
 paper_financial_comparison_plots.ipynb
 ```
 
-It reads the four `daily_financial_detail.csv` files from `Results/` and
+It reads the four `daily_financial_detail.csv` files from `Results_Shrinking/` and
 `Results_Rolling/`. It generates full-period and month-specific comparison
 figures and CSV summaries under:
 

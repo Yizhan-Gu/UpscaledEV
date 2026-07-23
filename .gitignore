@@ -2,5 +2,10 @@
 *.zip
 *.png
 Results/
+Results_Shrinking/
+Results_Shrinking_PV_Building/
+Results_Rolling/
+Results_Rolling_PV_Building/
+Validation_Results/
 .DS_Store
 **/.DS_Store

@@ -2,7 +2,7 @@
 
 This checklist is the acceptance gate for the two base notebooks:
 
-- `upscaledev_imp.ipynb` (Shrinking MPC)
+- `upscaledev_imp_shrinkingMPC.ipynb` (Shrinking MPC)
 - `upscaledev_imp_rollingMPC.ipynb` (Rolling 24-hour MPC)
 
 The PV/building sensitivity notebooks must not be used to validate the base model.
@@ -200,6 +200,28 @@ All of these checks must pass before applying the ordering rules above.
    \]
 
 10. Rolling Perfect must have complete next-day EV data for every simulated day.
+11. EV aggregation capability must be interval-specific. For the aggregate EV
+    charging upper bound
+
+    \[
+    P^{EV,max}_t=\frac{1}{\Delta t}\sum_j \overline E^{EV}_{j,t},
+    \]
+
+    the WM upward and downward capability limits must use
+
+    \[
+    P^{up}_t=P^{BESS,max}+B^{EV}_t,
+    \qquad
+    P^{down}_t=\max\left\{
+    P^{BESS,max}-B^{EV}_t+P^{EV,max}_t,0
+    \right\}.
+    \]
+
+    A single horizon-wide vehicle count or scalar \(P^{EV,max}\) must not be
+    repeated over all intervals because that creates forecast-dependent
+    fictitious ancillary-service headroom. Matched-state tests must confirm that
+    Perfect and Persistence use the same executed \(P^{EV,max}_t\) profile when
+    they are evaluated against the same realized EV availability.
 
 ## 4. Git reference points
 
@@ -431,6 +453,53 @@ negative RT adjustments (minimum approximately -545.02 kW), while the minimum
 actual AS capacity was -1.5e-12 kW, numerical zero. `retail_only` continues to
 set all DA/RT energy and AS variables to zero.
 
+### June 2025 matched-state RT capability regression
+
+The original 30-day matched-state tables were superseded because the original
+validation runner loaded the
+same Perfect-history CSV for both forecasts but still allowed the notebook to
+select different RT baseline vectors:
+
+\[
+B^{EV,fc}=B^{EV}_{d}
+\quad\text{for Perfect},\qquad
+B^{EV,fc}=B^{EV}_{d^-}
+\quad\text{for Persistence}.
+\]
+
+The experiment therefore changed both the EV forecast and the WM baseline. Its
+reported four daily reversals do not isolate forecast quality.
+
+The corrected runner captures the Perfect RT baseline vector and injects that
+exact vector into Persistence, in addition to fixing initial SOC, NCD/PD
+thresholds, realized EV sessions, and DA energy/AS commitments. The corrected
+complete-June run gives:
+
+| Controller | Perfect total (USD) | Persistence total (USD) | Perfect minus Persistence (USD) | 1% direct-pass days |
+|---|---:|---:|---:|---:|
+| Shrinking | -30904.31 | -43654.07 | 12749.77 | 28 / 30 |
+| Rolling | -30901.60 | -61223.50 | 30321.90 | 29 / 30 |
+
+All 11,520 formal RT solves are `optimal`; TimeLimit count, RT-baseline error,
+DA-reference error, and meter-balance error are all zero. Daily EV revenue is
+identical, maximum EV-energy spread is approximately
+\(1.1\times10^{-8}\) kWh, and every terminal SOC equals 0.5.
+
+The only 1%-gap reversals were Shrinking on June 14 and 29 and Rolling on June
+29. Re-solving those dates with `MIPGap=0` gives:
+
+| Controller | Date | 1% Perfect minus Persistence | Exact Perfect minus Persistence |
+|---|---|---:|---:|
+| Shrinking | 2025-06-14 | -0.331138 | 0.803790 |
+| Shrinking | 2025-06-29 | -1.133547 | 0.703287 |
+| Rolling | 2025-06-29 | -0.480312 | 1.002149 |
+
+Thus all 30 dates pass after exact recheck of the 1%-gap exceptions. Exact
+Perfect values also match between Shrinking and Rolling on the audited dates.
+The formal 1% Perfect monthly totals differ by USD 2.70 because the two
+implementations may select different near-optimal incumbents; this difference
+must not be interpreted as a different mathematical Perfect model.
+
 ## 6. Required test report format
 
 Every future test report must record:
@@ -441,4 +510,5 @@ Every future test report must record:
 4. per-day EV revenue equality and Perfect retail-only equality errors;
 5. Perfect-minus-Persistence and Rolling-minus-Shrinking differences;
 6. maximum meter-balance error, EV-energy error, and SOC-continuity error;
-7. explicit PASS/FAIL against every rule in Sections 2 and 3.
+7. maximum RT-baseline error for controlled matched-state tests;
+8. explicit PASS/FAIL against every rule in Sections 2 and 3.
