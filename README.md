@@ -26,6 +26,11 @@ for that day would require EV data from August 1. PV and building-load data
 exist in `2025Data/`, but they are not yet connected to the optimization.
 The ML-at-arrival forecast is also not part of the current 2 x 2 study.
 
+For the current SEGAN validation stage, daily operational evidence is narrower:
+Rolling 24-hour Persistence, Rolling 24-hour Perfect, and a same-baseline
+full-horizon Perfect oracle. Shrinking-horizon daily graphs are not required.
+See `SEGAN_VALIDATION_AND_NOVELTY_ROADMAP.md`.
+
 ## 2. Why a Git-only clone cannot run
 
 The repository `.gitignore` excludes:
@@ -479,6 +484,85 @@ Also inspect notebook output for:
 - missing LMP/AS dates;
 - Gurobi license errors;
 - EV session-energy feasibility reconciliation warnings.
+
+### 12.1 Independent validation program
+
+The reusable validation program is kept in the repository root:
+
+```text
+oracle_and_matched_state_validation.py
+```
+
+It does not create executed notebook copies. Short tests are written under
+`Validation_Results/June_2025/short_tests/` so that formal monthly results are
+not overwritten.
+
+One-day Rolling Perfect and Persistence smoke test:
+
+```bash
+python oracle_and_matched_state_validation.py mpc rolling \
+  --days 1 --modes full --forecasts perfect persistence \
+  --mip-gap 1e-2
+```
+
+Same-baseline one-day simultaneous Perfect benchmark:
+
+```bash
+python oracle_and_matched_state_validation.py oracle rolling_perfect \
+  --start-date 2025-06-01 --end-date 2025-06-02 \
+  --mip-gap 1e-2 --time-limit 120 --short-mpc-mip-gap 1e-2
+```
+
+Daily three-case validation graph:
+
+```bash
+python oracle_and_matched_state_validation.py plot-daily \
+  --day 2025-06-01 --mip-gap 1e-2
+```
+
+Reproduce the Gate D stress-date screen and aggregate its audits:
+
+```bash
+python oracle_and_matched_state_validation.py select-stress-dates
+python oracle_and_matched_state_validation.py gate-d-report
+```
+
+After corrected formal June outputs exist, generate all daily validation
+figures without rerunning optimization:
+
+```bash
+python oracle_and_matched_state_validation.py plot-daily \
+  --source formal --all-days \
+  --formal-tag gate_e_20260726_c8250f11
+python oracle_and_matched_state_validation.py gate-e-report \
+  --formal-tag gate_e_20260726_c8250f11
+```
+
+The accepted Gate E snapshot is immutable and saved under
+`Validation_Results/June_2025/formal_runs/gate_e_20260726_c8250f11/`.
+Its report records 5,820 optimal Rolling DA/RT solves, no TimeLimit event, a
+maximum achieved MPC gap below 1%, an accepted full-billing-period oracle gap
+of 0.8571%, and 19/19 passed acceptance checks. All 30 dates have PNG/PDF
+figures and machine-readable physical/cross-scenario audits. Use a new
+`--formal-tag` for any future complete-June rerun; the validation program
+refuses to overwrite an existing formal snapshot.
+
+The source Rolling notebook now saves one 96-row executed validation trace per
+day under `Results_Rolling/Validation_Traces/`. Each row is the first action
+implemented from one RT solve. Do not use `Opt_RT_t0` as an executed daily
+trajectory; it is the remaining-horizon plan produced by the midnight solve.
+
+For a short Rolling-Perfect benchmark, the validation program automatically
+reads the exact `baseline_kW` vector from the corresponding isolated Perfect
+trace. A short benchmark is a standalone one-day simultaneous solve; only the
+formal complete billing-period oracle has the full-period upper-bound
+interpretation.
+
+The older full-June oracle files under
+`Validation_Results/June_2025/*/oracle/` predate the interval-specific EV
+capability correction and must not be used as final paper evidence. Their
+locations and the matched-state evidence locations are documented in
+`SEGAN_VALIDATION_AND_NOVELTY_ROADMAP.md`.
 
 ## 13. Generate comparison figures and tables
 

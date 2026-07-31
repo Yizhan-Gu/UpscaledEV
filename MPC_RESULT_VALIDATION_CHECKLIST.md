@@ -222,6 +222,52 @@ All of these checks must pass before applying the ordering rules above.
     fictitious ancillary-service headroom. Matched-state tests must confirm that
     Perfect and Persistence use the same executed \(P^{EV,max}_t\) profile when
     they are evaluated against the same realized EV availability.
+12. Publication validation must use an executed RT trace. For a day with 96
+    intervals, the trace must contain the first implemented action from each of
+    the 96 sequential RT solves. A column such as `Opt_RT_t0` that stores the
+    complete remaining-horizon plan from the midnight solve is not an executed
+    daily trajectory and must not be plotted or audited as one.
+13. The executed trace must preserve the settlement identity
+
+    \[
+    p_t^{actual}=p_t^{DA,commit}+p_t^{RT,dev}
+    \]
+
+    and separately record DA commitment, RT deviation, actual position, actual
+    AS, physical bounds, meter residual, SOC, prices, baseline, and
+    interval-specific \(P_t^{EV,max}\).
+14. A full-horizon oracle is a formal dominance benchmark only when the
+    compared controller trajectory uses the same exogenous baseline, realized
+    sessions, prices, initial states, terminal conditions, constraints, and
+    accounting. Cross-baseline comparisons are descriptive only.
+15. A paper-quality full-horizon oracle must report the incumbent objective,
+    certified bound, solver status, time-limit status, and achieved MIP gap.
+    The target acceptance tolerance is a MIP gap no larger than 1%; a larger-gap
+    incumbent may be reported only as diagnostic.
+
+## 3.1 Required daily validation evidence
+
+For the current paper-validation stage, generate daily evidence for these three
+cases only:
+
+1. Rolling 24-hour Persistence;
+2. Rolling 24-hour Perfect;
+3. same-baseline full-horizon Perfect oracle.
+
+Shrinking-horizon daily graphs are not required for this stage.
+
+Each selected-day figure must show:
+
+- executed \(p^{EV}\), \(p^{BESS}\), and \(p^{GI}\), plus EV baseline;
+- separate \(p^{DA,commit}\) and \(p^{RT,dev}\) bars, not a single
+  \(p^{DA}+p^{RT}\) bar;
+- the actual position and both physical bounds;
+- actual RU/RD/SP/NSP provision and residual capacity;
+- BESS SOC and DA/RT/TOU prices;
+- meter and capability residuals on a numerical scale.
+
+Every graph must have a machine-readable audit CSV. The CSV, not visual
+inspection, determines whether the structural tolerances pass.
 
 ## 4. Git reference points
 
@@ -512,3 +558,33 @@ Every future test report must record:
 6. maximum meter-balance error, EV-energy error, and SOC-continuity error;
 7. maximum RT-baseline error for controlled matched-state tests;
 8. explicit PASS/FAIL against every rule in Sections 2 and 3.
+
+## 7. Gate E complete-June Rolling validation
+
+The immutable formal snapshot
+`Validation_Results/June_2025/formal_runs/gate_e_20260726_c8250f11/` passes all
+19 machine-readable acceptance checks:
+
+- 5,820 of 5,820 Rolling DA/RT solves have Gurobi status 2 and CVXPY
+  `optimal`;
+- maximum achieved Rolling MIP gap is 0.999899%, with zero TimeLimit events;
+- 60 Rolling traces and 30 oracle day slices each contain 96 unique intervals;
+- maximum meter-balance residual is \(1.0\times10^{-8}\) kW;
+- maximum \(p^{actual}=p^{DA}+p^{RT}\) residual is
+  \(1.0\times10^{-7}\) kW;
+- actual AS is nonnegative to tolerance, and actual up/down capability
+  violations remain below \(10^{-6}\) kW;
+- the maximum daily EV-energy spread across Rolling Persistence, Rolling
+  Perfect, and the oracle is \(2.58\times10^{-7}\) kWh;
+- Rolling Perfect and Persistence daily EV revenue is identical;
+- both Rolling policies and the oracle end the billing period at 50% BESS SOC;
+- the oracle uses the identical Rolling Perfect baseline and terminates
+  normally at a 0.8571% gap;
+- the accepted oracle incumbent exceeds Rolling 24-hour Perfect by USD
+  1,832.00;
+- all 30 daily validation figures are present as 300 dpi PNG files, with no duplicate PDF figure copies.
+
+The complete acceptance table is
+`formal_runs/gate_e_20260726_c8250f11/gate_e_validation_checks.csv`.
+Daily Perfect-versus-Persistence ordering remains diagnostic rather than an
+acceptance requirement.
