@@ -6,7 +6,22 @@ large CSV/ZIP inputs that are excluded from Git.
 
 ## 1. What the repository currently runs
 
-The main experiment is a 2 x 2 controller/forecast comparison:
+The canonical SEGAN experiment is now the site-specific Rolling 24-hour MPC in
+`upscaledev_imp_rollingMPC.ipynb`. Its configuration block selects:
+
+- `CANONICAL_SITE_CASE`: `NTPLL`, `Center_Hall`, or `Both`;
+- `CANONICAL_RESOURCE_CASE`: `EV_BESS`, `FULL_BTM`,
+  `BUILDING_ONLY`, `BUILDING_PV`, or `Both`;
+- `CANONICAL_FORECAST_CASE`: `Persistence`, `Perfect`, or `Both`;
+- `CANONICAL_RUN_SCOPE`: `smoke` or `june`.
+
+`EV_BESS` and `FULL_BTM` are optimized. `BUILDING_ONLY` and `BUILDING_PV`
+are passive-meter counterfactuals and are billed directly because they contain
+no controllable dispatch decision. Site data are prepared by
+`upscaledev_site_data_postprocessing.ipynb` and formal outputs are stored under
+`Results_Rolling/Site_Cases_2025/`.
+
+The older controller/forecast matrix remains available for regression work:
 
 | Controller | EV forecast | Output root |
 |---|---|---|
@@ -20,11 +35,12 @@ Each scenario is run in two operating modes:
 - `full`: retail tariff plus wholesale energy and ancillary services.
 - `retail_only`: retail tariff optimization without wholesale participation.
 
-The current paper experiment uses June 1 through July 30, 2025 (60 days). July
-31 is intentionally excluded because a true 24-hour rolling Perfect forecast
-for that day would require EV data from August 1. PV and building-load data
-exist in `2025Data/`, but they are not yet connected to the optimization.
-The ML-at-arrival forecast is also not part of the current 2 x 2 study.
+The current formal site experiment uses June 1--30, 2025. Building meters are
+native net meters. The site preprocessor reconstructs gross building demand as
+`p_load_kW = p_native_net_kW + p_PV_kW`, and the signed PCC balance subtracts
+PV exactly once. Building and PV affect retail energy and demand charges only;
+they do not create wholesale energy or ancillary-service offers. The
+ML-at-arrival forecast is not part of the current paper study.
 
 For the current SEGAN validation stage, daily operational evidence is narrower:
 Rolling 24-hour Persistence, Rolling 24-hour Perfect, and a same-baseline
@@ -54,6 +70,16 @@ UPSCALeDEV_2024/
 ├── 2025Data/
 │   ├── EV_data/
 │   │   └── UCSD_AllSites_Merge_PostProcessedSession_QC.csv
+│   ├── Bldg_data/
+│   │   └── Bldg_load.csv
+│   ├── PV_data/
+│   │   └── CSV_2025-08-06-18-42-25.csv
+│   ├── Site_Data_2025/
+│   │   ├── NTPLL_EV_2025_QC.csv
+│   │   ├── NTPLL_BTM_2025_June_July_15min_QC.csv
+│   │   ├── Center_Hall_EV_2025_QC.csv
+│   │   ├── Center_Hall_BTM_2025_June_July_15min_QC.csv
+│   │   └── baseline_dispatch/{NTPLL,Center_Hall}/
 │   ├── AS_DAM/
 │   │   └── AS_price_2025_clear.csv
 │   ├── AS_RTM/
@@ -225,10 +251,12 @@ copying data:
 
 ```bash
 mkdir -p 2025Data/EV_data
+mkdir -p 2025Data/Bldg_data 2025Data/PV_data 2025Data/Site_Data_2025
 mkdir -p 2025Data/AS_DAM 2025Data/AS_RTM
 mkdir -p 2025Data/LMP/2025/DA 2025Data/LMP/2025/RT 2025Data/LMP/2025/FM
 mkdir -p Results_Shrinking/Dispatch Results_Shrinking/Plots
 mkdir -p Results_Rolling/Dispatch Results_Rolling/Plots
+mkdir -p Results_Rolling/Site_Cases_2025
 mkdir -p Paper_Figures/financial_comparison
 ```
 
@@ -237,27 +265,24 @@ Most deeper output directories are created automatically with
 
 ## 6. Portability changes required on another computer
 
-Several notebooks still contain absolute paths beginning with:
-
-```text
-/Users/admin/Desktop/EV_program/Total Transfer/PowerFlex_Code/UPSCALeDEV_2024
-```
-
-Before running on another computer, search for them:
+The canonical Rolling, baseline, site-preprocessing, and paper-plotting
+notebooks use the current repository root and relative data paths. Start
+Jupyter from the repository root. Before packaging a release, search the
+remaining legacy notebooks for machine-specific paths:
 
 ```bash
 rg -n "/Users/admin/" --glob "*.ipynb" --glob "*.py"
 ```
 
-At minimum, update the project-root configuration in:
+Legacy/download notebooks that may still need local path configuration include:
 
 - `AS_download.ipynb`;
 - `LMP_download.ipynb`;
 - `upscaledev_EVdata_postprocessing.ipynb`;
-- `upscaledev_baseline.ipynb`.
+- older archived sensitivity notebooks.
 
-The two main MPC notebooks use relative paths for the active Perfect and
-Persistence cases. Absolute ML paths are only reached when
+The canonical Rolling and baseline notebooks use relative paths for the active
+Perfect and Persistence cases. Absolute ML paths are only reached when
 `Fc_AtArrival == 'MLatArrival'`, which is not part of the current experiment.
 
 ## 7. Data preparation route A: use the preprocessed bundle
