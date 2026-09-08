@@ -1,0 +1,1573 @@
+% Version 3.2: site-specific June results, individual citations, and Elsevier declarations.
+\documentclass[final,5p,times]{elsarticle}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[hidelinks]{hyperref}
+\IfFileExists{stfloats.sty}{\usepackage{stfloats}}{}
+\renewcommand{\ttdefault}{cmtt}
+\setlength{\emergencystretch}{3em}
+
+\journal{Sustainable Energy, Grids and Networks}
+\graphicspath{{paper3.1/}}
+\biboptions{sort&compress}
+
+\newcommand{\dt}{\Delta t}
+\newcommand{\EV}{\mathrm{EV}}
+\newcommand{\BESS}{\mathrm{BESS}}
+\newcommand{\DA}{\mathrm{DA}}
+\newcommand{\RT}{\mathrm{RT}}
+\newcommand{\GI}{\mathrm{GI}}
+\newcommand{\PV}{\mathrm{PV}}
+\newcommand{\BTM}{\mathrm{BTM}}
+\newcommand{\TOU}{\mathrm{TOU}}
+\newcommand{\PD}{\mathrm{PD}}
+\newcommand{\NCD}{\mathrm{NCD}}
+\newcommand{\SOC}{\mathrm{SOC}}
+\newcommand{\RU}{\mathrm{RU}}
+\newcommand{\RD}{\mathrm{RD}}
+\newcommand{\SP}{\mathrm{SP}}
+\newcommand{\NSP}{\mathrm{NSP}}
+\newcommand{\WM}{\mathrm{WM}}
+\newcommand{\NWM}{\mathrm{NWM}}
+\newcommand{\net}{\mathrm{net}}
+\newcommand{\ch}{\mathrm{ch}}
+\newcommand{\dch}{\mathrm{dch}}
+\newcommand{\actual}{\mathrm{actual}}
+\newcommand{\hist}{\mathrm{hist}}
+\newcommand{\req}{\mathrm{req}}
+\newcommand{\load}{\mathrm{load}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\pos}[1]{\left[#1\right]_{+}}
+\providecommand{\sep}{; }
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Retail--Wholesale Value Stacking for Campus Electric-Vehicle Charging, Battery Storage, Photovoltaic Generation, and Building Demand: \\
+A Two-Stage 24-h Rolling-Horizon Model Predictive Control Application with Dynamic Forecast Updating}
+
+\author[ucsd]{Yizhan Gu}
+\ead{yizhangu@ucsd.edu}
+\author[totalenergies]{Wente Zeng}
+\ead{wente.zeng@totalenergies.com}
+\author[totalenergies]{Hadi Eshraghi}
+\ead{hadi.eshraghi@external.totalenergies.com}
+\author[ucsd]{Jan Kleissl\corref{cor1}}
+\ead{jkleissl@ucsd.edu}
+\cortext[cor1]{Corresponding author.}
+
+\affiliation[ucsd]{organization={Center for Energy Research, University of California San Diego},
+  city={La Jolla}, postcode={92093}, state={CA}, country={USA}}
+\affiliation[totalenergies]{organization={TotalEnergies},
+  city={Houston}, state={TX}, country={USA}}
+
+\begin{highlights}
+\item EV charging and battery storage are co-optimized for retail--wholesale value stacking.
+\item Hourly day-ahead awards and 15-min real-time recourse follow the CAISO sequence.
+\item A dynamic EV forecast updater is embedded in an executed 24-h rolling controller.
+\item Two measured UCSD sites expose scale-dependent portfolio and forecast value.
+\item Passive PV and building demand alter retail cost without being sold as flexibility.
+\end{highlights}
+
+\begin{abstract}
+Efficient use of existing distributed resources is increasingly important as electricity demand and low-carbon generation grow. This paper develops a mixed-integer model predictive control (MPC) framework for a behind-the-meter (BTM) portfolio comprising unidirectional electric-vehicle (EV) charging and a bidirectional battery energy storage system (BESS). The portfolio co-optimizes San Diego Gas \& Electric (SDG\&E) retail charges with California Independent System Operator (CAISO) wholesale energy and ancillary-service (AS) revenue. The model follows the chronological day-ahead (DA) and real-time (RT) market process: hourly DA energy and AS awards become fixed commitments, signed 15-min RT recourse modifies the market position, and the resulting obligation is reconciled with EV--BESS capability and the point-of-common-coupling (PCC) meter. A dynamic EV forecast updater converts session arrivals, departures, requested energy, and charger availability into successive 24-h controller inputs. A deployable Persistence updater is compared with a Perfect-information benchmark under an otherwise identical rolling-horizon controller. Two measured University of California San Diego (UCSD) site configurations introduce photovoltaic (PV) generation and building demand as passive PCC quantities. Across the billing-period study, PV reduces site retail cost and coordinated EV--BESS operation adds further value, while the direction and magnitude of forecast value depend on the site's power scale and carried billing state. Daily diagnostics trace each result from prices and bids to physical dispatch and retail cost. The contribution is an application-oriented model that integrates heterogeneous BTM resources, two-stage market chronology, dynamic forecast updating, and executable retail--wholesale value stacking in one auditable framework.
+\end{abstract}
+
+\begin{keyword}
+Electric vehicle charging \sep Battery energy storage \sep Model predictive control \sep Value stacking \sep Ancillary services \sep Wholesale markets \sep Behind-the-meter resources
+\end{keyword}
+
+\end{frontmatter}
+
+\onecolumn
+\section*{Nomenclature}
+\label{sec:nomenclature}
+
+The following notation is used throughout. Power, energy, state of charge, and
+monetary quantities are expressed in kW, kWh, fractions, and US dollars,
+respectively, unless a different unit is stated. Superscripts identify a
+resource, market stage, service, or accounting channel; subscripts identify an
+interval, EV session, AS product, or rolling-controller call.
+
+\begin{table}[H]
+\centering
+\caption{Abbreviations used in the manuscript.}
+\label{tab:abbreviations}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.11\textwidth}X p{0.11\textwidth}X@{}}
+\toprule
+Abbreviation & Definition & Abbreviation & Definition \\
+\midrule
+AGC & automatic generation control & AS & ancillary service \\
+ASMP & ancillary-service marginal price & BESS & battery energy storage system \\
+BTM & behind the meter & CAISO & California Independent System Operator \\
+DA & day ahead & DER & distributed energy resource \\
+EV & electric vehicle & FERC & Federal Energy Regulatory Commission \\
+GI & grid interchange at the PCC & LMP & locational marginal price \\
+MILP & mixed-integer linear program & MPC & model predictive control \\
+NCD & non-coincident demand charge & NSP & non-spinning reserve \\
+NWM & non-wholesale-market channel & PCC & point of common coupling \\
+PD & peak-period demand charge & PV & photovoltaic generation \\
+RD & regulation down & RT & real time \\
+RU & regulation up & SDG\&E & San Diego Gas \& Electric \\
+SOC & state of charge & SP & spinning reserve \\
+TOU & time of use & UCSD & University of California San Diego \\
+V1G & unidirectional managed EV charging & V2G & vehicle to grid \\
+VPP & virtual power plant & WM & wholesale-market channel \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Principal sets, parameters, states, and decision variables.}
+\label{tab:nomenclature}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}X@{}}
+\toprule
+Symbol & Definition \\
+\midrule
+$t\in\calT$, $i\in\calI$, $x\in\calK$ & 15-min interval, EV session, and AS product; $\calK=\{\RU,\RD,\SP,\NSP\}$. \\
+$k$, $\calH_k$, $H(t)$ & Rolling-controller call, its active 24-h horizon, and the DA trade hour containing interval $t$. \\
+$\mathcal I_k^\pi$, $\omega_k$ & Information available under forecast updater $\pi$ and the realized data observed after interval $k$. \\
+$a_i,d_i,E_i^{\req},\bar P_i$ & Arrival, departure, requested energy, and charging-power limit of EV session $i$. \\
+$b_{t,i}$, $p_{t,i}^{\EV}$, $p_t^{\EV}$ & EV availability, session charging power, and aggregate nonnegative EV power. \\
+$B_t^{\EV}$, $P_{t,\max}^{\EV}$ & Historical EV reference baseline and connected-fleet charging capability. \\
+$p_t^{\ch,\BESS}$, $p_t^{\dch,\BESS}$, $s_t$ & BESS charging power, discharging power, and SOC. \\
+$C^{\BESS}$, $P^{\BESS}$, $\gamma$ & BESS energy rating, power rating, and round-trip efficiency. \\
+$p_t^{\load}$, $p_t^{\PV}$ & Measured passive building demand and PV generation in the sensitivity case. \\
+$p_t^{\GI}$ & Signed PCC power; positive denotes retail import and negative denotes export. \\
+$p_t^{\DA}$, $p_t^{\RT}$, $p_t^{\actual}$ & Fixed DA energy award, signed RT adjustment, and actual energy position, with $p_t^{\actual}=p_t^{\DA}+p_t^{\RT}$. \\
+$c_t^{x,\DA}$, $c_t^{x,\RT}$, $c_t^{x,\actual}$ & Fixed DA AS award, signed RT adjustment, and actual nonnegative capacity for product $x$. \\
+$\alpha_t^x$, $q_t^{\WM}$ & Expected AS activation fraction and the activation-adjusted EV--BESS wholesale energy obligation. \\
+$\bar P_t^{\mathrm{up}}$, $\bar P_t^{\mathrm{down}}$ & Shared upward and downward capability of the controllable EV--BESS portfolio. \\
+$M_k^{q,\hist}$, $z_k^q$, $m_q(t)$ & Carried billing peak, incremental peak variable, and tariff-eligibility indicator for $q\in\{\PD,\NCD\}$. \\
+$C_t^{\TOU}$, $C^{\PD}$, $C^{\NCD}$ & Retail energy, peak-period demand, and non-coincident demand rates. \\
+$\widetilde\lambda_t^s$, $\widetilde\rho_t^{x,s}$ & Native energy LMP and ASMP for stage $s\in\{\DA,\RT\}$. \\
+$\lambda_t^s$, $\rho_t^{x,s}$ & Price coefficients normalized to the common US\$/kWh-equivalent objective basis. \\
+$R^{\EV}$, $R^{\WM}$, $V$, $J$ & EV charging-service revenue, wholesale-market revenue, net portfolio value, and minimized cost, with $V=-J$ for like-for-like comparisons. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\twocolumn
+
+\section{Introduction}
+\label{sec:introduction}
+
+Electricity systems are being transformed simultaneously by transportation electrification, rapid growth in digital and artificial-intelligence loads, and the policy-driven expansion of low-carbon generation. Meeting this growth only by adding supply and network capacity is costly and slow. A complementary strategy is to operate existing electricity infrastructure more efficiently: flexible demand, storage, and local generation can reshape net load, absorb renewable production, reduce coincident stress, and supply operating reserves. Such coordination supports decarbonization while improving reliability and limiting avoidable capacity expansion. This system-level motivation is reflected in US grid-modernization initiatives and in Federal Energy Regulatory Commission (FERC) Order No.~2222, which seeks to remove barriers preventing aggregations of distributed energy resources (DERs) from participating in organized wholesale markets \cite{doeGridModernization} \cite{ferc2222}.
+
+Behind-the-meter (BTM) portfolios are a natural place to realize this flexibility. Commercial and residential sites increasingly contain electric-vehicle (EV) charging, battery energy storage systems (BESS), photovoltaic (PV) generation, and large building loads. These resources share an interconnection, but they have different physical roles. A BESS can absorb or deliver power subject to state of charge (SOC), efficiency, and cycling limits. Workplace EVs without vehicle-to-grid (V2G) hardware cannot export battery energy, yet their charging can be advanced or delayed while vehicles are plugged in. PV and ordinary building demand are not dispatchable at the timescale considered here, but they change the net power measured at the point of common coupling (PCC). Evaluating each resource in isolation can therefore overstate value: a profitable wholesale action may simultaneously establish a higher retail demand-charge peak at the shared meter.
+
+The economic opportunity is \emph{value stacking}: one coordinated portfolio reduces retail electricity cost while participating in day-ahead (DA) and real-time (RT) wholesale energy and ancillary-service (AS) markets. The retail cost consists of energy and demand charges: retail time-of-use (TOU) prices reward shifting import away from expensive periods, whereas monthly peak-demand (PD) and non-coincident-demand (NCD) charges depend on the largest metered import reached over a billing period. Wholesale prices can instead reward injection, absorption, or the reservation of upward and downward capability, and the signs and timing of these signals can conflict. Consequently, gross wholesale revenue is not a sufficient measure of performance; the relevant quantity is the portfolio's net value after retail energy and demand charges, wholesale market revenue, and the payment from every EV user's requested charging.
+
+Market chronology adds a further constraint. The California Independent System Operator (CAISO) procures regulation up (RU), regulation down (RD), spinning reserve (SP), and non-spinning reserve (NSP) in addition to energy \cite{caisoAncillary2026}. In the modeled two-stage sequence, cleared DA awards are binding commitments and signed RT decisions increase or decrease the corresponding positions; actual delivery is their sum. This abstraction is consistent with CAISO documentation that distinguishes DA and RT AS awards and reserves physical capability for financially binding DA awards \cite{caisoMarketOperations2026} \cite{caisoNGRCommitment2020}. The resulting obligation must fit the common capability of the connected EV fleet and BESS. Deployment would additionally require scheduling-coordinator representation, resource certification, telemetry, metering, and distribution-utility coordination \cite{caisoDER2026}. The model represents the operational chronology and financial coupling; it does not replace those eligibility and performance requirements.
+
+Forecast uncertainty is inseparable from this chronology. Workplace charging availability and requested energy depend on stochastic arrivals, departures, and user behavior. A useful controller must act before all sessions are known, preserve commitments that have already cleared, and update the remaining schedule as measurements arrive. MPC provides this repeated decision structure. At each 15-min interval, the controller constructs a 24-h horizon, calls the optimizer, implements only the current action, updates physical and billing states, and rolls the horizon forward. The term \emph{rolling horizon} is used throughout; it is the same control principle commonly called a receding horizon. Two EV forecast updaters are compared inside this controller. Persistence reuses recent observed session patterns and is deployable. Perfect information supplies realized future EV sessions only within the same 24-h window and isolates EV forecast error; it is not a claim of practical predictability. A separate full billing-period oracle knows the complete evaluation period and is used only as an ex-post upper bound.
+
+The study is built around measured University of California San Diego (UCSD) workplace-charging, PV, and building-meter data and a common BESS design. EVs and the BESS are the controllable market portfolio. PV generation and building demand are passive additions to the signed retail meter. They affect retail cost and can indirectly change optimal EV--BESS actions, but they do not contribute wholesale bids because no independent controllability or guaranteed response is assumed. Two site-scale configurations, NTPLL and Center Hall, are evaluated to expose how the same controller behaves under materially different building, PV, and charging power scales.
+
+The scientific contributions of this work are:
+\begin{enumerate}
+  \item \textbf{Integrated retail--wholesale value stacking.} A single mixed-integer formulation co-optimizes unidirectional EV flexibility and bidirectional BESS operation across EV service, retail TOU and monthly demand charges, wholesale energy, and four AS products. A shared deliverability envelope prevents the same physical capability from being allocated to incompatible services.
+  \item \textbf{Market-sequence-consistent control.} The model follows the chronological transition from DA submission to RT recourse. Cleared DA energy and AS awards are fixed, signed RT quantities represent market increases or decreases, and actual nonnegative AS capacity and deployed energy are reconciled with physical power.
+  \item \textbf{Forecast-integrated 24-h MPC framework.} A dynamic forecast-to-control layer translates updated EV session information into availability, requested-energy, and charging-capability inputs at every rolling optimization. The deployable Persistence and Perfect-information updaters are implemented through an otherwise identical MPC workflow, so their executed dispatch and economic outcomes measure the operational effect of the forecast update.
+  \item \textbf{Measured site-level robustness.} Passive PV generation and building demand alter the retail PCC without being misclassified as dispatchable capacity. Two measured site configurations test whether the integrated value stack remains physically and economically coherent under different net-load, PV, and charging-power scales.
+\end{enumerate}
+
+The remainder of the paper follows the decision process of an operator. Section~\ref{sec:related_work} reviews EV aggregation, multi-resource portfolios, value stacking, market participation, and MPC. Sections~\ref{sec:system}--\ref{sec:mpc} describe the physical system, data pipeline, forecast updating, and market timeline. Section~\ref{sec:model} presents the compact optimization, while Appendix~\ref{app:complete_model} records the complete formulation. Sections~\ref{sec:case_study} and \ref{sec:accounting} define the site-specific case study, financial reconstruction, and validation protocol. Section~\ref{sec:results} reports monthly and daily site-level results. The final sections discuss interpretation, limitations, and implications for larger BTM portfolios.
+
+\section{Related work and research gap}
+\label{sec:literature}
+\label{sec:related_work}
+
+\subsection{Unidirectional EV charging flexibility and aggregation}
+Coordinated EV charging has been studied for distribution-impact mitigation, valley filling, renewable integration, and charging-cost reduction \cite{clement2010impact} \cite{sortomme2011optimal} \cite{gan2013optimal} \cite{richardson2013electric}. The aggregation problem is important because a fleet is not a stationary battery with fixed limits. Its feasible set changes when vehicles arrive and depart, and each session has an individual energy requirement. Unidirectional charging has been shown to provide scheduled flexibility without exporting vehicle energy \cite{sortomme2011optimal}. Compact aggregation models have subsequently represented heterogeneous EV populations \cite{zheng2013aggregation} \cite{nazari2022updated} \cite{alTaha2025aggregateFlex}, while probabilistic formulations quantify time and energy flexibility before departure rather than reducing uncertainty to one expected load trace \cite{huber2020probabilistic}.
+
+For a unidirectional fleet, upward grid flexibility is a reduction of charging relative to a feasible reference, and downward flexibility is an increase in charging while vehicles remain connected. This distinction is essential when V2G is not included: EV ``discharge'' in an accounting decomposition is not physical export from the traction battery. Studies that rely on bidirectional vehicle-to-grid power can provide broader services \cite{sortomme2012v2gAncillary} \cite{clairand2020ancillary}, but their feasible set and battery-use assumptions are different. The present work therefore retains session-level nonnegative charging and allocates only load-modulation capability to the market.
+
+Market-facing EV research has optimized aggregator participation in energy and reserve markets under uncertain availability and deviations \cite{vagropoulos2013optimal} \cite{bessa2014optimization}. Practical demonstrations have also shown the potential of managed EV fleets to provide AS \cite{deforest2018lafb}. Two recent UCSD studies are the closest methodological predecessors. Workplace charging flexibility was first optimized against TOU energy, demand charges, and a DA demand-response opportunity \cite{chen2024costoptimal}. The subsequent framework added a two-layer DA/RT architecture in which online MPC updates charging timing and user-service flexibility to mitigate EV forecast errors \cite{chen2026realtime}. That predecessor, however, considers EV charging in a demand-response setting without a co-optimized BESS, a retail--wholesale energy ledger, or four CAISO AS products. The present work retains its service-preserving, measurement-updated EV structure and extends the market boundary to an EV--BESS portfolio with fixed DA awards, signed RT recourse, and one PCC retail account.
+
+\subsection{EV--BESS portfolios and virtual-storage interpretations}
+Combining EV charging with stationary storage is attractive because the resources are complementary. The BESS supplies bidirectional, fast power but has a finite energy state and cycling cost; EV charging supplies a changing envelope of controllable demand without requiring export from customer vehicles. Earlier work has optimized EV charging with energy storage under electricity-market prices \cite{jin2013evstorage} and has assessed EV fleets as aggregated storage and flexibility resources \cite{mills2018evstorage}. These studies motivate a virtual-storage interpretation, but that abstraction must not erase vehicle connection windows or user energy requirements.
+
+A broader virtual power plant (VPP) literature considers aggregation of heterogeneous DERs for coordinated market participation \cite{pudjianto2007vpp} \cite{zamani2016vpp} \cite{qiu2017transactive}. The VPP concept provides an institutional and systems perspective: distributed resources can be represented to the market through an aggregator while their internal constraints remain coordinated. However, many VPP formulations focus on front-of-meter scheduling or distribution-network coordination and do not simultaneously reconstruct a commercial customer's retail demand charges. The present campus portfolio is smaller and physically behind one meter, but it faces the same principle of shared capability and the additional complication that wholesale actions change the retail bill.
+
+\subsection{BTM tariffs and multi-service value stacking}
+BTM storage is commonly scheduled for energy arbitrage, peak shaving, renewable self-consumption, and grid services \cite{raoufat2018bess} \cite{wu2017analytical} \cite{chen2021valueStacking}. Value stacking increases potential asset utilization, but the individual services compete for the same power and stored energy. Multi-service formulations therefore require co-optimization rather than the addition of separately computed revenues \cite{hanif2022multiservice}. Revenue stacking across BTM energy and AS markets has been studied explicitly \cite{seward2022revenueStacking}, while distributed control and storage-sizing studies show how tariff and service design determine which combinations are economically meaningful \cite{karandeh2022distributed} \cite{zhang2024btmsizing}.
+
+Retail demand charges make this coupling path dependent. The charge is based on a billing-period (monthly) maximum, so an action taken early in the month can establish a threshold that changes the marginal cost of all later actions. Behind-the-meter PV and storage economics are likewise sensitive to the retail-rate structure \cite{boampong2020retail}. These findings motivate the incremental demand-charge state used in this paper. They also explain why a 24-h controller cannot generally reproduce the full billing-period optimum even when it knows the EV sessions inside its local horizon.
+
+\subsection{Joint retail--wholesale participation and market fidelity}
+Microgrid energy-management research has co-optimized local resources under market uncertainty and operational risk \cite{parisio2014model} \cite{shen2016microgrid} \cite{hasankhani2021stochastic}. Other studies have coordinated renewable generation, BESS, energy trading, and ancillary services \cite{santosuosso2024sempc}, or have combined PV, flexible loads, and storage for frequency reserves \cite{warmerdam2026power}. These contributions establish the value of multi-resource scheduling, but the settlement boundary matters. A customer connected behind a retail meter cannot evaluate wholesale bids independently of TOU and demand-charge exposure, and passive PV or building demand cannot be credited as callable capacity without a control and verification mechanism.
+
+CAISO's market design adds a specific chronological and institutional structure. Energy and AS positions pass from DA awards to RT adjustments, while actual AS capacity must remain nonnegative and physically deliverable. The four modeled AS products have different directions and response characteristics \cite{caisoAncillary2026}. DER aggregations may participate in CAISO energy and AS markets, but actual deployment requires certified resources, scheduling-coordinator representation, metering, telemetry, and distribution-utility coordination \cite{caisoDER2026}. Many optimization papers approximate one or more of these elements. The contribution here is not a claim of complete settlement replication; it is a transparent operational abstraction that keeps the irreversible DA/RT sequence, signed recourse, deployed-energy accounting, and common EV--BESS capability in one auditable model.
+
+\subsection{Forecast updating and rolling-horizon control}
+MPC is well suited to microgrids and charging stations because it repeatedly incorporates new information while respecting dynamic constraints \cite{parisio2014model} \cite{rawlings2017mpc} \cite{hermans2024implementation} \cite{klemets2024charging}. PV--EV--BESS studies have demonstrated explicit and robust MPC under uncertain renewable and charging conditions \cite{cabrera2022realtime} \cite{cabrera2024robust}. These works establish MPC as a mature control framework; the present novelty is how the information update is embedded in a retail--wholesale commitment and settlement model.
+
+Forecast quality and controller value are not interchangeable. A forecast with lower statistical error does not necessarily produce higher closed-loop economic value because the objective is asymmetric, constrained, and state dependent \cite{ludolfinger2025prediction}. Moreover, Perfect information inside a truncated horizon is not a full-horizon optimum. If the controller omits the continuation value of SOC, demand thresholds, unfinished EV service, and committed bids beyond its local view, an attractive first action can reduce later value. Three concepts are therefore kept distinct: a deployable Persistence updater, Perfect information within the same 24-h controller, and a full billing-period oracle used only to check the upper-bound logic.
+
+\subsection{Research gap and paper novelty}
+Table~\ref{tab:literature_gap} positions the work against representative application classes. Existing literature treats EV aggregation, BTM storage, VPP coordination, retail tariffs, wholesale energy and reserves, and MPC with considerable depth. Much less attention has been paid to their intersection: a unidirectional workplace EV fleet and BESS behind one demand-charged meter; fixed DA awards followed by signed RT recourse; non-double-counted energy and AS deliverability; forecast updates evaluated from executed decisions; and passive PV/building profiles that alter only the retail meter. That intersection is the paper's novelty boundary.
+
+\begin{table*}[!t]
+\centering
+\caption{Representative literature streams and the unresolved coupling addressed in this paper. ``Retail state'' denotes explicit TOU plus billing-period demand-charge accounting.}
+\label{tab:literature_gap}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}*{4}{>{\centering\arraybackslash}p{0.085\textwidth}}X@{}}
+\toprule
+Study class & Uni-dir. EV & Retail state & DA/RT + AS & Executed MPC & Scope \\
+\midrule
+EV aggregation and reserve bidding~\cite{vagropoulos2013optimal} \cite{bessa2014optimization} & $\checkmark$ & -- & $\checkmark$ & Partial & Market bids and recourse for aggregated EVs.\\
+UCSD workplace charging~\cite{chen2024costoptimal} \cite{chen2026realtime} & $\checkmark$ & $\checkmark$ & -- & $\checkmark$ & Forecast-aware demand response without the complete energy/AS stack.\\
+BTM BESS stacking~\cite{hanif2022multiservice} \cite{seward2022revenueStacking} \cite{idomar2026stacked} & -- & $\checkmark$ & $\checkmark$ & Partial & Local and grid services from stationary storage.\\
+PV--EV--BESS MPC~\cite{cabrera2022realtime} \cite{cabrera2024robust} & $\checkmark$ & Partial & -- & $\checkmark$ & Experimental charging-station control under uncertainty.\\
+VPP/multi-DER scheduling~\cite{pudjianto2007vpp} \cite{zamani2016vpp} \cite{qiu2017transactive} & Partial & Partial & $\checkmark$ & Partial & Aggregated heterogeneous DER participation.\\
+Renewable--storage energy/AS~\cite{santosuosso2024sempc} \cite{warmerdam2026power} & Partial & -- & $\checkmark$ & $\checkmark$ & Market and reserve coordination of generation, loads, and storage.\\
+This work & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & One PCC with fixed DA awards, signed RT recourse, shared EV--BESS capability, and passive-resource sensitivity.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+The comparison deliberately avoids presenting every paper as a binary checklist. Different studies address different institutional and physical problems, and several include features beyond the present scope. The claimed advance is instead an application-level integration: a measured workplace portfolio, a retail tariff with carried billing states, a chronological CAISO-inspired market layer, and a closed-loop forecast comparison whose financial statements can be reconstructed from executed 15-min trajectories.
+
+\section{System description and data flow}
+\label{sec:system}
+
+\subsection{Campus BTM portfolio}
+Figure~\ref{fig:architecture} separates the physical PCC from the market-aggregation function. The PCC is the metered electrical boundary at which $p_t^{\GI}$ is measured and the retail tariff is applied. The EV--BESS market aggregator is instead a logical control and scheduling interface; it is analogous to a small VPP but does not replace the PCC. The controllable portfolio consists of a workplace EV aggregation and a BESS behind the common meter. Although power is aggregated at each modeled site boundary, each EV session retains its own arrival, departure, requested energy, and interval charging limit. The BESS is represented by charge/discharge power, SOC dynamics, round-trip efficiency, throughput limits, and a terminal-state condition.
+
+PV generation and building demand are handled differently. They are measured, exogenous profiles used only in the passive-resource sensitivity analysis. Because the controller cannot curtail PV, shift building demand, or guarantee their response, they are not assigned energy bids, AS-capacity offers, or any form of wholesale revenue. They enter the physical accounting only through the PCC meter. This modeling choice asks a focused sensitivity question: how does the EV--BESS controller behave when the retail net-load environment changes, without attributing passive variability to a dispatchable market resource?
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.96\textwidth]{fig_01_system_architecture_v31.png}
+  \caption{Physical and market boundaries of the campus BTM portfolio. EV charging and the BESS are coordinated by the market aggregator and may support CAISO energy and AS positions. Building demand and PV are passive measured quantities. All four resources meet at the PCC, where signed grid interchange is exposed to the modeled SDG\&E retail tariff.}
+  \label{fig:architecture}
+\end{figure*}
+
+The portfolio has three coupled boundaries. First, the \emph{service boundary} requires every included EV to receive its requested energy before departure. Second, the \emph{physical boundary} limits total upward and downward response by the simultaneous EV and BESS capability. Third, the \emph{financial boundary} reconciles wholesale actions with the same signed meter used for retail TOU and demand charges. These boundaries prevent a favorable market schedule from being reported when it is infeasible for users, devices, or the retail interconnection.
+
+\subsection{Retail and wholesale interfaces}
+The retail account uses signed interval energy at the PCC. Import has positive cost, while export is credited at the same modeled TOU coefficient; this symmetric export treatment is a study assumption rather than a universal SDG\&E rule. The modeled large-commercial tariff distinguishes summer and winter TOU periods, applies peak-period demand charges only within eligible windows, and assesses NCD from the maximum billing-cycle demand \cite{sdgeLargeCommercial2025} \cite{sdgeDemandGuide2026}. Both demand charges are stateful over the monthly billing period.
+
+The wholesale interface contains DA and RT energy and four AS products. RU, SP, and NSP reserve upward capability; RD reserves downward capability. CAISO describes regulation as automatic response for frequency control and requires participating resources to be certified and capable of delivering the awarded service; SP and NSP must be available within the specified reserve response time \cite{caisoAncillary2026}. The energy position and AS deployment therefore share one headroom envelope. For example, the portfolio cannot schedule all upward power as energy and sell the same capability again as RU. Capacity payment compensates reserved capability, while expected deployed energy is valued at the RT energy price. The model consequently distinguishes an AS capacity award from the energy obligation created when a fraction of that award is activated.
+
+\subsection{Data sources and temporal alignment}
+All operating quantities are aligned to a 15-min index, so $\dt=0.25$ h. The EV pipeline begins with charger-session records containing timestamps, interval energy, power measurements, user or vehicle identifiers, and station metadata. Preprocessing converts timestamps, reconciles sessions spanning multiple intervals, removes duplicates, derives interval availability, and checks that requested session energy does not exceed the charger-time envelope after timestamp rounding. The underlying archive covers a broader campus population, but the reported experiments select the chargers mapped to NTPLL and Center Hall; the session matrix retains individual feasibility before each site's power is aggregated.
+
+Wholesale inputs consist of CAISO DA and RT energy prices and DA/RT AS capacity
+prices aligned to the same 15-min computational clock. Hourly DA awards are
+repeated and constrained equal within each four-interval block, whereas
+dispatchable RT AS awards remain interval-specific, consistent with CAISO's
+published market-instrument definitions \cite{caisoMarketInstruments2026} \cite{caisoMarketOperations2026}.
+Native market prices are converted to the common US\$/kWh-equivalent
+coefficients derived in Section~\ref{sec:price_resolution} before entering the
+objective or a figure. Retail prices use the implemented summer/winter TOU
+schedule and PD/NCD rates; their period definitions and demand-charge
+interpretation follow the published SDG\&E large-commercial materials
+\cite{sdgeLargeCommercial2025} \cite{sdgeDemandGuide2026}.
+
+Measured building and PV channels are processed as nonnegative 15-min power series with unique timestamps and explicit quality-control checks. The UCSD building channels are native net-meter measurements that already include embedded PV. For each site, preprocessing reconstructs gross demand as the native net meter plus the mapped PV signal; the physical balance then subtracts that same PV signal once. Consequently, the passive building-plus-PV stage recovers the measured native net load exactly and avoids double subtraction of PV. Regulation-activation factors are processed separately from official CAISO hourly attenuation tables and repeated across the four contained 15-min intervals. These factors are treated as expected activation proxies, not as realized automatic-generation-control (AGC) trajectories.
+
+\subsection{Data flow and reproducibility boundary}
+For each evaluation day, the pipeline constructs realized EV sessions, forecast sessions, carried BESS and billing states, market prices, and any active passive-meter profiles. The DA optimizer produces commitments. Each RT optimization call reads those commitments as constants, receives the updated EV information, and implements one interval. Only the first executed quantities update the physical state and financial ledger; the remaining planned entries are discarded when the horizon advances. This distinction between a plan and an executed trajectory is the defining closed-loop feature of rolling-horizon MPC.
+
+All reported tables and figures are generated deterministically by the
+version-controlled analysis notebooks from saved model outputs. AI-assisted
+code review did not create or alter the underlying measurements or numerical
+results; the authors verified the data mappings, equations, calculations, and
+rendered outputs.
+
+\section{EV forecast updater}
+\label{sec:forecasting}
+
+\subsection{Forecast objects}
+The EV forecast must specify more than aggregate kW. It determines the expected sessions, their connection windows, requested energy, and interval charging capability. Let $\widehat{\mathcal I}_{k}^{\pi}$ denote the sessions visible at controller call $k$ under updater $\pi$. These sessions generate forecast availability $\widehat b_{t,i}$, requested energy $\widehat E_i^{\req}$, and aggregate capability $\widehat P_{t,\max}^{\EV}$. Once a vehicle arrives, its measured state replaces the forecast representation in RT. Forecast error therefore changes the remaining feasible set, not merely an exogenous load vector.
+
+\subsection{Persistence updater}
+Persistence is the practical low-complexity updater. Before the operating day, it uses the most recent eligible historical day in the corresponding DA/RT construction to form the expected session population and energy requests. The DA reference day remains distinct from the RT operating day; realized target-day sessions are not copied into the forecast. During RT execution, observed arrivals, delivered energy, and connected-vehicle limits replace the corresponding forecast entries. If the historical template contains more or fewer vehicles than the realized fleet, session records are trimmed or repeated by charger class to preserve a feasible input dimension. Persistence is intended as a transparent benchmark for future learned forecasts rather than as a statistically optimal predictor.
+
+The EV market baseline is separate from this session forecast. It averages the preceding ten eligible weekdays or four eligible weekend/holiday days of the same calendar class. Historical intervals already altered by an activated market response are excluded so the reference is not contaminated by earlier control actions. No day-of adjustment is applied in the present study. Thus the baseline is a reference charging profile, whereas Persistence predicts future arrivals and requested energy.
+
+\subsection{Perfect-information updater}
+Perfect information supplies the realized sessions and requested energy within the same 24-h look-ahead. It removes EV forecast error but leaves every other controller feature unchanged: horizon length, DA/RT chronology, tariffs, market prices, BESS model, initial state, terminal conditions, and optimizer tolerances are identical. It is therefore an information benchmark for the 24-h controller, not a deployable forecast and not a billing-period upper bound.
+
+This distinction matters because the closed-loop controller is path dependent. A first action changes SOC, the remaining energy of connected EVs, the monthly demand thresholds, and future market flexibility. Better information inside a truncated horizon can improve the local optimization yet still leave a state that is less valuable after the horizon boundary. The full-period oracle introduced later removes that boundary and is the only result interpreted as a theoretical upper bound under common initial and terminal conditions.
+
+\section{24-h MPC and market execution}
+\label{sec:mpc}
+
+\subsection{Day-ahead and real-time chronology}
+Figure~\ref{fig:timeline} summarizes the chronology for operating day $d$ (day~0). Historical EV measurements available by day~$-2$ are first assembled for the Persistence updater. On day~$-1$, the updater produces the EV input and the DA optimizer determines hourly energy and AS offers before bid submission. CAISO's published timeline closes DA bids at 10:00 and publishes market results at approximately 13:00; the intermediate preparation times shown in the figure are the study's internal workflow checkpoints \cite{caisoTimeline2026}. Cleared hourly awards are then stored as constants for day~0. CAISO documentation separately reports DA and RT AS awards and describes dispatchable RT AS procurement on a 15-min basis \cite{caisoMarketOperations2026} \cite{caisoMarketInstruments2026}.
+
+At midnight on day~0, the RT rolling controller begins. At each 15-min interval it updates observed EV sessions, delivered EV energy, BESS SOC, and the billing peaks; calls the 24-h optimizer with the cleared DA quantities fixed; implements the first decision; and advances by one interval. Hence the model respects two distinct clocks: a one-hour DA award that is constant over four model intervals and a 15-min RT recourse decision. The simulation abstracts from CAISO's 5-min dispatch layer and from telemetry/performance settlement, which remain deployment requirements rather than optimization variables in this study.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{fig_06_legacy_market_bidding_mpc_timeline.png}
+  \caption{Market bidding and rolling-horizon execution. DA energy and AS bids are submitted before the operating day and become fixed commitments. RT optimization uses updated EV information to choose signed adjustments at 15-min resolution. Internal preparation times precede the CAISO 10:00 DA gate closure and 13:00 result publication.}
+  \label{fig:timeline}
+\end{figure*}
+
+The RT variables are defined as changes, not as the complete physical bid. For energy, $p_t^{\actual}=\bar p_t^{\DA}+p_t^{\RT}$, where $\bar p_t^{\DA}$ is the cleared commitment. For every AS product, $c_t^{x,\actual}=\bar c_t^{x,\DA}+c_t^{x,\RT}$. The signed adjustment may reduce a commitment when updated EV availability or BESS state makes the original award less attractive or infeasible, but the resulting actual capacity must remain nonnegative. The objective settles that adjustment economically; it does not use a large artificial penalty to force RT decisions toward DA values.
+
+\subsection{Rolling-horizon state update}
+Let the state before call $k$ be
+\begin{align}
+\xi_k=\left(s_k,\boldsymbol e_k,M_k^{\PD,\hist},M_k^{\NCD,\hist},
+\bar p_k^{\DA},\bar{\boldsymbol c}_k^{\DA}\right),
+\label{eq:state_vector_main}
+\end{align}
+where $s_k$ is BESS SOC, $\boldsymbol e_k$ stores delivered EV energy,
+$M_k^{\PD,\hist}$ and $M_k^{\NCD,\hist}$ are the carried monthly demand
+thresholds, and $\bar p_k^{\DA}$ and $\bar{\boldsymbol c}_k^{\DA}$ are the
+active DA energy and AS commitments. Given information $\mathcal I_k^\pi$
+from updater $\pi$, the controller computes
+\begin{align}
+\boldsymbol x_k^\star\in\arg\min_{\boldsymbol x\in\mathcal X(\xi_k,\mathcal I_k^\pi)}
+J_k^{24\mathrm h}(\boldsymbol x),
+\label{eq:mpc_problem_main}
+\end{align}
+implements only $x_{k|k}^\star$, and updates
+\begin{align}
+\xi_{k+1}=F_k(\xi_k,x_{k|k}^\star,\omega_k).
+\label{eq:mpc_update_main}
+\end{align}
+Here $\boldsymbol x_k$ contains the horizon decisions, $\mathcal X$ is the
+feasible set defined in Section~\ref{sec:model}, and $J_k^{24\mathrm h}$ is the
+active-horizon economic objective in \eqref{eq:objective}. Only the first
+decision $x_{k|k}^\star$ is implemented. The transition map $F_k$ then uses
+the realized interval data $\omega_k$ to propagate BESS SOC, delivered EV
+energy, billing peaks, and active DA commitments. Forecasting creates a forward
+plan; measurement closes the loop before the next action.
+
+\subsection{Execution algorithm}
+Algorithm~\ref{alg:rolling_mpc} states the complete operating loop. The DA
+optimizer and every RT call use the same physical and economic formulation;
+the difference is that RT receives fixed DA awards and signed recourse
+variables.
+
+\begin{algorithm}[!t]
+\caption{Two-stage DA/RT rolling-horizon controller}
+\label{alg:rolling_mpc}
+\begin{algorithmic}[1]
+\Require Evaluation set $\calT$, updater $\pi$, prices and tariff, initial state $\xi_0$
+\Ensure Executed dispatch and reconciled financial ledger
+\For{each operating day $d$}
+  \State construct the DA EV forecast and 24-h physical capability
+  \State call the DA optimizer and store hourly awards $\bar p^{\DA}$ and $\bar{\boldsymbol c}^{\DA}$
+  \For{each 15-min RT interval $k$ in day $d$}
+    \State merge arrivals and measurements available at $k$ with updater $\pi$
+    \If{$k$ is the final executed interval of $\calT$}
+      \State include the common terminal-SOC constraint
+    \EndIf
+    \State call the RT optimizer over $\calH_k$ with DA awards fixed
+    \State implement $p_{k}^{\EV}$, $p_{k}^{\BESS}$, $p_{k}^{\RT}$, and $\boldsymbol c_{k}^{\RT}$ only
+    \State update $\xi_{k+1}$ and the ledger using realized data $\omega_k$
+  \EndFor
+\EndFor
+\State verify terminal SOC and reconcile the final financial ledger
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{Optimization model}
+\label{sec:model}
+
+\subsection{Sets, variables, and sign conventions}
+Let $t\in\calT$ index 15-min intervals, $i\in\calI$ index EV sessions, and
+$x\in\calK=\{\RU,\RD,\SP,\NSP\}$ index AS products. Positive
+$p_t^{\GI}$ denotes site import and negative $p_t^{\GI}$ denotes export. Positive
+market energy $p_t^{\actual}$ denotes upward delivery, while negative values
+denote absorption. The positive-part operator is $\pos{z}=\max(z,0)$.
+
+\begin{table*}[!t]
+\centering
+\caption{Core variables and parameters.}
+\label{tab:notation}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}X@{}}
+\toprule
+Symbol & Definition \\
+\midrule
+$p_{t,i}^{\EV}$, $p_t^{\EV}$ & EV-session charging power and fleet total; both are nonnegative.\\
+$B_t^{\EV}$, $P_{t,\max}^{\EV}$ & EV baseline power and connected-fleet charging capability.\\
+$p_t^{\ch,\BESS}$, $p_t^{\dch,\BESS}$, $s_t$ & BESS charge, discharge, and SOC.\\
+$p_t^{\DA}$, $p_t^{\RT}$, $p_t^{\actual}$ & fixed DA energy, signed RT adjustment, and actual energy position.\\
+$c_t^{x,\DA}$, $c_t^{x,\RT}$, $c_t^{x,\actual}$ & fixed DA AS, signed RT adjustment, and actual nonnegative AS capacity.\\
+$M_k^{q,\hist}$ & executed billing-period threshold entering MPC call $k$, $q\in\{\PD,\NCD\}$.\\
+$C_t^{\TOU}$, $C^q$ & retail energy and demand-charge rates.\\
+$\lambda_t^s$, $\rho_t^{x,s}$ & Normalized DA/RT energy and AS price coefficients (US\$/kWh equivalent).\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{EV service and BESS state}
+The main text retains the equations that couple user service and storage state
+to the market problem. For availability $b_{t,i}\in\{0,1\}$, charger rating
+$\bar P_i$, charging efficiency $\eta_i$, requested session energy
+$E_i^{\req}$, and connection set $\calT_i=[a_i,d_i)$,
+\begin{align}
+0&\le p_{t,i}^{\EV}\le \bar P_i b_{t,i},
+&\sum_{t\in\calT_i}\eta_i p_{t,i}^{\EV}\dt&=E_i^{\req},
+&p_t^{\EV}&=\sum_i p_{t,i}^{\EV}. \label{eq:ev_core}
+\end{align}
+The first relation limits each connected session, the second guarantees its
+requested energy by departure, and the third aggregates the campus fleet. Thus
+EV ``discharge'' in the accounting layer is only a reduction from the
+nonnegative baseline $B_t^{\EV}$; no vehicle exports power. For BESS energy
+rating $C^{\BESS}$ and round-trip efficiency $\gamma$, the SOC evolves as
+\begin{align}
+s_{t+1}=s_t+\frac{\dt}{C^{\BESS}}
+\left(\sqrt{\gamma}\,p_t^{\ch,\BESS}
+-\frac{p_t^{\dch,\BESS}}{\sqrt{\gamma}}\right), \label{eq:soc}
+\end{align}
+where $p_t^{\ch,\BESS}$ and $p_t^{\dch,\BESS}$ are nonnegative charge and
+discharge powers. SOC bounds, direction exclusivity, power limits,
+daily-throughput, and terminal conditions are given in
+Appendix~\ref{app:complete_model}. The complete EV
+WM/NWM deviation decomposition is also placed there so the research argument
+is not obscured by implementation linearizations.
+
+\subsection{Meter balance and passive DER extension}
+\label{sec:passive_der}
+The general signed meter balance is
+\begin{align}
+p_t^{\GI}
+=p_t^{\EV}+p_t^{\ch,\BESS}-p_t^{\dch,\BESS}
++p_t^{\load}-p_t^{\PV}. \label{eq:meter}
+\end{align}
+The validated base case sets $p_t^{\load}=p_t^{\PV}=0$. In the sensitivity,
+the two terms are measured exogenous parameters and are not control variables.
+They affect TOU cost and the PD/NCD threshold trajectory only through
+$p_t^{\GI}$. They are excluded from DA and RT energy positions, all AS bids,
+the shared capability envelope, and all wholesale revenue. Consequently no
+building/PV wholesale baseline or baseline-relative response is required.
+No import/export split is added: retail settlement continues to use the signed
+meter in \eqref{eq:meter}, including the adopted retail-price credit when
+$p_t^{\GI}<0$.
+
+\subsection{DA/RT energy and AS settlement}
+Let $\bar p_t^{\DA}$ and $\bar c_t^{x,\DA}$ be cleared DA energy and AS awards
+already mapped to the 15-min model clock; their stored values are zero whenever
+no award is active. The RT formulation fixes these arrays rather than
+re-optimizing them:
+\begin{align}
+p_t^{\DA}&=\bar p_t^{\DA},&
+p_t^{\actual}&=p_t^{\DA}+p_t^{\RT}, \label{eq:actual_energy}\\
+c_t^{x,\DA}&=\bar c_t^{x,\DA},&
+c_t^{x,\actual}&=c_t^{x,\DA}+c_t^{x,\RT}\ge0. \label{eq:actual_as}
+\end{align}
+Here $p_t^{\RT}$ and $c_t^{x,\RT}$ are signed settlement adjustments. A
+negative AS adjustment records a reduction or repurchase of part of the DA
+position, but the physically offered quantity $c_t^{x,\actual}$ cannot be
+negative. This algebraic recourse is consistent with CAISO's separation of DA
+and RT awards and its requirement that awarded AS remain deliverable; it does
+not assert that CAISO publishes a negative physical capacity award
+\cite{caisoMarketOperations2026} \cite{caisoNGRCommitment2020}. An explicit binary
+award mask is unnecessary in the mathematics because it can be absorbed into
+the cleared arrays $\bar p_t^{\DA}$ and $\bar c_t^{x,\DA}$.
+
+\subsection{DA/RT award resolution and price normalization}
+\label{sec:price_resolution}
+The implementation keeps one 15-min computational clock while preserving the
+different native market resolutions. CAISO DA energy and AS awards are hourly,
+whereas the modeled RT binding awards are interval-specific
+\cite{caisoMarketInstruments2026}. For the four intervals
+$\calT_h$ belonging to hour $h$, the submitted DA variables therefore satisfy
+\begin{align}
+p_t^{\DA}&=p_h^{\DA},&
+c_t^{x,\DA}&=c_h^{x,\DA},
+\qquad t\in\calT_h,\quad |\calT_h|=4. \label{eq:da_hour_blocks}
+\end{align}
+They are represented four times only to align with the physical model; they
+remain one hourly award. The signed $p_t^{\RT}$ and $c_t^{x,\RT}$ decisions
+may change every 15 min. Once the DA award has cleared, the repeated values in
+\eqref{eq:da_hour_blocks} enter every RT optimization call as constants rather than being
+re-optimized.
+
+Let $\widetilde\lambda_t^s$ denote a native energy LMP in US\$/MWh and
+$\widetilde\rho_t^{x,s}$ a native ASMP in US\$/MW per applicable award
+interval. All objective, table, and price-panel coefficients are normalized to
+a common US\$/kWh-equivalent basis:
+\begin{align}
+\lambda_t^{\DA}&=\frac{\widetilde\lambda_h^{\DA}}{1000},
+&&t\in\calT_h,\\
+\lambda_t^{\RT}&=\frac{\widetilde\lambda_t^{\RT}}{1000},
+&& \label{eq:lmp_normalization}\\
+\rho_t^{x,\DA}&=\frac{\widetilde\rho_h^{x,\DA}}{1000},
+&&t\in\calT_h, \label{eq:da_asmp_normalization}\\
+\rho_t^{x,\RT}&=\frac{\widetilde\rho_t^{x,\RT}}{1000\dt}.
+&& \label{eq:rt_asmp_normalization}
+\end{align}
+The apparent asymmetry in \eqref{eq:da_asmp_normalization}--
+\eqref{eq:rt_asmp_normalization} prevents double counting. With $\dt=0.25$ h,
+one hourly DA capacity award receives
+\begin{align}
+\sum_{t\in\calT_h}\dt\rho_t^{x,\DA}c_h^{x,\DA}
+=4\dt\frac{\widetilde\rho_h^{x,\DA}}{1000}c_h^{x,\DA}
+=\frac{\widetilde\rho_h^{x,\DA}c_h^{x,\DA}}{1000},
+\label{eq:da_capacity_payment_check}
+\end{align}
+whereas a single RT binding award receives
+\begin{align}
+\dt\rho_t^{x,\RT}c_t^{x,\RT}
+=\dt\frac{\widetilde\rho_t^{x,\RT}}{1000\dt}c_t^{x,\RT}
+=\frac{\widetilde\rho_t^{x,\RT}c_t^{x,\RT}}{1000}.
+\label{eq:rt_capacity_payment_check}
+\end{align}
+Thus the DA ASMP is \emph{not} divided by four; the hourly award is instead
+held constant over its four physical intervals. The RT ASMP is divided by the
+15-min duration because each native value settles one binding interval. Energy
+LMPs require only the MW-to-kW conversion because their settlement already
+contains $\dt$. The same indexing rule applies to energy: an hourly DA LMP and
+its hourly $p_h^{\DA}$ award are repeated on the 15-min model clock, whereas
+both the RT LMP and signed $p_t^{\RT}$ adjustment remain interval-specific.
+Consequently the four stored DA rows are an accounting representation of one
+hourly award, not four independently optimized DA awards.
+
+With $P_{t,\max}^{\EV}=\sum_i\bar P_i b_{t,i}$, the common capability bounds are
+\begin{align}
+\bar P_t^{\mathrm{up}}&=P^{\BESS}+B_t^{\EV}, \label{eq:upbound}\\
+\bar P_t^{\mathrm{down}}
+&=\max\{P^{\BESS}-B_t^{\EV}+P_{t,\max}^{\EV},0\}. \label{eq:downbound}
+\end{align}
+The nonnegative clipping in \eqref{eq:downbound} is necessary when baseline EV
+power exceeds the instantaneous BESS-plus-connected-EV absorption capability.
+The EV--BESS energy position and actual AS share these bounds:
+\begin{align}
+\pos{p_t^{\actual}}+
+c_t^{\RU,\actual}+c_t^{\SP,\actual}+c_t^{\NSP,\actual}
+&\le\bar P_t^{\mathrm{up}}, \label{eq:up_envelope}\\
+\pos{-p_t^{\actual}}+c_t^{\RD,\actual}
+&\le\bar P_t^{\mathrm{down}}. \label{eq:down_envelope}
+\end{align}
+The DA position and signed RT adjustment are likewise bounded by the
+corresponding interval capability limits. These limits are identical with and
+without passive PV/building because those profiles are not dispatchable.
+
+Expected AS deployment gives the EV--BESS market-facing obligation
+\begin{align}
+q_t^{\WM}={}&p_t^{\actual}
++\alpha_t^{\RU}c_t^{\RU,\actual}
+-\alpha_t^{\RD}c_t^{\RD,\actual}\nonumber\\
+&+\alpha_t^{\SP}c_t^{\SP,\actual}
++\alpha_t^{\NSP}c_t^{\NSP,\actual}. \label{eq:qwm}
+\end{align}
+The remaining binary inequalities, resource-channel identities, and conservative AS-duration
+guards are reported in \ref{app:complete_model}.
+
+In \eqref{eq:qwm}, $q_t^{\WM}$ is the actual EV--BESS energy obligation,
+$\alpha_t^x$ is the expected activated fraction of AS product $x$, and the
+minus sign on RD represents additional absorption. This same obligation is
+linked to the EV and BESS wholesale channels in Appendix~\ref{app:complete_model}.
+
+The reference case uses $T^{\mathrm{DU}}=0.5$ h for all products as a modeling
+assumption, not as a claim that every CAISO product has identical deployment
+and certification rules. The activation sensitivity uses CAISO's hourly
+regulation-up and regulation-down attenuation factors
+\cite{caisoAttenuation2025}; spinning and non-spinning reserve retain explicit
+assumptions unless a separate event-level activation data set is supplied.
+
+\subsection{Retail costs}
+The TOU term intentionally retains the signed meter:
+\begin{align}
+C_k^{\TOU}
+=\sum_{t\in\calH_k}C_t^{\TOU}p_t^{\GI}\dt. \label{eq:tou}
+\end{align}
+Thus $p_t^{\GI}<0$ receives a retail-price export credit under the adopted
+tariff convention.
+
+For demand category $q\in\{\PD,\NCD\}$, let $\calT_q$ be its tariff-eligible
+intervals and let $M_k^{q,\hist}$ be the largest eligible import executed
+before call $k$. The avoidable increase in the monthly peak is represented by
+the epigraph variable $z_k^q$:
+\begin{align}
+z_k^q&\ge0, \qquad
+z_k^q\ge p_t^{\GI}-M_k^{q,\hist},
+\quad t\in\calH_k\cap\calT_q, \label{eq:demand_epi}\\
+C_k^{q,\mathrm{inc}}&=C^q z_k^q. \label{eq:demand_inc}
+\end{align}
+After executing interval $k$, the exogenous indicator $m_q(k)$ equals one when
+the interval belongs to category $q$ and zero otherwise, so the carried peak
+updates as
+\begin{align}
+M_{k+1}^{q,\hist}
+=\max\{M_k^{q,\hist},\,m_q(k)p_k^{\GI,\mathrm{executed}}\}. \label{eq:threshold_update}
+\end{align}
+Thus the objective charges only a newly established billing peak; previously
+incurred demand cost is a constant and cannot influence the current decision.
+The equivalent absolute and incremental forms are derived in
+Appendix~\ref{app:closed_loop}.
+
+\subsection{Wholesale revenue and objective}
+Wholesale energy revenue, AS capacity revenue, and EV charging-service revenue
+are, respectively,
+\begin{align}
+R_k^{\WM,\mathrm{energy}}
+={}&\sum_{t\in\calH_k}\dt
+\left(\lambda_t^{\DA}p_t^{\DA}
++\lambda_t^{\RT}p_t^{\RT}\right)+R_k^{\mathrm{deploy}}, \label{eq:wm_energy}\\
+R_k^{\WM,\mathrm{capacity}}
+={}&\sum_{t\in\calH_k}\dt\sum_{x\in\calK}
+\left(\rho_t^{x,\DA}c_t^{x,\DA}
++\rho_t^{x,\RT}c_t^{x,\RT}\right), \label{eq:wm_capacity}\\
+R_k^{\EV}
+={}&\sum_{t\in\calH_k}C^{\EV}p_t^{\EV}\dt. \label{eq:ev_revenue}
+\end{align}
+$R_k^{\EV}$ is the payment from EV drivers for delivered charging energy at
+rate $C^{\EV}$; it is not wholesale-market revenue. In
+\eqref{eq:wm_energy}, $\lambda_t^{\DA}$ and $\lambda_t^{\RT}$ settle the fixed
+DA energy position and signed RT adjustment. In \eqref{eq:wm_capacity},
+$\rho_t^{x,\DA}$ and $\rho_t^{x,\RT}$ settle the corresponding AS capacities.
+$R_k^{\mathrm{deploy}}$ prices the expected AS deployment energy in
+\eqref{eq:qwm} at the RT LMP:
+\begin{align}
+R_k^{\mathrm{deploy}}
+={}&\sum_{t\in\calH_k}\dt\lambda_t^{\RT}
+\bigg[\alpha_t^{\RU}c_t^{\RU,\actual}
+-\alpha_t^{\RD}c_t^{\RD,\actual}\nonumber\\
+&+\alpha_t^{\SP}c_t^{\SP,\actual}
++\alpha_t^{\NSP}c_t^{\NSP,\actual}\bigg].
+\label{eq:wm_deployment_revenue}
+\end{align}
+The sign difference is essential: RD activation absorbs energy and therefore
+subtracts RT energy value under the adopted positive-delivery convention,
+whereas RU, SP, and NSP add upward delivery.
+
+At MPC call $k$, the complete active-horizon problem is
+\begin{align}
+\min_{\boldsymbol{x}_k\in\mathcal{X}(\mathcal{I}_k)}
+J_k={}&
+\sum_{t\in\calH_k}C_t^{\TOU}p_t^{\GI}\dt
++\sum_{q\in\{\PD,\NCD\}}C^qz_k^q \nonumber\\
+&-R_k^{\EV}
+-R_k^{\WM,\mathrm{energy}}
+-R_k^{\WM,\mathrm{capacity}}, \label{eq:objective}
+\end{align}
+subject to the key coupling constraints above and the complete feasible set in
+Appendix~\ref{app:complete_model}. The first line is retail energy plus the
+incremental monthly demand charges; the second line subtracts EV
+charging-service revenue and the two wholesale revenue accounts. There is no
+DA-tracking penalty. The economic
+consequence of deviating from DA is already represented by the DA/RT
+two-settlement terms.
+
+\section{Forecast updaters, horizon, and oracle logic}
+\label{sec:oracle_logic}
+
+\subsection{Perfect-information and Persistence updaters}
+Once a vehicle arrives, its realized session information is used. For sessions
+that have not arrived, Perfect information supplies the realized future session set within
+the active horizon, while Persistence constructs the future set from recent
+charging behavior. Electricity prices are exogenous processed inputs in both
+cases; ``Perfect'' refers only to EV information within the rolling 24-h
+window, not to price forecasting or full-period knowledge.
+
+\subsection{Why 24-h Perfect information need not maximize billing-period value}
+Let $\omega$ denote the complete realized billing-period data and
+$\mathcal{X}(\omega)$ the common full-period feasible set. A true oracle computes
+\begin{align}
+J_{\mathrm{oracle}}^\star(\omega)
+=\min_{\boldsymbol{x}\in\mathcal{X}(\omega)}
+J_{\calT}(\boldsymbol{x};\omega). \label{eq:oracle}
+\end{align}
+For every feasible policy $\pi$,
+\begin{align}
+J_{\mathrm{oracle}}^\star\le J^\pi
+\quad\Longleftrightarrow\quad
+V_{\mathrm{oracle}}^\star\ge V^\pi,\qquad V=-J. \label{eq:oracle_dominance}
+\end{align}
+The inequality direction differs for cost and revenue.
+
+A 24-h controller using updater $\pi$ instead selects the decision trajectory
+$\boldsymbol{x}_{k,H}^{\pi}$ over intervals $k,\ldots,k+H-1$ by minimizing the
+explicit truncated economic objective
+\begin{align}
+\boldsymbol{x}_{k,H}^{\pi}
+&\in\arg\min_{\boldsymbol{x}\in\mathcal X_k^\pi}
+\Bigg\{\sum_{\tau=k}^{k+H-1}C_\tau^{\TOU}p_\tau^{\GI}\dt
++\sum_{q\in\{\PD,\NCD\}}C^qz_k^q\nonumber\\
+&-R_{k,H}^{\EV}-R_{k,H}^{\WM,\mathrm{energy}}
+-R_{k,H}^{\WM,\mathrm{capacity}}\Bigg\}, \label{eq:mpc}
+\end{align}
+where $H=96$ intervals and the three revenue terms are the restrictions of
+\eqref{eq:wm_energy}--\eqref{eq:ev_revenue} to that horizon. It executes only
+$\boldsymbol{x}_k^\pi$ and repeats. No exact cost-to-go from $k+H$ to the end
+of the billing period appears in \eqref{eq:mpc}. Consequently, more
+accurate information inside the truncated horizon does not imply globally
+better closed-loop value \cite{rawlings2017mpc}.
+
+The mechanism resembles a greedy algorithm. Each optimization call selects a locally
+attractive first action from incomplete future information. That action changes
+the next state and therefore the feasible set of every later call. Four state
+channels matter here:
+\begin{enumerate}
+  \item BESS SOC and daily throughput usage;
+  \item monthly PD and NCD thresholds;
+  \item EV energy remaining before departure; and
+  \item submitted DA energy and AS commitments that cannot be undone.
+\end{enumerate}
+A Persistence forecast can accidentally preserve a more valuable out-of-horizon
+state than a 24-h Perfect-information optimization. A 1\% MILP gap can also
+select different near-optimal first actions and amplify their differences
+through the cascade, but this is a secondary numerical mechanism. The valid
+requirement is that the full-period oracle dominate every feasible executed
+trajectory; 24-h Perfect information versus Persistence remains an empirical
+controller comparison.
+
+\section{Case study and implementation}
+\label{sec:case}
+\label{sec:case_study}
+
+\subsection{Modeling assumptions}
+The study adopts the following assumptions so that the reported economic
+comparison is not mistaken for a complete CAISO participation study.
+\begin{enumerate}
+  \item DA/RT energy prices, AS prices, and retail prices are known exogenous
+  inputs over each active optimization horizon; price-forecast error is outside
+  the present forecast comparison.
+  \item When an EV arrives, its departure, requested energy, and charger limit
+  become known to the controller. The Perfect-information updater also
+  knows realized but not-yet-arrived sessions within the 24-h horizon, whereas
+  Persistence does not.
+  \item Submitted energy and AS quantities are assumed to clear. DA awards are
+  fixed in RT, and signed RT recourse represents an incremental purchase or
+  sale around the DA position. Qualification, minimum-bid, telemetry, and
+  performance-score requirements are not modeled \cite{caisoAncillary2026} \cite{caisoDER2026}.
+  \item No AGC signal is simulated. Expected activation uses fixed base factors
+  ($0.7$ for RU/RD and $0.2$ for SP/NSP) or the stated CAISO attenuation
+  sensitivity; all products use a conservative 0.5-h energy guard.
+  \item PV generation and building demand are measured passive PCC quantities.
+  They affect retail cost but provide neither wholesale energy nor AS capacity.
+  \item Retail export is credited at the same modeled TOU coefficient as import.
+  This symmetric convention is an analytical assumption, not an SDG\&E export
+  tariff \cite{sdgeLargeCommercial2025}.
+  \item Each reported site is represented by one aggregate PCC. Feeder congestion,
+  individual branch-circuit limits, V2G export, and detailed BESS degradation are
+  outside the present scope.
+\end{enumerate}
+
+\subsection{Site-specific UCSD workplace-charging portfolios}
+The reported case study selects two mapped configurations from the broader processed UCSD archive. NTPLL combines seven building-meter channels across six mapped structures, three PV meters, and 34 EVSEs at Scholars Parking. Center Hall combines one building meter, the nearby Osler/South Parking PV meter, and 38 EVSEs at South Parking. Both cases use the same BESS rating and optimization equations, so differences arise from measured site demand, PV, and EV sessions rather than a retuned storage asset. The dominant charging pattern is daytime workplace charging: many users arrive in the morning, remain connected for several hours, and depart during the afternoon or evening. The controller does not assume that an EV battery can discharge to the site or grid.
+
+The validated experiment uses a complete billing month at 15-min resolution. At each site, the Persistence and Perfect-information updaters use the same realized evaluation data, prices, physical parameters, tariff, terminal SOC target, and delivered EV service. Two passive counterfactuals---building only and building plus PV---isolate the retail effect of adding mapped PV before coordinated EV--BESS operation is introduced.
+
+\subsection{Physical and economic parameters}
+Table~\ref{tab:case_parameters} summarizes the principal implemented settings. The BESS uses the geometric efficiency split in \eqref{eq:soc}; hence $\sqrt{\gamma}$ applies to charging and $1/\sqrt{\gamma}$ to discharging. The 0.5-h AS-duration guard is conservative and common to the upward and downward reserve equations. The final billing-period SOC is fixed at 50\% so no policy can increase reported value by borrowing energy from beyond the study boundary.
+
+\begin{table*}[!t]
+\centering
+\caption{Principal case-study parameters used by the validated implementation.}
+\label{tab:case_parameters}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.29\textwidth}p{0.22\textwidth}X@{}}
+\toprule
+Parameter & Value & Interpretation \\
+\midrule
+Time step and controller horizon & 0.25 h; 24 h & One decision is executed before the horizon advances. \\
+BESS power and energy & 250 kW; 332 kWh & Common stationary-storage limits. \\
+BESS SOC and efficiency & 0.05--0.95; $\gamma=0.90$ & Energy state and round-trip factor. \\
+Terminal billing-period SOC & 0.50 & Common boundary condition for financial comparison. \\
+Nominal EV charger power & 6.656 kW/session & Further limited by the measured interval envelope. \\
+EV user payment & \$0.40/kWh & Identical aggregate service gives identical monthly EV revenue. \\
+Summer PD and NCD rates & \$3.05/kW; \$15.38/kW & Applied to new billing-period maxima. \\
+Base activation factors & RU/RD 0.7; SP/NSP 0.2 & Expected deployed-energy fractions, not performance scores. \\
+AS duration requirement & 0.5 h & SOC guard for reserved response. \\
+MILP tolerance & 1\% relative gap & Accepted for every detailed 24-h optimization. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+Retail TOU prices are represented by the composite coefficients used in the
+case study. The modeled large-commercial schedule distinguishes summer
+(June--October) and winter (November--May) energy periods; PD is restricted to
+the tariff-defined on-peak window, whereas NCD uses the maximum eligible
+billing-cycle demand \cite{sdgeLargeCommercial2025} \cite{sdgeDemandGuide2026}. The
+study treats export symmetrically in the signed TOU expression. An actual
+project tariff or export agreement may apply a different credit.
+
+\subsection{Scenario design}
+The site comparison contains four resource/information stages:
+\begin{description}
+  \item[Building only:] reconstructed gross building demand is billed without PV, EV charging, BESS operation, or wholesale participation;
+  \item[Building + PV:] measured PV is subtracted once, recovering the native net-meter trajectory; this is a passive retail calculation rather than an optimization;
+  \item[24-h Persistence:] historical session information forms the unarrived-EV forecast, and the RT problem replaces it with realized arrivals as they become observable;
+  \item[24-h Perfect information:] realized EV sessions inside the 24-h window are supplied in advance, while the control horizon and all other assumptions remain unchanged.
+\end{description}
+The last two stages both include building, PV, EV, and BESS. They are the like-for-like controller comparison and differ only in EV information. The first two stages contain no controllable resource and are evaluated directly from the measured meter data and tariff; their differences must not be interpreted as controller revenue.
+
+\section{Financial accounting and validation}
+\label{sec:accounting}
+
+\subsection{Executed financial statement}
+Every MPC optimization call produces a plan, but financial evaluation uses only the implemented first interval. For an evaluation set $\mathcal T_E$, the reconciled net value is
+\begin{align}
+V(\mathcal T_E)={}&R^{\EV}+R^{\WM,\mathrm{energy}}
++R^{\WM,\mathrm{capacity}}\nonumber\\
+&+C^{\TOU}+C^{\PD}+C^{\NCD},
+\label{eq:financial_identity}
+\end{align}
+where costs are stored as negative values. EV revenue is a service-payment account and is identical when the total delivered energy is identical. WM revenue is reconstructed from the executed DA position, signed RT adjustment, AS capacity, and expected deployment. TOU cost is accumulated interval by interval from the signed meter. PD and NCD are charged only when the executed meter establishes a new billing-period maximum.
+
+Daily demand-charge attribution is an accounting decomposition of a monthly charge. A large negative value on one day indicates that the day established a new threshold; it is not a separate daily tariff. Monthly and cumulative figures therefore carry the economic conclusion, while daily figures explain the mechanism. The implementation accepts a maximum \$0.03 discrepancy between the daily rounded components and their independently computed total.
+
+\subsection{Validation protocol}
+The validation first confirms complete, unique time axes and matched scenario
+inputs. It then tests optimizer completion, physical equations, financial
+identities, EV service, and boundary states. Finally, a daily trajectory is
+rendered for every operating day so numerical feasibility can be compared with
+the prices and bids that produced it.
+
+\begin{table*}[!t]
+\centering
+\caption{Formal validation hierarchy and acceptance criteria.}
+\label{tab:validation_protocol}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.27\textwidth}p{0.30\textwidth}X@{}}
+\toprule
+Layer & Criterion & Purpose \\
+\midrule
+Solver completeness & one DA and 96 RT records per operating day and forecast; accepted status; gap $\le1\%$; no TimeLimit & Excludes silent truncation and missing intervals.\\
+Physical identities & Meter, settlement, and actual up/down residuals $\le10^{-6}$ kW; actual AS $\ge-10^{-6}$ kW & Confirms the implemented dispatch matches the model.\\
+EV service & Billing-period EV-energy spread across matched forecasts $\le10^{-4}$ kWh & Prevents financial gains from unequal charging service.\\
+Financial accounting & Daily component sum agrees with total within \$0.03 & Allows independent cent rounding but no missing account.\\
+Terminal state & Final billing-period SOC equals 0.5 within $10^{-6}$ & Prevents end-of-study energy borrowing.\\
+Scenario comparability & common site data, prices, BESS, tariff, and terminal conditions & Isolates the EV-information update within each site.\\
+Graphical audit & Saved interval trajectories and representative daily figures & Links numerical checks to physical trajectories.\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Computational acceptance}
+The validated site-level monthly set contains 11,520 recorded RT steps: two sites, two forecast updaters, and 2,880 intervals per case. Every recorded RT step has accepted optimal status within the requested 1\% relative-gap setting, and no time-limit event occurs. Meter and passive-resource wholesale residuals are zero at the saved precision, actual AS capacities remain nonnegative within numerical tolerance, SOC stays in $[0.05,0.95]$, and every site/forecast financial audit passes. The two forecasts deliver 4,765.767 kWh at NTPLL and 6,611.856 kWh at Center Hall, with within-site differences below $10^{-4}$ kWh.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Site power scale and measurement boundary}
+\label{sec:site_scale_results}
+
+Figure~\ref{fig:site_maps} identifies the two UCSD configurations used in the
+formal experiment. NTPLL represents a mixed-use neighborhood with six mapped
+structures, seven building-meter channels, three distributed PV meters, and 34
+EVSEs at Scholars Parking. Center Hall represents a smaller academic building
+paired with the nearby Osler/South Parking PV and 38 EVSEs. Feature coordinates
+were obtained from OpenStreetMap and cross-checked against the official UCSD
+NTPLLN neighborhood and main-campus maps \cite{openstreetmap2026}
+\cite{ucsdNTPLLNMap2021} \cite{ucsdCampusMap2025}.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.94\textwidth]{fig_20_ucsd_site_location_maps.png}
+  \caption{Mapped NTPLL and Center Hall configurations. Symbols identify the
+  building-meter, PV, and EVSE groups used by the site preprocessing. The map
+  establishes data membership; it does not imply a feeder power-flow model.}
+  \label{fig:site_maps}
+\end{figure*}
+
+Table~\ref{tab:site_power_specs} reports the corresponding power scales. The PV
+capacity proxy is a data-derived observed-capacity field rather than a certified
+nameplate rating. The aggregate charger limit is the sum of modeled per-port
+limits, whereas the June EV peak is the maximum coincident measured charging
+power. These distinctions prevent installed capability from being confused with
+realized demand.
+
+\begin{table*}[!t]
+\centering
+\caption{Measured and modeled site power specifications. Peaks are calculated
+from the June 2025 15-min data. PV proxy values are not certified nameplate
+ratings.}
+\label{tab:site_power_specs}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+Site & \shortstack{Building\\channels} & \shortstack{PV\\meters} & EVSE &
+\shortstack{Charger\\limit (kW)} & \shortstack{EV peak\\(kW)} &
+\shortstack{PV proxy / peak\\(kW)} & \shortstack{Gross building /\\native net peak (kW)} &
+\shortstack{BESS\\(kW/kWh)}\\
+\midrule
+NTPLL & 7 & 3 & 34 & 226.304 & 92.993 & 166.930 / 163.208 & 1,398.239 / 1,263.811 & 250 / 332\\
+Center Hall & 1 & 1 & 38 & 252.928 & 101.107 & 206.150 / 207.714 & 295.531 / 102.994 & 250 / 332\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The sites are intentionally not normalized to the same passive-load scale.
+NTPLL's gross building peak is approximately 4.7 times that of Center Hall,
+whereas the same 250-kW/332-kWh BESS is used in both cases. Center Hall also has
+a much larger PV-to-building ratio. Figure~\ref{fig:site_power_specs} makes
+these relative scales visible and explains why equal absolute storage and
+charger ratings need not produce equal tariff or forecast effects.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig_16_site_system_power_specifications.png}
+  \caption{Site power specifications. Installed/model limits and observed
+  coincident peaks are shown separately; the common BESS therefore occupies a
+  much larger fraction of the Center Hall site envelope than of NTPLL's.}
+  \label{fig:site_power_specs}
+\end{figure*}
+
+The native building channels are net meters that already contain embedded PV.
+The preprocessing identity is
+\begin{equation}
+\begin{aligned}
+p_t^{\load,\mathrm{gross}}
+&=p_t^{\mathrm{meter,native}}+p_t^{\PV},\\
+p_t^{\load,\mathrm{gross}}-p_t^{\PV}
+&=p_t^{\mathrm{meter,native}}.
+\end{aligned}
+\label{eq:site_net_meter_identity}
+\end{equation}
+Thus the building-only counterfactual removes PV by reconstructing gross load,
+whereas the building-plus-PV case returns the original net-meter trajectory.
+PV is subtracted exactly once in the optimized cases.
+
+\subsection{Monthly value across resource stages}
+\label{sec:site_monthly_value}
+
+Table~\ref{tab:site_monthly_results} and
+Fig.~\ref{fig:site_resource_financial} compare three resource stages. Building
+only and building plus PV are deterministic retail-billing counterfactuals; no
+optimizer or wholesale account is used. The full stage adds EV charging, the
+BESS, and the wholesale model and is solved separately with the Persistence and
+Perfect EV forecast updaters. Costs are shown as negative values, so a less
+negative net value is economically better.
+
+\begin{table*}[!t]
+\centering
+\caption{June 2025 site-level financial decomposition (US\$). The first two
+stages are passive tariff calculations. The full portfolio is optimized by the
+24-h MPC. Component totals can differ from the independently accumulated total
+by at most \$0.05 because saved daily accounts are rounded to cents.}
+\label{tab:site_monthly_results}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lllrrrrrr@{}}
+\toprule
+Site & Resource stage & EV forecast & Net value & WM revenue & TOU & PD & NCD & EV revenue\\
+\midrule
+NTPLL & Building only & -- & -224,173.88 & 0.00 & -198,917.60 & -3,751.36 & -21,504.92 & 0.00\\
+NTPLL & Building + PV & -- & -215,474.15 & 0.00 & -192,285.38 & -3,751.36 & -19,437.42 & 0.00\\
+NTPLL & Full portfolio & Persistence & -204,916.46 & 4,245.34 & -188,778.09 & -3,625.56 & -18,664.49 & 1,906.31\\
+NTPLL & Full portfolio & Perfect & -204,567.03 & 4,295.44 & -188,749.37 & -3,617.70 & -18,401.73 & 1,906.31\\
+\midrule
+Center Hall & Building only & -- & -27,603.53 & 0.00 & -22,379.67 & -678.59 & -4,545.27 & 0.00\\
+Center Hall & Building + PV & -- & -15,752.16 & 0.00 & -13,870.74 & -297.37 & -1,584.05 & 0.00\\
+Center Hall & Full portfolio & Persistence & -5,418.79 & 4,713.81 & -10,145.05 & -344.46 & -2,287.79 & 2,644.75\\
+Center Hall & Full portfolio & Perfect & -5,927.70 & 4,489.12 & -11,075.00 & -304.80 & -1,681.77 & 2,644.75\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.95\textwidth]{fig_17_site_resource_addition_financial_comparison.png}
+  \caption{June net-value and component changes as PV and then coordinated
+  EV--BESS operation are added. Building-only and building-plus-PV bars are
+  direct tariff reconstructions; only the full-portfolio bars are optimized.}
+  \label{fig:site_resource_financial}
+\end{figure*}
+
+At NTPLL, adding PV improves net value by \$8,699.73 relative to building only.
+The full managed portfolio adds a further \$10,557.69 under Persistence and
+\$10,907.12 under Perfect information. At Center Hall, PV improves net value by
+\$11,851.37, and coordinated operation adds \$10,333.37 under Persistence and
+\$9,824.46 under Perfect information. The negative absolute NTPLL values are
+primarily the retail bill of a large passive building portfolio; they are not a
+negative incremental value of the controller. In both sites, each successive
+resource stage improves on the preceding passive stage for at least one
+implementable forecast case.
+
+\subsection{Forecast-updater comparison}
+\label{sec:site_forecast_results}
+
+The forecast effect is site dependent. Perfect information improves NTPLL net
+value by \$349.43 relative to Persistence. Its component changes are \$50.10
+more WM revenue, \$28.72 lower TOU cost, \$7.86 lower PD cost, and \$262.76
+lower NCD cost. At Center Hall, however, Perfect information is \$508.91 worse:
+WM revenue decreases by \$224.69 and TOU cost increases by \$929.95, only partly
+offset by \$39.66 and \$606.02 reductions in PD and NCD cost. EV revenue is
+identical within each site because both updaters deliver the same charging
+energy: 4,765.767 kWh at NTPLL and 6,611.856 kWh at Center Hall.
+
+This result is consistent with the rolling formulation in
+Section~\ref{sec:oracle_logic}. Perfect information is exact only inside each
+24-h window; it is not a billing-period oracle. Executed actions carry SOC,
+remaining EV energy, demand thresholds, and irreversible DA commitments into
+future optimizations. A locally superior trajectory can therefore create a
+less valuable state beyond the current horizon. The site comparison should be
+read as the value of the forecast updater inside the implemented controller,
+not as a theorem that Perfect information must dominate Persistence.
+
+\subsection{Daily signed-meter trajectories}
+\label{sec:site_daily_meter}
+
+Figures~\ref{fig:ntpll_pgi} and \ref{fig:center_pgi} connect the monthly
+accounts to the signed PCC trajectory. Positive $p_t^{\GI}$ denotes retail
+import and negative $p_t^{\GI}$ denotes export. June 1 is shown as the first
+evaluation day. June 6 is a preselected high-separation day: among the remaining
+June dates, it maximizes the two-site sum of absolute 15-min differences between
+the executed Persistence and Perfect meter trajectories. The selection is based
+on trajectory separation, not on financial ranking.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.96\textwidth]{fig_18_ntpll_staged_pgi_daily_timeseries.png}
+  \caption{NTPLL signed PCC power on the first evaluation day and a later
+  high-separation day. The passive stages show the effect of PV; the full-stage
+  lines show the executed Persistence and Perfect trajectories.}
+  \label{fig:ntpll_pgi}
+\end{figure*}
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.96\textwidth]{fig_19_center_hall_staged_pgi_daily_timeseries.png}
+  \caption{Center Hall signed PCC power under the same staged comparison and
+  date-selection rule as Fig.~\ref{fig:ntpll_pgi}. The common BESS is large
+  relative to the site's passive load, so optimized trajectories can differ
+  substantially even when monthly net values remain close.}
+  \label{fig:center_pgi}
+\end{figure*}
+
+\subsection{Daily market-settlement audit}
+\label{sec:site_daily_audit}
+
+Figures~\ref{fig:ntpll_daily_audit} and \ref{fig:center_daily_audit} show the
+Perfect-information result on the same representative date for both sites.
+Panels (a) and (b) separate normalized wholesale and retail price scales.
+Panel (c) displays DA commitments and signed RT adjustments separately rather
+than plotting only their sum. Panel (d) reconstructs the black obligation line
+from $q_t^{\WM}$ in Eq.~\eqref{eq:qwm}, i.e., DA plus RT energy and the
+activation-weighted DA-plus-RT AS quantities. Panels (e) and (f) then reconcile
+that obligation with BESS action, EV charging, SOC, signed meter power, and the
+carried demand thresholds.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.97\textwidth]{fig_14_ntpll_perfect_daily_6panel_2025-06-03.png}
+  \caption{NTPLL Perfect-information daily audit. The six panels trace price
+  signals, separate DA/RT bids, the reconstructed wholesale obligation, device
+  actions, and the retail-meter consequence.}
+  \label{fig:ntpll_daily_audit}
+\end{figure*}
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=0.97\textwidth]{fig_15_center_hall_perfect_daily_6panel_2025-06-03.png}
+  \caption{Center Hall Perfect-information daily audit using the same equations,
+  date, units, and panel definitions as Fig.~\ref{fig:ntpll_daily_audit}.}
+  \label{fig:center_daily_audit}
+\end{figure*}
+
+\subsection{Numerical acceptance}
+\label{sec:site_validation_results}
+
+All four site/forecast trajectories contain the expected 2,880 RT intervals,
+for 11,520 recorded RT steps in total. Every step has accepted optimal status
+and no time-limit event. Meter and passive-resource wholesale residuals are
+zero at saved precision, actual AS is nonnegative within tolerance, SOC remains
+between 0.05 and 0.95, and no numerical missing value is present. The maximum
+daily financial-identity residual is \$0.01. These checks establish numerical
+and accounting consistency of the reported trajectories; they do not convert
+the study assumptions into CAISO qualification or tariff rules.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Site scale changes the value stack}
+
+The two sites demonstrate why a campus-wide total is not an adequate unit of
+inference. NTPLL's passive building bill dominates its absolute net value, and
+the common BESS is modest relative to the building peak. Center Hall has a much
+smaller native net-load peak and a larger PV-to-load ratio, so the same BESS and
+a similarly sized charger population have greater leverage over the PCC. The
+appropriate comparison is therefore incremental value within each site, not
+the absolute dollar level across sites.
+
+The staged calculation also separates physical additions from optimization.
+PV changes retail energy and demand charges without receiving a wholesale bid.
+The EV--BESS stage then adds flexible dispatch, EV-service revenue, and WM
+participation. This ordering avoids crediting the controller with passive PV
+production and avoids crediting PV or building demand as callable AS capacity.
+
+\subsection{Forecast value is a closed-loop quantity}
+
+The opposite forecast ranking at the two sites is informative rather than
+contradictory. A 24-h Perfect updater removes EV forecast error inside the
+active window, but the controller still minimizes a truncated objective. At a
+site where retail peaks, BESS SOC, and DA commitments interact strongly, the
+first action selected by a locally better-informed problem can leave a worse
+out-of-window state. Consequently, prediction accuracy and billing-period
+economic value must both be reported. A future forecast model should be judged
+by executed closed-loop value under matched physical and financial checks, not
+by forecast error alone.
+
+\subsection{Operational interpretation}
+
+The results support three application conclusions. First, retail and wholesale
+accounts must be optimized together because a profitable market action can
+raise the shared-meter bill. Second, EV and BESS services are credible only
+when energy and capacity share one deliverability envelope. Third, site
+composition matters: equal storage power does not imply equal controllability
+relative to the passive load. These findings motivate site-specific sizing and
+forecast evaluation before extending the controller to a broader portfolio.
+
+\section{Limitations and future work}
+\label{sec:limitations}
+
+The formal site experiment covers two UCSD configurations and one summer
+billing month. The same 250-kW/332-kWh BESS is imposed on both sites to isolate
+data-scale effects; it is not an economically optimized site-specific size.
+The PV capacity values are observed proxies, not certified nameplate ratings.
+The building channels are native net meters, so gross demand is reconstructed
+using the mapped PV signal rather than measured by a separate gross-load meter.
+Feeder topology, transformer limits, detailed BESS degradation, and V2G export
+are outside the present model.
+
+Market prices are treated as known over each active horizon. Expected AS
+activation replaces realized AGC, and the model omits regulation mileage,
+performance scores, no-pay charges, telemetry, minimum bid sizes, and
+scheduling-coordinator qualification. The site study does not recompute a full
+billing-period oracle; Perfect information remains a 24-h EV-information
+benchmark. Future work should add further sites and seasons, price forecasts,
+realized activation data, and site-specific BESS sizing while retaining the
+same meter, settlement, service, and terminal-state validation gates.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper develops a 24-h rolling MPC for retail--wholesale value stacking by
+unidirectional workplace EV charging and a BESS behind a signed retail meter.
+The formulation preserves EV service, storage feasibility, fixed hourly DA
+commitments, signed 15-min RT adjustments, nonnegative actual AS, and a shared
+physical capability envelope. Passive building demand and PV are incorporated
+at the PCC without being assigned controllable wholesale capacity.
+
+Two measured UCSD site configurations demonstrate the effect of physical
+scale. PV improves June net value by \$8,699.73 at NTPLL and \$11,851.37 at
+Center Hall. Relative to building plus PV, the full managed portfolio adds
+\$10,557.69 and \$10,333.37 under Persistence, respectively. Perfect
+information improves on Persistence by \$349.43 at NTPLL but is \$508.91 worse
+at Center Hall, even though both updaters deliver identical within-site EV
+energy. This result confirms that forecast value in a rolling controller is a
+closed-loop property of the complete SOC, commitment, and billing-state path,
+not forecast accuracy in isolation.
+
+The interval-level audits provide the second part of the evidence. All 11,520
+recorded RT steps have accepted status with no time-limit event; physical,
+settlement, EV-service, SOC, and financial checks pass. Together, the staged
+financial comparison and daily diagnostics show how measured site composition,
+forecast updating, and market chronology determine the realizable value of a
+heterogeneous BTM portfolio.
+
+\appendix
+
+\section{Complete optimization model}
+\label{app:complete_model}
+
+This appendix gives the index-complete formulation corresponding to the compact
+coupling equations in Section~\ref{sec:model}. It also distinguishes physical
+variables from accounting variables, which is essential when an EV load
+reduction is labeled ``discharge'' relative to baseline.
+
+\subsection{EV feasibility and accounting channels}
+Let $y_{t,i}$ be energy delivered to session $i$ in interval $t$, and let
+$\bar y_{t,i}$ be the availability-dependent interval limit. The implementation
+uses
+\begin{align}
+0&\le y_{t,i}\le \bar y_{t,i}, &&t\in\calT,\ i\in\calI, \label{eq:app_ev_interval}\\
+\sum_{i\in\calI}y_{t,i}&=p_t^{\EV}\dt, &&t\in\calT, \label{eq:app_ev_aggregate}\\
+\sum_{t\in\calT_i}y_{t,i}&=E_i^{\req}, &&i\in\calI. \label{eq:app_ev_energy}
+\end{align}
+Therefore every compared policy delivers the same requested session energy
+when its EV-service checks pass. Relative to baseline $B_t^{\EV}$, the EV
+deviation is partitioned into wholesale and non-wholesale channels:
+\begin{align}
+p_t^{\EV}-B_t^{\EV}
+={}&p_t^{\ch,\EV,\WM}-p_t^{\dch,\EV,\WM}\nonumber\\
+&+p_t^{\ch,\EV,\NWM}-p_t^{\dch,\EV,\NWM}, \label{eq:app_ev_split}\\
+p_t^{\dch,\EV,\WM}+p_t^{\dch,\EV,\NWM}
+&\le M_t^{\EV}u_t^{\dch,\EV}, \label{eq:app_ev_dch_binary}\\
+p_t^{\ch,\EV,\WM}+p_t^{\ch,\EV,\NWM}
+&\le M_t^{\EV}u_t^{\ch,\EV}, \label{eq:app_ev_ch_binary}\\
+u_t^{\ch,\EV}+u_t^{\dch,\EV}&\le1. \label{eq:app_ev_direction}
+\end{align}
+All four channel variables are nonnegative. The ``discharging'' term in
+\eqref{eq:app_ev_split} is load reduction only; the physical EV power in
+\eqref{eq:app_ev_aggregate} remains nonnegative.
+
+\subsection{BESS physics, channel split, and terminal state}
+The BESS variables obey
+\begin{align}
+p_t^{\BESS}&=p_t^{\ch,\BESS}-p_t^{\dch,\BESS}, \label{eq:app_bess_net}\\
+p_t^{\ch,\BESS}&=p_t^{\ch,\BESS,\WM}
++p_t^{\ch,\BESS,\NWM}, \label{eq:app_bess_ch_split}\\
+p_t^{\dch,\BESS}&=p_t^{\dch,\BESS,\WM}
++p_t^{\dch,\BESS,\NWM}, \label{eq:app_bess_dch_split}\\
+0\le p_t^{\ch,\BESS}&\le P^{\BESS}u_t^{\ch,\BESS}, \label{eq:app_bess_charge_power}\\
+0\le p_t^{\dch,\BESS}&\le P^{\BESS}u_t^{\dch,\BESS}, \label{eq:app_bess_discharge_power}\\
+u_t^{\ch,\BESS}+u_t^{\dch,\BESS}&\le1, \label{eq:app_bess_direction}\\
+s_{t+1}&=s_t+\frac{\dt\sqrt{\gamma}}{C^{\BESS}}
+p_t^{\ch,\BESS}\nonumber\\
+&\quad-\frac{\dt}{C^{\BESS}\sqrt{\gamma}}
+p_t^{\dch,\BESS}, \label{eq:app_bess_soc}\\
+s^{\min}\le s_t&\le s^{\max}. \label{eq:app_bess_soc_bounds}
+\end{align}
+For each calendar day $d$ intersecting the active horizon,
+\begin{align}
+\dt\sum_{t\in\calT_d}
+\left(p_t^{\ch,\BESS}+p_t^{\dch,\BESS}\right)
+&\le2C^{\BESS}(s^{\max}-s^{\min}). \label{eq:app_bess_throughput}
+\end{align}
+The executed SOC from one call becomes the next call's initial state. Only the
+last call in the evaluation period adds
+\begin{align}
+s_{T+1}=s^{\mathrm{terminal}}. \label{eq:app_terminal_soc}
+\end{align}
+
+\subsection{Signed meter and passive PV/building sensitivity}
+Introduce a configuration indicator $\zeta^{\mathrm{BTM}}\in\{0,1\}$. Both
+the reference and sensitivity cases use the same balance
+\begin{align}
+p_t^{\GI}=p_t^{\EV}+p_t^{\BESS}
++\zeta^{\mathrm{BTM}}(p_t^{\load}-p_t^{\PV}). \label{eq:app_meter_switch}
+\end{align}
+The validated EV--BESS reference has $\zeta^{\mathrm{BTM}}=0$; the passive-DER
+sensitivity has $\zeta^{\mathrm{BTM}}=1$. The load and PV series are aligned
+15-min parameters, constrained to be finite and nonnegative. Raw timestamps
+label interval ends, so preprocessing first subtracts 15 min and only then
+localizes to America/Los\_Angeles. Short internal gaps of at most eight
+intervals are interpolated sensor by sensor; negative measurement noise is
+clipped to zero and flagged. This preprocessing produces only the measured
+$p_t^{\load}$ and $p_t^{\PV}$ series. It does not construct a historical
+baseline or a baseline-relative market response.
+
+The passive-resource market scope is imposed explicitly:
+\begin{align}
+p_t^{\load,\WM}=p_t^{\PV,\WM}&=0,\label{eq:app_passive_wm_energy_zero}\\
+c_t^{x,\load}=c_t^{x,\PV}&=0,
+\qquad x\in\calK,\label{eq:app_passive_as_zero}\\
+R^{\load,\WM}=R^{\PV,\WM}&=0.\label{eq:app_passive_wm_revenue_zero}
+\end{align}
+These are not additional optimization variables in the implementation; the
+equalities state their exclusion from the model. Consequently the EV--BESS
+position $p_t^{\actual}=p_t^{\DA}+p_t^{\RT}$ and its physical limits are
+identical in the reference and passive-meter cases. The switch changes only
+$p_t^{\GI}$, signed TOU settlement, and the PD/NCD threshold trajectory.
+
+\subsection{Native award granularity on the 15-min model clock}
+Let $H(t)$ map interval $t$ to its containing DA trade hour. The exact block
+constraints used for submitted DA quantities are
+\begin{align}
+p_t^{\DA}-p_{t-1}^{\DA}&=0,
+&&H(t)=H(t-1),\label{eq:app_da_energy_hourly_blocks}\\
+c_t^{x,\DA}-c_{t-1}^{x,\DA}&=0,
+&&H(t)=H(t-1),\quad x\in\calK.
+\label{eq:app_da_hourly_blocks}
+\end{align}
+No analogous equality is applied to RT adjustments. If native energy prices
+$\widetilde\lambda$ are US\$/MWh and native capacity prices
+$\widetilde\rho$ are US\$/MW per award interval, the arrays passed to the
+optimization are
+\begin{align}
+\lambda_t^{s}&=10^{-3}\widetilde\lambda_t^{s},
+&&s\in\{\DA,\RT\},\label{eq:app_lmp_units}\\
+\rho_t^{x,\DA}&=10^{-3}\widetilde\rho_{H(t)}^{x,\DA},
+&&\label{eq:app_da_as_units}\\
+\rho_t^{x,\RT}&=(10^{-3}/\dt)\widetilde\rho_t^{x,\RT}.
+&&\label{eq:app_rt_as_units}
+\end{align}
+Every displayed price table and panel uses these normalized coefficients. The
+single settlement expression $\dt\rho c$ then reproduces both a one-hour DA
+award and one 15-min RT binding award, as proved in
+\eqref{eq:da_capacity_payment_check}--\eqref{eq:rt_capacity_payment_check}.
+
+\subsection{DA/RT settlement and shared deliverability}
+For each interval, the cleared DA arrays already contain zero whenever no award
+is active. They are fixed directly in RT:
+\begin{align}
+p_t^{\DA}&=\bar p_t^{\DA}, \label{eq:app_fixed_da_energy}\\
+c_t^{x,\DA}&=\bar c_t^{x,\DA}, \label{eq:app_fixed_da_as}\\
+p_t^{\actual}&=p_t^{\DA}+p_t^{\RT}, \label{eq:app_actual_energy}\\
+c_t^{x,\actual}&=c_t^{x,\DA}+c_t^{x,\RT}\ge0. \label{eq:app_actual_as}
+\end{align}
+The RT variables are signed. In particular, $c_t^{x,\RT}<0$ records a
+downward correction to a DA AS award; it does not permit negative actual
+capacity. The DA awards and actual positions share the resource envelope:
+\begin{align}
+c_t^{\RU,\DA}+c_t^{\SP,\DA}+c_t^{\NSP,\DA}
+&\le\bar P_t^{\mathrm{up}}, \label{eq:app_da_up_capacity}\\
+c_t^{\RD,\DA}&\le\bar P_t^{\mathrm{down}}, \label{eq:app_da_down_capacity}\\
+\pos{p_t^{\actual}}+c_t^{\RU,\actual}+c_t^{\SP,\actual}+c_t^{\NSP,\actual}
+&\le\bar P_t^{\mathrm{up}}, \label{eq:app_actual_up_capacity}\\
+\pos{-p_t^{\actual}}+c_t^{\RD,\actual}
+&\le\bar P_t^{\mathrm{down}}, \label{eq:app_actual_down_capacity}\\
+-\bar P_t^{\mathrm{down}}\le p_t^{\DA}
+&\le\bar P_t^{\mathrm{up}}, \label{eq:app_da_energy_bounds}\\
+-\bar P_t^{\mathrm{down}}\le p_t^{\RT}
+&\le\bar P_t^{\mathrm{up}}. \label{eq:app_rt_energy_bounds}
+\end{align}
+Here
+\begin{align}
+\bar P_t^{\mathrm{up}}&=P^{\BESS}+B_t^{\EV},\\
+\bar P_t^{\mathrm{down}}&=\max\{P^{\BESS}-B_t^{\EV}+P_{t,\max}^{\EV},0\}.
+\end{align}
+Panel (c) plots $\bar P_t^{\mathrm{up}}$ and
+$-\bar P_t^{\mathrm{down}}$ for both the reference and passive-meter cases.
+These are physical EV--BESS capability lines, not graphical envelopes modified
+to enclose each separately drawn bid account.
+
+\subsection{Expected deployment and net-flow direction linearization}
+The total deployed EV--BESS wholesale obligation is
+\begin{align}
+q_t^{\WM}={}&p_t^{\DA}+p_t^{\RT}
++\alpha_t^{\RU}c_t^{\RU,\actual}
+-\alpha_t^{\RD}c_t^{\RD,\actual}\nonumber\\
+&+\alpha_t^{\SP}c_t^{\SP,\actual}
++\alpha_t^{\NSP}c_t^{\NSP,\actual}. \label{eq:app_obligation}
+\end{align}
+Nonnegative variables $p_t^{\ch,\net}$ and $p_t^{\dch,\net}$ select the
+negative and positive parts of $q_t^{\WM}$. The exact
+implementation is
+\begin{align}
+u_t^{\ch,\net}+u_t^{\dch,\net}&\le1, \label{eq:app_net_direction}\\
+p_t^{\dch,\net}&\ge q_t^{\WM}, \label{eq:app_dch_lower}\\
+p_t^{\dch,\net}&\le q_t^{\WM}+\bar P_t^{\mathrm{up}}u_t^{\ch,\net}, \label{eq:app_dch_upper_q}\\
+p_t^{\dch,\net}&\le\bar P_t^{\mathrm{up}}u_t^{\dch,\net}, \label{eq:app_dch_upper_binary}\\
+p_t^{\ch,\net}&\ge-q_t^{\WM}, \label{eq:app_ch_lower}\\
+p_t^{\ch,\net}&\le-q_t^{\WM}+\bar P_t^{\mathrm{down}}u_t^{\dch,\net}, \label{eq:app_ch_upper_q}\\
+p_t^{\ch,\net}&\le\bar P_t^{\mathrm{down}}u_t^{\ch,\net}, \label{eq:app_ch_upper_binary}\\
+p_t^{\ch,\net}-p_t^{\dch,\net}
+&=p_t^{\ch,\BESS,\WM}-p_t^{\dch,\BESS,\WM}\nonumber\\
+&\quad+p_t^{\ch,\EV,\WM}-p_t^{\dch,\EV,\WM}. \label{eq:app_net_link}
+\end{align}
+Equations~\eqref{eq:app_dch_lower}--\eqref{eq:app_ch_upper_binary} impose the
+positive/negative-part direction exactly; their coefficients are the physical
+capability bounds, not objective penalties on RT movement.
+
+For assumed service duration $T^{\mathrm{DU}}$, the conservative BESS energy
+guards are
+\begin{align}
+s_{t+1}&\ge s^{\min}
++\frac{T^{\mathrm{DU}}}{C^{\BESS}\sqrt{\gamma}}
+\left(c_t^{\RU,\actual}+c_t^{\SP,\actual}\right.\nonumber\\
+&\hspace{28mm}\left.+c_t^{\NSP,\actual}\right),
+\label{eq:app_duration_up}\\
+s_{t+1}&\le s^{\max}
+-\frac{T^{\mathrm{DU}}\sqrt{\gamma}}{C^{\BESS}}c_t^{\RD,\actual}.
+\label{eq:app_duration_down}
+\end{align}
+
+\subsection{Retail epigraphs, wholesale revenue, and full objective}
+For $q\in\{\PD,\NCD\}$ and eligible interval set $\calT_q$,
+\begin{align}
+z_k^q&\ge0,&
+z_k^q&\ge p_t^{\GI}-M_k^{q,\hist},\quad
+t\in\calH_k\cap\calT_q. \label{eq:app_demand_epigraph}
+\end{align}
+The deployment-energy revenue omitted from the compact notation is
+\begin{align}
+R_k^{\mathrm{deploy}}
+={}&\sum_{t\in\calH_k}\lambda_t^{\RT}\dt
+\left(\alpha_t^{\RU}c_t^{\RU,\actual}
+-\alpha_t^{\RD}c_t^{\RD,\actual}\right.\nonumber\\
+&\left.\hspace{18mm}+\alpha_t^{\SP}c_t^{\SP,\actual}
++\alpha_t^{\NSP}c_t^{\NSP,\actual}\right). \label{eq:app_deployment_revenue}
+\end{align}
+No building/PV term appears in $R_k^{\mathrm{deploy}}$, DA/RT energy revenue,
+or AS-capacity revenue. Their financial effect is already and exclusively
+captured by the signed meter term and the demand epigraphs:
+\begin{align}
+C^{\mathrm{retail}}
+={}&\sum_t C_t^{\TOU}
+\bigl[p_t^{\EV}+p_t^{\BESS}
++\zeta^{\mathrm{BTM}}(p_t^{\load}-p_t^{\PV})\bigr]\dt\nonumber\\
+&+C^{\PD}z^{\PD}+C^{\NCD}z^{\NCD}.
+\label{eq:app_passive_retail_effect}
+\end{align}
+where the demand-charge increments are evaluated from the complete meter, not
+from an independently settled passive account. Because those peak terms are
+nonlinear and the EV--BESS optimizer can react to the exogenous profiles,
+separate PV or building wholesale revenue would be misleading. All wholesale
+energy, deployment, and capacity value is attributed only to EV and BESS.
+For a full evaluation set $\calT$, the oracle problem is
+\begin{align}
+\min_{\boldsymbol{x}\in\mathcal{X}(\omega)}J_{\calT}
+={}&\sum_{t\in\calT} C_t^{\TOU}p_t^{\GI}\dt
++C^{\PD}z^{\PD}+C^{\NCD}z^{\NCD}\nonumber\\
+&-\sum_{t\in\calT}C^{\EV}p_t^{\EV}\dt\nonumber\\
+&-\sum_{t\in\calT}\dt
+\left(\lambda_t^{\DA}p_t^{\DA}
++\lambda_t^{\RT}p_t^{\RT}\right)\nonumber\\
+&-\sum_{t\in\calT}\sum_{x\in\calK}\dt\,
+\rho_t^{x,\DA}c_t^{x,\DA}\nonumber\\
+&-\sum_{t\in\calT}\sum_{x\in\calK}\dt\,
+\rho_t^{x,\RT}c_t^{x,\RT}
+-R^{\mathrm{deploy}}. \label{eq:full_objective}
+\end{align}
+The financial post-processor stores costs with negative signs. After independent
+cent rounding by day, the validation accepts
+\begin{align}
+\left|V-\left(R^{\EV}+R^{\WM}+C^{\TOU}
++C^{\PD}+C^{\NCD}\right)\right|
+&\le \$0.03. \label{eq:rounding}
+\end{align}
+When passive inputs are enabled, the post-processor may expose their retail
+cost contribution in NWM audit columns, but passive WM energy and capacity
+accounts remain zero and the total financial identity is unchanged.
+
+\section{Closed-loop MPC, billing states, and oracle dominance}
+\label{app:closed_loop}
+
+\subsection{Executed-state recursion}
+Let $\xi_k$ collect the carried state before call $k$:
+\begin{align}
+\xi_k=\left(s_k,\boldsymbol{e}_k,M_k^{\PD,\hist},
+M_k^{\NCD,\hist},\bar p_k^{\DA},\bar{\boldsymbol c}_k^{\DA}\right).
+\label{eq:app_state_vector}
+\end{align}
+Given information $\mathcal{I}_k^\pi$, updater $\pi$ calls the truncated optimizer,
+implements only $x_{k|k}^\pi$, and updates
+\begin{align}
+\xi_{k+1}=F_k(\xi_k,x_{k|k}^\pi,\omega_k). \label{eq:app_state_recursion}
+\end{align}
+The demand states in $F_k$ use
+\begin{align}
+M_{k+1}^{q,\hist}
+=\max\{M_k^{q,\hist},m_q(k)p_k^{\GI,\mathrm{executed}}\}. \label{eq:app_threshold_recursion}
+\end{align}
+The DA components in \eqref{eq:app_state_vector} are submitted commitments and
+therefore enter the corresponding RT call as constants.
+
+\subsection{Why in-horizon Perfect information is not the upper bound}
+Let $Q_H(\xi_k,a;\mathcal{I}_k)$ be the optimized $H$-step cost after fixing
+first action $a$. The implemented 24-h controller selects
+\begin{align}
+a_k^\pi\in\arg\min_a Q_H(\xi_k,a;\mathcal{I}_k^\pi). \label{eq:app_truncated_action}
+\end{align}
+The full-period optimal action instead minimizes
+\begin{align}
+Q^\star(\xi_k,a;\omega)
+=\ell_k(\xi_k,a;\omega_k)+J_{k+1}^\star(F_k(\xi_k,a,\omega_k);\omega).
+\label{eq:app_true_q}
+\end{align}
+Here $\ell_k$ is not a new objective: it is the executed one-interval
+contribution of \eqref{eq:objective}, i.e., signed TOU energy plus any
+incremental PD/NCD charge minus EV charging-service, energy-market, AS-capacity,
+and activation-energy revenue. The term $J_{k+1}^\star$ is the exact minimum
+cost from the next state to the end of the billing period. The 24-h controller
+contains the former but not the latter.
+Unless the truncated objective contains the exact continuation value,
+$Q_H$ and $Q^\star$ need not order candidate actions identically. Perfect
+information can improve $Q_H$ while choosing a first action that leaves a worse
+SOC, demand threshold, remaining EV energy, or DA commitment outside the
+horizon. The issue is therefore analogous to a greedy algorithm: local
+information quality does not repair a missing global continuation value.
+
+By contrast, the full-period oracle and any feasible closed-loop policy share
+the same realized data, initial state, feasible set, and terminal conditions.
+The policy's complete executed trajectory is one feasible candidate in the
+oracle problem, so
+\begin{align}
+J_{\mathrm{oracle}}^\star
+&=\min_{\boldsymbol{x}\in\mathcal{X}(\omega)}J_{\calT}(\boldsymbol{x};\omega)
+\le J_{\calT}(\boldsymbol{x}^{\pi};\omega), \label{eq:app_oracle_cost_proof}\\
+V_{\mathrm{oracle}}^\star&\ge V^\pi,\qquad V=-J. \label{eq:app_oracle_value_proof}
+\end{align}
+This is the valid upper-bound claim used in the paper.
+
+\subsection{Demand-charge objective equivalence}
+For fixed historical threshold $M$ and candidate horizon peak $z$,
+\begin{align}
+C^q\max\{M,z\}
+=C^qM+C^q\max\{z-M,0\}. \label{eq:app_demand_equivalence}
+\end{align}
+The first term is constant within an optimization call, so the absolute and incremental
+forms produce the same optimizer. The incremental form is used because executed
+financial accounting should charge only a newly established billing peak. This
+equivalence does not eliminate horizon truncation: a 24-h controller still does
+not know which future interval will establish the final monthly maximum.
+
+\section{Sensitivity input construction}
+\label{app:sensitivity_contract}
+
+The PV and building inputs are quality-controlled independently before they are
+aligned with the controller clock. Interval-end timestamps are shifted to
+interval starts, localized to the study time zone, checked for uniqueness, and
+converted to finite nonnegative 15-min power series. Short internal sensor gaps
+of at most eight intervals are interpolated and flagged. No PV/building
+wholesale baseline is constructed because neither passive series is offered to
+the market.
+
+The regulation sensitivity uses the official quarterly CAISO hourly
+attenuation factors \cite{caisoAttenuation2025}. For quarter $q$, trade hour
+$h$, and each contained 15-min interval $j$, the model maps
+\begin{align}
+\alpha_{q,4(h-1)+j}^{x}=a_{q,h}^{x},\qquad
+x\in\{\RU,\RD\},\quad j\in\{0,1,2,3\}.\label{eq:app_alpha_mapping}
+\end{align}
+Here $a_{q,h}^{x}$ is the published hourly attenuation value. It is repeated
+only to match the 15-min optimization clock. These data describe an expected
+SOC effect, not a realized AGC trajectory; the sensitivity therefore tests an
+activation assumption rather than regulation-performance settlement.
+
+\section*{CRediT authorship contribution statement}
+Yizhan Gu: Conceptualization, Methodology, Software, Data curation, Formal
+analysis, Investigation, Validation, Visualization, Writing--original draft.
+Wente Zeng: Conceptualization, Methodology, Resources, Project administration,
+Writing--review and editing. Hadi Eshraghi: Resources, Project administration,
+Supervision, Writing--review and editing. Jan Kleissl: Conceptualization,
+Methodology, Supervision, Funding acquisition, Project administration,
+Writing--review and editing.
+
+\section*{Funding}
+This work was conducted within the UC San Diego--TotalEnergies research
+collaboration. The authors retained responsibility for the study design, data
+processing, analysis, interpretation, manuscript preparation, and decision to
+submit the work for publication.
+
+\section*{Declaration of competing interest}
+Wente Zeng and Hadi Eshraghi are affiliated with TotalEnergies, which
+participated in the research collaboration. The remaining authors declare no
+known competing financial interests or personal relationships that could have
+appeared to influence the work reported in this paper.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+During the preparation of this work, the authors used OpenAI ChatGPT and Codex
+to support language editing, manuscript organization, code review, and
+reproducible plotting from author-verified data. After using these tools, the
+authors reviewed and edited the content as needed and take full responsibility
+for the content of the published article. Generative-image tools were not used;
+all manuscript figures were produced deterministically from the authors' data
+and plotting code.
+
+\section*{Acknowledgements}
+The authors acknowledge the UC San Diego--TotalEnergies research collaboration
+and the personnel who supported access to the charger-session, building-meter,
+PV, tariff, and market data used in this study.
+
+\clearpage
+\bibliographystyle{elsarticle-num}
+\bibliography{references_v3.2}
+
+\end{document}

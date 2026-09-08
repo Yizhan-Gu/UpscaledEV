@@ -411,7 +411,12 @@ def _load_prices(grid: pd.DatetimeIndex = GRID) -> dict[str, np.ndarray]:
                 s = s.reindex(grid)
             if s.isna().any():
                 raise ValueError(f"Missing {market.upper()} {col} values for June")
-            ans[f"as_{key}_{market}"] = s.to_numpy(float) * 0.001
+            # Native ASMP is $/MW per award interval.  DA is an hourly award
+            # represented on four equal 15-min model slots, while each RT ASMP
+            # settles one 15-min binding interval.  Both arrays are converted
+            # to the common $/kWh-equivalent coefficient used with DT_H * kW.
+            interval_scale = 1.0 if market == "da" else 1.0 / DT_H
+            ans[f"as_{key}_{market}"] = s.to_numpy(float) * 0.001 * interval_scale
     return ans
 
 
@@ -575,6 +580,36 @@ def _load_formal_run_perfect_baseline(
     return baseline.to_numpy(float)
 
 
+def _load_current_results_perfect_baseline(
+    grid: pd.DatetimeIndex,
+) -> np.ndarray:
+    """Load the exact baseline from the current formal Results_Rolling trace."""
+    trace_root = (
+        REPO
+        / "Results_Rolling"
+        / "Validation_Traces"
+        / f"{FORECAST_PREFIX['perfect']}_full"
+    )
+    files = sorted(trace_root.glob("rolling_validation_trace_*.csv"))
+    if not files:
+        raise FileNotFoundError(
+            f"No current Rolling Perfect validation traces found in {trace_root}"
+        )
+    df = pd.concat([pd.read_csv(path) for path in files], ignore_index=True)
+    ts = pd.to_datetime(df["Interval start"], errors="raise")
+    baseline = pd.Series(
+        pd.to_numeric(df["baseline_kW"], errors="raise").to_numpy(),
+        index=ts,
+    )
+    baseline = baseline[~baseline.index.duplicated(keep="last")].sort_index().reindex(grid)
+    if baseline.isna().any():
+        raise ValueError(
+            "Current Results_Rolling Perfect baseline is incomplete: "
+            f"{int(baseline.isna().sum())} missing intervals"
+        )
+    return baseline.to_numpy(float)
+
+
 def _load_shrinking_perfect_benchmark_baseline(
     grid: pd.DatetimeIndex = GRID,
 ) -> np.ndarray:
@@ -690,7 +725,7 @@ def select_gate_d_stress_dates() -> list[str]:
         .reindex(daily_index)
     )
     as_keys = [key for key in prices if key.startswith("as_")]
-    daily["AS_price_peak_$/kW"] = (
+    daily["AS_price_peak_$/kWh_equiv"] = (
         pd.Series(
             np.max(np.vstack([prices[key] for key in as_keys]), axis=0),
             index=GRID,
@@ -773,8 +808,8 @@ def select_gate_d_stress_dates() -> list[str]:
         ),
         (
             "largest_AS_price",
-            daily["AS_price_peak_$/kW"].idxmax(),
-            "AS_price_peak_$/kW",
+            daily["AS_price_peak_$/kWh_equiv"].idxmax(),
+            "AS_price_peak_$/kWh_equiv",
             "Raw June DA/RT ancillary-service price inputs.",
         ),
         (
@@ -852,9 +887,9 @@ def run_monthly_oracle(
     n = len(grid)
     n_days = n // 96
     full_june = start == pd.Timestamp("2025-06-01") and end == pd.Timestamp("2025-07-01")
-    if baseline_source not in {"auto", "formal", "short-mpc", "formal-run"}:
+    if baseline_source not in {"auto", "formal", "short-mpc", "formal-run", "current-results"}:
         raise ValueError(
-            "baseline_source must be auto, formal, short-mpc, or formal-run"
+            "baseline_source must be auto, formal, short-mpc, formal-run, or current-results"
         )
     effective_baseline_source = baseline_source
     if effective_baseline_source == "auto":
@@ -877,6 +912,10 @@ def run_monthly_oracle(
             )
         if formal_tag is None:
             raise ValueError("formal-run baseline requires formal_tag")
+    if effective_baseline_source == "current-results" and controller != "rolling_perfect":
+        raise ValueError(
+            "current-results baseline is defined only for rolling_perfect"
+        )
     if full_june:
         if effective_baseline_source == "short-mpc":
             raise ValueError("Formal full-June oracle cannot use a one-day short-MPC baseline")
@@ -901,6 +940,8 @@ def run_monthly_oracle(
             grid,
             mip_gap=short_mpc_mip_gap,
         )
+    elif effective_baseline_source == "current-results":
+        baseline = _load_current_results_perfect_baseline(grid)
     elif effective_baseline_source == "formal-run":
         baseline = _load_formal_run_perfect_baseline(
             grid,
@@ -989,6 +1030,18 @@ def run_monthly_oracle(
     model.addConstr(c_da["rd"] <= p_down)
     model.addConstr(p_pos + c_up_act <= p_up)
     model.addConstr(p_neg + c_act["rd"] <= p_down)
+
+    # CAISO DA awards are hourly.  Keep the common 15-min physical clock, but
+    # enforce one DA energy/capacity award across each four-interval hour.
+    for hour_start in range(0, n, 4):
+        for offset in (1, 2, 3):
+            t = hour_start + offset
+            model.addConstr(p_da[t] == p_da[hour_start], name=f"p_da_hour_{t}")
+            for x in products:
+                model.addConstr(
+                    c_da[x][t] == c_da[x][hour_start],
+                    name=f"c_{x}_da_hour_{t}",
+                )
 
     p_ch_ev_wm = model.addMVar(n, lb=0.0, name="p_ch_ev_wm")
     p_dch_ev_wm = model.addMVar(n, lb=0.0, name="p_dch_ev_wm")
@@ -1276,6 +1329,8 @@ def run_monthly_oracle(
             if effective_baseline_source == "short-mpc"
             else "rolling_perfect_versioned_formal_trace"
             if effective_baseline_source == "formal-run"
+            else "rolling_perfect_current_results_trace"
+            if effective_baseline_source == "current-results"
             else "shrinking_perfect_executed_june_path"
             if controller == "benchmark"
             else "common_offline_perfect_history"
@@ -1290,6 +1345,11 @@ def run_monthly_oracle(
         "period_end_exclusive": end.isoformat(),
         "interval_count": n,
         "interval_capability_rule": "sum_connected_session_interval_caps",
+        "da_award_resolution": "hourly_block_repeated_on_15min_clock",
+        "rt_award_resolution": "15min_binding_interval",
+        "price_coefficient_unit": "USD_per_kWh_equivalent",
+        "da_asmp_normalization": "native_USD_per_MW_divided_by_1000",
+        "rt_asmp_normalization": "native_USD_per_MW_divided_by_1000_DT_H",
         "baseline_sha256_float64": baseline_sha256,
         "ev_capability_sha256_float64": ev_capability_sha256,
         "gurobi_version": ".".join(map(str, gp.gurobi.version())),
@@ -2909,11 +2969,12 @@ def main() -> None:
     )
     p_oracle.add_argument(
         "--baseline-source",
-        choices=["auto", "formal", "short-mpc", "formal-run"],
+        choices=["auto", "formal", "short-mpc", "formal-run", "current-results"],
         default="auto",
         help=(
             "auto uses the matching isolated Rolling Perfect trace for one-day "
-            "rolling_perfect tests and formal monthly output otherwise."
+            "rolling_perfect tests and formal monthly output otherwise; "
+            "current-results reads the current Results_Rolling Perfect trace."
         ),
     )
     p_oracle.add_argument(
