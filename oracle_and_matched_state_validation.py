@@ -415,7 +415,7 @@ def _load_prices(grid: pd.DatetimeIndex = GRID) -> dict[str, np.ndarray]:
             # represented on four equal 15-min model slots, while each RT ASMP
             # settles one 15-min binding interval.  Both arrays are converted
             # to the common $/kWh-equivalent coefficient used with DT_H * kW.
-            interval_scale = 1.0 if market == "da" else 1.0 / DT_H
+            interval_scale = 1.0  # Native ASMP retains duration in settlement.
             ans[f"as_{key}_{market}"] = s.to_numpy(float) * 0.001 * interval_scale
     return ans
 
@@ -1349,7 +1349,7 @@ def run_monthly_oracle(
         "rt_award_resolution": "15min_binding_interval",
         "price_coefficient_unit": "USD_per_kWh_equivalent",
         "da_asmp_normalization": "native_USD_per_MW_divided_by_1000",
-        "rt_asmp_normalization": "native_USD_per_MW_divided_by_1000_DT_H",
+        "rt_asmp_normalization": "native_USD_per_MW_divided_by_1000_then_integrated_with_DT_H",
         "baseline_sha256_float64": baseline_sha256,
         "ev_capability_sha256_float64": ev_capability_sha256,
         "gurobi_version": ".".join(map(str, gp.gurobi.version())),
