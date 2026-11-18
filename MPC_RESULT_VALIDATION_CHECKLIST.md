@@ -609,3 +609,97 @@ The complete acceptance table is
 `formal_runs/gate_e_20260726_c8250f11/gate_e_validation_checks.csv`.
 Daily Perfect-versus-Persistence ordering remains diagnostic rather than an
 acceptance requirement.
+
+## 8. SEGAN two-site maintenance revision (2026-11-04)
+
+This section applies to the current canonical Rolling source and takes precedence
+over older, more permissive solver wording for this revision. It does not certify
+an unmodified Shrinking notebook against the new demand-planning objective.
+The old eight-scenario matrix remains a legacy comparison protocol; a future
+Rolling/Shrinking equality test must first align both objective definitions.
+
+- Scope: NTPLL and Center Hall only; BESS remains 332 kWh / 250 kW; full EV
+  service and the original forecast-matched warm-up/baseline history remain.
+  Neither PESGM portfolio AS allocation nor capacity/deployment deviation fees
+  is included. Original hourly site DA energy and AS equalities remain intact.
+- Every DA and RT action requires raw Gurobi status 2, CVXPY `optimal`, finite
+  incumbent/bound, at least one solution, achieved relative gap <= 0.01, and
+  independent constraint, integer and original-objective residuals <= 1e-5.
+  `MIPGapAbs=0` prevents an absolute-dollar stopping condition from waiving the
+  relative requirement. Status 9 is rejected, including a nominally feasible
+  candidate; record diagnostics and stop before executing that first action.
+- The per-MIP default limit is 90 seconds. A separate site-process watchdog
+  stops stalled workers after 600 seconds without progress. No automatic gap
+  relaxation, budget extension, retry, or unverified-incumbent execution occurs.
+- Parallelism is across the two sites, by separate processes, with two Gurobi
+  threads each by default. Forecasts remain sequential within a site because
+  their existing financial intermediates share filenames. Each worker owns its
+  own EV state, SOC, thresholds, baseline history and output paths.
+- Demand planning uses
+
+  \[
+  \widehat C_k^q=c_q\sum_jw_{k,j}
+  [Z_k^q-\max\{M_k^{q,\mathrm{hist}},T_{k,j}^q\}]_+.
+  \]
+
+  At most five complete historical blocks are shifted by seven days; their
+  lengths equal the remaining time outside the current horizon until month-end.
+  Only blocks ending no later than the current day's midnight are eligible.
+  Available blocks have equal normalized weights. The historical reference is
+  selected passive signed net + QC-observed EV charging, with BESS idle; these
+  weights are not calibrated probabilities or exact cost-to-go. DA as well as RT
+  uses actual executed historical peaks, not a hypothetical previous DA peak.
+  With zero outside-horizon duration, the historical block is truly empty and
+  the planning references reduce to the executed historical thresholds.
+- Actual monthly bills still use executed positive-import maxima; forecast
+  references never replace billing states. Audit the complete executed peak
+  recursion and reconcile unrounded daily costs with the cent-rounded ledger.
+  Tail-reference changes do not imply higher realized revenue or a universal
+  Perfect/Persistence ordering.
+- Preserve signed native meters, subtract mapped PV once, and reject missing
+  requested meter inputs. Missing Site/Type metadata may only be repaired from
+  source account/session records; unresolved required fields keep the original
+  QC exclusion. Missing observed power diagnostics remain explicitly derived,
+  not newly measured peak power. Existing clean inputs are not rewritten.
+- EV checks cover live Persistence columns, observed-at-arrival requests,
+  evidence-backed zero-session calendars, retained tiny positive dispatch,
+  per-car remaining energy and departure service, first-action consistency,
+  and daily equal EV service within 1e-4 kWh. Total kWh alone does not establish
+  forecast-roster or individual-session correctness.
+- Source fixtures and saved-output audit are in the final validation cell of
+  `upscaledev_imp_rollingMPC.ipynb`. New tests use a revision-specific result
+  namespace. Old SEGAN source is recoverable from `source_before_revision.zip`;
+  old results, raw inputs, WP4 sources/manuscripts and historical hashes are not
+  rewritten to pretend that the current source equals the frozen old source.
+
+## 9. SEGAN six-site continuous-SOC revision (2026-11-12)
+
+This section overrides Section 8 only for the isolated six-site formal run in
+`segan_continuous_soc_six_sites_20261112`. The earlier strict runs remain frozen.
+
+- Keep all six sites independent, the original site-level DA/RT settlement and
+  the 332 kWh / 250 kW BESS. Use the same evaluation period and rules across
+  sites and forecasts. Record input and notebook hashes and retain both
+  forecasts for every site; do not select sites by realized profit.
+- Start the entire evaluation at 50% SOC and close only the true evaluation
+  endpoint at 50%. For each month handoff, require the first SOC to equal the
+  previous accepted month-end SOC of the same site, resource case and forecast.
+  Continue the 24-hour RT window across intermediate months. Reset only the
+  actual demand peaks; planning assigns each projected interval to its billing
+  month and uses that month's demand tariff and causal peak references.
+- Default to the 1% strict certificate and 90 seconds per attempt. Only a
+  time-limited incumbent with a valid bound, gap above 1% and independently
+  passing residuals may trigger a single retry at 2%. Never execute a
+  time-limited incumbent. Require status 2, CVXPY optimal, finite certificate
+  and the same physical, integer and objective residual limits for the retry.
+  Publish each month's retry count and maximum accepted gap.
+- Run at most two independent site workers with two solver threads each;
+  forecasts remain sequential. Stop on serious/critical macOS thermal state,
+  AC disconnect, or the 600-second no-progress watchdog. Do not overwrite an
+  interrupted month's evidence or an accepted earlier month.
+- Before a handoff, independently check all executed interval timestamps,
+  SOC recursion, throughput, per-EV departure service, daily cross-forecast
+  EV energy, site-hourly DA invariance, physical AS capability, meter identity,
+  realized monthly peak recursion and the unrounded daily financial ledger.
+  The former monthly-50% policy is a short diagnostic comparator, not an
+  acceptance criterion for the new long run.
